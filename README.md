@@ -64,7 +64,7 @@
 
     | **E-Mail**                                  | **Office Hours**                                                     | **Location** |
     |---------------------------------------------|----------------------------------------------------------------------|--------------|
-    | [**ez2346@nyu.edu**](mailto:ez2346@nyu.edu) | **Tuesday:** 9:00 AM - 12:00 PM (ZOOM) <br>**Friday:** 9:00 AM - 2:00 PM (Office) | Jacobs Hall 223, Room F |
+    | [**ez2346@nyu.edu**](mailto:ez2346@nyu.edu) | **Tuesday:** 9:00 AM - 12:00 PM ([ZOOM](https://nyu.zoom.us/j/94279433694)) <br> **Tuesday:** 6:00 PM - 9:00 PM (In Office) <br> **Friday:** 12:00 AM - 2:00 PM (In Office) | Jacobs Hall 223, Room F |
 
     *If you need to email Eric for anything related to this class, please include the course number (CS3113) and your first and last name in the subject line.*
 
