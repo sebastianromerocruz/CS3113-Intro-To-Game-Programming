@@ -158,7 +158,7 @@ In game programming terms, the _design_ would correspond to the file containing 
     </sub>
 </p>
 
-As you can see, both of these exist in completely different "worlds". That is, the texture itself has its own set of "local" coordinates (typically called **UV coordinates**), while the game's world has its own set of "global" coordinates (our regular XY coordinates). The process of turning the texture's local coordinates to the game's global coordinates i called [**UV mapping**](https://en.wikipedia.org/wiki/UV_mapping), as we can see in the following 3D example:
+As you can see, both of these exist in completely different "worlds". That is, the texture itself has its own set of "local" coordinates (typically called **UV coordinates**), while the game's world has its own set of "global" coordinates (our regular XY coordinates). The process of turning the texture's local coordinates to the game's global coordinates is called [**UV mapping**](https://en.wikipedia.org/wiki/UV_mapping), as we can see in the following 3D example:
 
 <a id="fg-2"></a>
 
@@ -231,7 +231,7 @@ void initialise()
 }
 ```
 
-Amazing! Super simple! Now we're reading to draw our texture onto our window. This is the part where we need to pay attention and follow the [**steps that I outlined earlier**](#steps), since we're going to have to do them _for every single texture we want to render onto the screen.
+Amazing! Super simple! Now we're ready to draw our texture onto our window. This is the part where we need to pay attention and follow the [**steps that I outlined earlier**](#steps), since we're going to have to do them _for every single texture we want to render onto the screen_.
 
 <a id="2-2-1"></a>
 
@@ -239,9 +239,9 @@ Amazing! Super simple! Now we're reading to draw our texture onto our window. Th
 
 What this step effectively means is the following:
 
-> _Which portion, out of the entire texture, do we want to use render in the game?_
+> _Which portion, out of the entire texture, do we want to render in the game?_
 
-As we [**saw earlier**](#fg-1), using the UV coordinates (_Width<sub>texture</sub>_, _Height<sub>texture</sub>_) will yield us the entire texture itself, so our job right now is to tell raylib that we want to create a **`Rectangle`** area comprisong of these dimensions. Helpfully, raylib has just the class for this:
+As we [**saw earlier**](#fg-1), using the UV coordinates (_Width<sub>texture</sub>_, _Height<sub>texture</sub>_) will yield us the entire texture itself, so our job right now is to tell raylib that we want to create a **`Rectangle`** area comprising of these dimensions. Helpfully, raylib has just the class for this:
 
 ```cpp
 void render()
@@ -334,7 +334,7 @@ void render()
 }
 ```
 
-If you prefer to keep `originOffset` as the texture centre (i.e. `gPosition.x / 2` and `gPosition.y / 2`), then you must subtract half the scaled size from the rectangle’s top‑left:
+If you prefer to keep `originOffset` as the texture centre (i.e. `gPosition.x / 2` and `gPosition.y / 2`), then you must subtract half the scaled size from the rectangle’s top‑left corner:
 
 ```c++
 void render() 
@@ -437,7 +437,7 @@ Switching gears a little bit, if multiplayer games are something that you're int
 
 This is not a problem singular to multiplayer games, either. Imagine you spend months developing a single-player game on a computer that runs at 60 frames-per-second (FPS). You've worked on this thing for months and are very proud of it. Your first customer then happens to be somebody whose computer can only run games at 30 frames-per-second. Well, guess what? Your game is now running at half-speed for that person's machine, they feel scammed, and they're writing a scathing review on Steam. Your career is ruined.
 
-Just kidding—it's not that serious—but frame rates do actually work like this. We thus need to find a way to standadise all of our players' game speed to something that is not frame-dependent, but rather _time-dependent_—since time ticks the same for everybody. In order to do this, we will be utilising something called **delta time**.
+Just kidding—it's not that serious—but frame rates do actually work like this. We thus need to find a way to standardise all of our players' game "refresh rate" to something that is not frame-dependent, but rather _time-dependent_—since time ticks the same for everybody. In order to do this, we will be utilising something called **delta time**.
 
 <a id="3-1"></a>
 
