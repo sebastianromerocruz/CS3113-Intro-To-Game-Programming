@@ -36,6 +36,7 @@
 1. [**The Basics: _Hello, Raylib!_**](lectures/01-introduction)
 2. [**Transformations**](lectures/02-transformations)
 3. [**Textures / Delta Time**](lectures/03-textures-delta-time)
+4. [**User Input / Collision Detection**](lectures/04-user-input-collisions)
 
 <!--
 4. [**User Input / Collision Detection**](lectures/04-user-input-collisions)
