@@ -22,9 +22,9 @@ AppStatus gAppStatus     = RUNNING;
 float     gAngle         = 0.0f,
           gPreviousTicks = 0.0f;
 
-Vector2 gPosition  = INIT_POS,
-        gMovement  = { 0.0f, 0.0f },
-        gScale     = BASE_SIZE,
+Vector2 gLinkPosition  = INIT_POS,
+        gLinkMovement  = { 0.0f, 0.0f },
+        gLinkScale     = BASE_SIZE,
 
         gRupeePosition = RUPEE_INIT_POS,
         gRupeeMovement = { 0.0f, 0.0f },
@@ -119,12 +119,12 @@ void initialise()
 
 void processInput() 
 {
-    gMovement = { 0.0f, 0.0f };
+    gLinkMovement = { 0.0f, 0.0f };
 
-    if      (IsKeyDown(KEY_A)) gMovement.x = -1;
-    else if (IsKeyDown(KEY_D)) gMovement.x =  1;
-    if      (IsKeyDown(KEY_W)) gMovement.y = -1;
-    else if (IsKeyDown(KEY_S)) gMovement.y =  1;
+    if      (IsKeyDown(KEY_A)) gLinkMovement.x = -1;
+    else if (IsKeyDown(KEY_D)) gLinkMovement.x =  1;
+    if      (IsKeyDown(KEY_W)) gLinkMovement.y = -1;
+    else if (IsKeyDown(KEY_S)) gLinkMovement.y =  1;
 
     /*
     This system will cause quite a bit of "shaking" once the game object
@@ -133,14 +133,14 @@ void processInput()
     */
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
     {
-        if (gPosition.x < gMousePosition.x) gMovement.x =  1;
-        if (gPosition.x > gMousePosition.x) gMovement.x = -1;
-        if (gPosition.y < gMousePosition.y) gMovement.y =  1;
-        if (gPosition.y > gMousePosition.y) gMovement.y = -1;
+        if (gLinkPosition.x < gMousePosition.x) gLinkMovement.x =  1;
+        if (gLinkPosition.x > gMousePosition.x) gLinkMovement.x = -1;
+        if (gLinkPosition.y < gMousePosition.y) gLinkMovement.y =  1;
+        if (gLinkPosition.y > gMousePosition.y) gLinkMovement.y = -1;
     }
 
     // to avoid faster diagonal speed
-    if (GetLength(&gMovement) > 1.0f) Normalise(&gMovement);
+    if (GetLength(&gLinkMovement) > 1.0f) Normalise(&gLinkMovement);
 
     if (IsKeyPressed(KEY_Q) || WindowShouldClose()) gAppStatus = TERMINATED;
 }
@@ -154,13 +154,13 @@ void update()
 
     gMousePosition = GetMousePosition();
 
-    gPosition = {
-        gPosition.x + SPEED * gMovement.x * deltaTime,
-        gPosition.y + SPEED * gMovement.y * deltaTime
+    gLinkPosition = {
+        gLinkPosition.x + SPEED * gLinkMovement.x * deltaTime,
+        gLinkPosition.y + SPEED * gLinkMovement.y * deltaTime
     };
 
     if (isColliding(
-        &gPosition,  &gScale,
+        &gLinkPosition,  &gLinkScale,
         &gRupeePosition, &gRupeeScale
     )) printf("Collision @ %us in game time.\n", (unsigned) time(NULL) - startTime);
 }
@@ -171,7 +171,7 @@ void render()
     ClearBackground(ColorFromHex(BG_COLOUR));
 
     // Render Link
-    renderObject(&gLinkTexture, &gPosition, &gScale);
+    renderObject(&gLinkTexture, &gLinkPosition, &gLinkScale);
 
     // Render the rupee
     renderObject(&gRupeeTexture, &gRupeePosition, &gRupeeScale);
