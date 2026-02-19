@@ -4,7 +4,7 @@
 
 <h3 align=center>XX Pegasus Moon, Imperial Year MMXXVI</h3>
 
-<p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/GQzDG-tILbo?si=qt3ficKGJ8U1woZP"><strong><u>Sam's Town</u></strong></a> by The Killers (2006).</em></p>
+<p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/ffwWRqpmUc8?si=Da6G_pK-_pClMBhP"><strong><u>Radio</u></strong></a> by Bershy (2022), recommended by Adalys U. A.</em></p>
 
 ---
 
