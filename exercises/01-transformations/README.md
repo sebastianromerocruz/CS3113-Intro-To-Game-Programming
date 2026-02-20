@@ -1,4 +1,4 @@
-<h2 align=center>Week 02</h2>
+<h2 align=center>Week II</h2>
 
 <h1 align=center>Transformations: <em>Funny Heartbeat</em></h1>
 

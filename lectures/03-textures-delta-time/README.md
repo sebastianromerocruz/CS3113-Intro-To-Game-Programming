@@ -1,4 +1,4 @@
-<h2 align=center>Week 03</h2>
+<h2 align=center>Week III</h2>
 
 <h1 align=center>Textures and Delta Time</h1>
 
