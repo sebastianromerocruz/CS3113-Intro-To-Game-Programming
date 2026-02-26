@@ -2,7 +2,7 @@
 
 <h1 align=center>Physics</h1>
 
-<h3 align=center>X Wyvern Moon, Imperial Year MMXXV</h3>
+<h3 align=center>XXVII Pegasus Moon, Imperial Year MMXXVI</h3>
 
 <p align=center><strong>Songs of the day</strong>:</p>
 <p align=center>
@@ -12,15 +12,6 @@
                 Iambic 9 Poetry
             </strong>
         </a> by Squarepusher (2024)
-    </em>
-</p>
-<p align=center>
-    <em>
-        <a href="https://youtu.be/kVsgdURODeg?si=0E5WhMKIdLLnW5jx">
-            <strong>
-                After Midnight
-            </strong>
-        </a> by Phoenix (2022)
     </em>
 </p>
 
