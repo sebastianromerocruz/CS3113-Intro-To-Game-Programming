@@ -1,4 +1,4 @@
-<h2 align=center>Week 06</h2>
+<h2 align=center>Week VI</h2>
 
 <h1 align=center>Physics: <em>Onto The Next Castle</em></h1>
 

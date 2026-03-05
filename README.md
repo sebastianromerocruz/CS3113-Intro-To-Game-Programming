@@ -39,9 +39,9 @@
 4. [**User Input / Collision Detection**](lectures/04-user-input-collisions)
 5. [**Animation / The `Entity` Class**](lectures/05-animation-entities)
 6. [**Physics**](lectures/06-physics)
+7. [**AI In Games**](lectures/07-ai)
 
 <!--
-7. [**AI In Games**](lectures/07-ai)
 8. [**Maps**](lectures/08-maps)
 9. [**Scenes**](lectures/09-scenes)
 10. [**Effects / Shaders**](lectures/10-effects-shaders)
