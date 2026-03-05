@@ -1,8 +1,8 @@
- <h2 align=center>Week 07</h2>
+ <h2 align=center>Week VII</h2>
 
 <h1 align=center>AI In Games</h1>
 
-<h3 align=center>XVII Wyvern Moon, Imperial Year MMXXV</h3>
+<h3 align=center>VI Lone Moon, Imperial Year MMXXV</h3>
 
 <p align=center>
     <strong>
