@@ -41,9 +41,9 @@
 6. [**Physics**](lectures/06-physics)
 7. [**AI In Games**](lectures/07-ai)
 8. [**Maps**](lectures/08-maps)
+9. [**Scenes**](lectures/09-scenes)
 
 <!--
-9. [**Scenes**](lectures/09-scenes)
 10. [**Effects / Shaders**](lectures/10-effects-shaders)
 11. [**Playtesting**](lectures/11-playtesting) -->
 
@@ -115,14 +115,14 @@ You will also need a [**Github**](https://github.com/) account!
 
 ### _Grading Scheme_
 
-| **Item**                                                                | **Percentage** |
+| **Item**                                    | **Percentage** |
 |-------------------------------------------------------------------------|----------------|
 | **_Project 1_**: **Draw a Simple 2D Scene** | 10%            |
 | **_Project 2_**: **Pong**                   | 10%            |
 | **_Project 3_**: **Lunar Lander**           | 15%            |
 | **_Project 4_**: **Rise of The AI**         | 25%            |
-| **_Project 5_**: **Students' Choice**                               | 30%            |
-| **_Classwork_**                                                         | 10%            |
+| **_Project 5_**: **Students' Choice**       | 30%            |
+| **_Classwork_**                             | 10%            |
 
 - **Projects** (90%)
     - Assigned roughly every two weeks, these are programming projects based on class material and are to be _independently done_. 

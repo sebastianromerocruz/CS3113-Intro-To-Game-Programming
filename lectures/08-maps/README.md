@@ -2,7 +2,7 @@
 
 <h1 align=center>Maps</h1>
 
-<h3 align=center>XXIV Wyvern Moon, Imperial Year MMXXV</h3>
+<h3 align=center>XIII Lone Moon, Imperial Year MMXXVI</h3>
 
 <p align=center><strong>Songs of the day</strong>:</p>
 <p align=center>
