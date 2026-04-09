@@ -19,6 +19,7 @@
     2. [**Migrating Functionality To The `LevelA` Class**](#3-2)
     3. [**Cleaning Up `main`**](#3-3)
 4. [**Switching Levels**](#4)
+5. [**A Subtle Memory Leak**](#5)
 
 ---
 
@@ -695,3 +696,74 @@ And we're ready to go!
     <sub>
         <strong>Figure III</strong>: Each level has its own separate background colour.</sub>
 </p>
+
+<br>
+
+<a id="5"></a>
+
+## A Subtle Memory Leak
+
+There is a bug hiding in `switchToScene` as we've written it. Take another look:
+
+```cpp
+void switchToScene(Scene *scene)
+{
+    gCurrentScene = scene;
+    gCurrentScene->initialise();
+    gCamera.target = gCurrentScene->getState().xochitl->getPosition();
+}
+```
+
+When this is called the first time—`switchToScene(gLevels[0])`—`gCurrentScene` is `nullptr`, so there's nothing to worry about. But when the player falls through the pit and we call `switchToScene(gLevels[1])`, the old `gCurrentScene` (LevelA) has already called `initialise()` and is sitting on a live `Entity*`, a live `Map*`, and two loaded audio resources. We simply overwrite `gCurrentScene` with the new scene pointer and call `initialise()` on it, never giving LevelA a chance to clean up. Those resources are now unreachable.
+
+You might think: "but `delete gLevelA` is called in global `shutdown()`, and the destructor calls `shutdown()`, so they'll be freed then." That's true for the current linear one-way flow. But consider what happens if you ever add a way to revisit LevelA—or even call `switchToScene` on the same level twice by accident. `initialise()` would allocate a new `Entity*` and `Map*` and assign them to `mGameState.xochitl` and `mGameState.map`, overwriting the old pointers. Those old allocations are now leaked with no way to recover them.
+
+The fix is to call `shutdown()` on the departing scene before switching:
+
+```cpp
+void switchToScene(Scene *scene)
+{
+    if (gCurrentScene) gCurrentScene->shutdown();  // free the old scene's resources
+    gCurrentScene = scene;
+    gCurrentScene->initialise();
+    gCamera.target = gCurrentScene->getState().xochitl->getPosition();
+}
+```
+
+The null check handles the first call, when there is no departing scene.
+
+### The Double-Free Problem
+
+Adding that one line introduces a new hazard. Both `~LevelA()` and `~LevelB()` call `shutdown()` in their destructors:
+
+```cpp
+LevelA::~LevelA() { shutdown(); }
+```
+
+And global `shutdown()` eventually calls `delete gLevelA`, which fires the destructor. So now the sequence for LevelA is:
+
+1. `switchToScene(gLevelB)` → explicit `LevelA::shutdown()` → resources freed
+2. Global `shutdown()` → `delete gLevelA` → `~LevelA()` → `LevelA::shutdown()` again → **double-free**
+
+`delete` on an already-deleted pointer is undefined behavior. On most platforms you'll get a crash or silent heap corruption.
+
+The fix is to make `shutdown()` idempotent—safe to call more than once. We do this by nulling every pointer and zeroing every handle immediately after freeing it:
+
+```cpp
+void LevelA::shutdown()
+{
+    delete mGameState.xochitl;
+    mGameState.xochitl = nullptr;  // delete nullptr is a safe no-op
+    delete mGameState.map;
+    mGameState.map = nullptr;
+
+    UnloadMusicStream(mGameState.bgm);
+    mGameState.bgm = {};           // zeroed struct, Raylib won't double-unload it
+    UnloadSound(mGameState.jumpSound);
+    mGameState.jumpSound = {};
+}
+```
+
+`delete nullptr` is explicitly defined as a no-op in C++, so the second destructor call becomes harmless. Raylib's `UnloadMusicStream` and `UnloadSound` both check internally whether the audio buffer is non-null before doing any work, so a zeroed struct is safe to pass a second time.
+
+With both fixes in place—the explicit `shutdown()` call in `switchToScene` and the nulled/zeroed members in each level's `shutdown()`—scene transitions are now leak-free and the destructor calls at program exit are safe no-ops.

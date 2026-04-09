@@ -84,8 +84,12 @@ void LevelA::render()
 void LevelA::shutdown()
 {
    delete mGameState.xochitl;
+   mGameState.xochitl = nullptr;
    delete mGameState.map;
+   mGameState.map = nullptr;
 
    UnloadMusicStream(mGameState.bgm);
+   mGameState.bgm = {};
    UnloadSound(mGameState.jumpSound);
+   mGameState.jumpSound = {};
 }

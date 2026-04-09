@@ -37,6 +37,7 @@ void shutdown();
 
 void switchToScene(Scene *scene)
 {
+    if (gCurrentScene) gCurrentScene->shutdown();
     gCurrentScene = scene;
     gCurrentScene->initialise();
     gCamera.target = gCurrentScene->getState().xochitl->getPosition();
