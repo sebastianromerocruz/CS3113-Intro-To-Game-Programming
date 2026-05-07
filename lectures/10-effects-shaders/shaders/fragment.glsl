@@ -1,35 +1,55 @@
 #version 330
 
-const float RED_LUM_CONSTANT = 0.2126;
-const float GREEN_LUM_CONSTANT = 0.7152;
-const float BLUE_LUM_CONSTANT = 0.0722;
-
 uniform sampler2D texture0;
-uniform vec2 lightPosition;
+uniform float blizzardIntensity;
+uniform float time;
 
 in vec2 fragTexCoord;
 in vec2 fragPosition;
 
 out vec4 finalColor;
 
-// Adjustable attenuation parameters
-const float LINEAR_TERM    = 0.00003; // linear term
-const float QUADRATIC_TERM = 0.00003; // quadratic term
-const float MIN_BRIGHTNESS = 0.05;    // avoid total darkness
-
-float attenuate(float distance, float linearTerm, float quadraticTerm)
+float noise(vec2 coord)
 {
-    float attenuation = 1.0 / (1.0 + 
-                               linearTerm * distance + 
-                               quadraticTerm * distance * distance);
-
-    return max(attenuation, MIN_BRIGHTNESS);
+    return fract(sin(dot(coord, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
 void main()
 {
-    float distance = distance(lightPosition, fragPosition);
-    float brightness = attenuate(distance, LINEAR_TERM, QUADRATIC_TERM);
     vec4 color = texture(texture0, fragTexCoord);
-    finalColor = vec4(color.rgb * brightness, color.a);
+
+    if (blizzardIntensity > 0.0)
+    {
+        float whiten = blizzardIntensity * 0.7;
+        color.rgb = mix(color.rgb, vec3(1.0), whiten);
+        float n1 = noise(fragPosition * 0.06 + vec2(time * 2.5, time * 4.0));
+        if (n1 > (1.0 - blizzardIntensity * 0.65))
+        {
+            color.rgb = mix(color.rgb, vec3(1.0), 0.8);
+        }
+
+        float n2 = noise(fragPosition * 0.15 + vec2(time * 5.0, time * 3.0));
+        if (n2 > (1.0 - blizzardIntensity * 0.6))
+        {
+            color.rgb = mix(color.rgb, vec3(0.95), 0.5);
+        }
+
+        if (blizzardIntensity > 0.2)
+        {
+            float grey = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+            float desatAmount = (blizzardIntensity - 0.2) * 0.7;
+            color.rgb = mix(color.rgb, vec3(grey), desatAmount);
+        }
+
+        if (blizzardIntensity > 0.3)
+        {
+            float streak = noise(vec2(fragPosition.x * 0.05 + time * 6.0, fragPosition.y * 0.008 + time * 12.0));
+            if (streak > 0.85)
+            {
+                color.rgb = mix(color.rgb, vec3(0.95, 0.97, 1.0), 0.55);
+            }
+        }
+    }
+
+    finalColor = color;
 }

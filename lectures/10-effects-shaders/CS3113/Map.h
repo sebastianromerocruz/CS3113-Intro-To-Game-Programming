@@ -7,10 +7,10 @@ class Map
 {
 private:
     int mMapColumns; // number of columns in map
-    int mMapRows;    // number of rows in map
+    int mMapRows; // number of rows in map
 
     unsigned int *mLevelData; // array of tile indices
-    Texture2D mTextureAtlas;  // texture atlas
+    Texture2D mTextureAtlas; // texture atlas
 
     float mTileSize; // size of each tile in pixels
 
@@ -24,6 +24,7 @@ private:
     float mRightBoundary; // right boundary of the map in world coordinates
     float mTopBoundary;   // top boundary of the map in world coordinates
     float mBottomBoundary;// bottom boundary of the map in world coordinates
+
 
 public:
     Map(int mapColumns, int mapRows, unsigned int *levelData,

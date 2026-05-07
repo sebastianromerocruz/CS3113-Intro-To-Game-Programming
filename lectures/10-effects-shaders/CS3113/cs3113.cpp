@@ -122,3 +122,32 @@ void panCamera(Camera2D *camera, const Vector2 *targetPosition)
         Vector2Scale(positionDifference, 0.1f)
     ); // 0.1 = smoothing factor
 }
+
+Texture2D LoadTextureWithTransparency(const char *filepath, Color transparentColor)
+{
+    Image img = LoadImage(filepath);
+    
+    Color *pixels = LoadImageColors(img);
+    int total = img.width * img.height;
+    
+    for (int i = 0; i < total; i++)
+    {
+        if (pixels[i].r <= 15 && pixels[i].g <= 15 && pixels[i].b <= 15)
+        {
+            pixels[i].a = 0;
+        }
+    }
+    
+    Image newImg = {
+        .data = pixels,
+        .width = img.width,
+        .height = img.height,
+        .mipmaps = 1,
+        .format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8
+    };
+    
+    Texture2D tex = LoadTextureFromImage(newImg);
+    UnloadImageColors(pixels);
+    UnloadImage(img);
+    return tex;
+}

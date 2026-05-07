@@ -1,4 +1,4 @@
-#include "LevelB.h"
+#include "LoseScreen.h"
 
 #ifndef EFFECTS_H
 #define EFFECTS_H

@@ -12,7 +12,7 @@ Effects::Effects(Vector2 origin, float windowWidth, float windowHeight) : mAlpha
 void Effects::drawOverlay()
 {
     float left = mViewOffset.x - mOverlayWidth  / 2.0f;
-    float top  = mOrigin.y - mOverlayHeight / 2.0f; // Adjustment for some reason
+    float top  = mOrigin.y - mOverlayHeight / 2.0f;
 
     DrawRectangle(left,
                   top,

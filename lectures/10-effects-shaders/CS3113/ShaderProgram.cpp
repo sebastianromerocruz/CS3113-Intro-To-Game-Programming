@@ -5,7 +5,7 @@ ShaderProgram::~ShaderProgram()                   { unload();        }
 
 bool ShaderProgram::load(const std::string &vertexPath, const std::string &fragmentPath)
 {
-    unload(); // unload any previous shader
+    unload();
 
     mShader = LoadShader(vertexPath.c_str(), fragmentPath.c_str());
 

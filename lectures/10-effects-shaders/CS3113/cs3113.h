@@ -21,6 +21,7 @@ void Normalise(Vector2 *vector);
 float GetLength(const Vector2 vector);
 Rectangle getUVRectangle(const Texture2D *texture, int index, int rows, int cols);
 void panCamera(Camera2D *camera, const Vector2 *targetPosition);
+Texture2D LoadTextureWithTransparency(const char *filepath, Color transparentColor);
 
 
 #endif // CS3113_H

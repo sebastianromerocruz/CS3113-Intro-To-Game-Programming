@@ -18,7 +18,7 @@ void Map::build()
     mRightBoundary  = mOrigin.x + (mMapColumns * mTileSize) / 2.0f;
     mTopBoundary    = mOrigin.y - (mMapRows * mTileSize) / 2.0f;
     mBottomBoundary = mOrigin.y + (mMapRows * mTileSize) / 2.0f;
-
+    
     // Precompute texture areas for each tile
     for (int row = 0; row < mTextureRows; row++)
     {
@@ -52,7 +52,7 @@ void Map::render()
 
             Rectangle destinationArea = {
                 mLeftBoundary + col * mTileSize,
-                mTopBoundary  + row * mTileSize, // y-axis is inverted
+                mTopBoundary  + row * mTileSize,  // y-axis is inverted
                 mTileSize,
                 mTileSize
             };

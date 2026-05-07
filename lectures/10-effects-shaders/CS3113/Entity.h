@@ -3,10 +3,10 @@
 
 #include "Map.h"
 
-enum Direction    { LEFT, UP, RIGHT, DOWN              }; // For walking
+enum Direction    { LEFT, UP, RIGHT, DOWN              };
 enum EntityStatus { ACTIVE, INACTIVE                   };
-enum EntityType   { PLAYER, BLOCK, PLATFORM, NPC, EMPTY };
-enum AIType       { WANDERER, FOLLOWER                 };
+enum EntityType   { PLAYER, BLOCK, PLATFORM, NPC, PICKUP, EMPTY };
+enum AIType       { WANDERER, FOLLOWER, TRAFFIC, ONCOMING, COP };
 enum AIState      { WALKING, IDLE, FOLLOWING           };
 
 class Entity
@@ -69,6 +69,9 @@ private:
     void AIActivate(Entity *target);
     void AIWander();
     void AIFollow(Entity *target);
+    void AITraffic();
+    void AIOncoming();
+    void AICop(Entity *target);
 
 public:
     static constexpr int   DEFAULT_SIZE          = 250;
@@ -109,7 +112,7 @@ public:
     Vector2     getVelocity()              const { return mVelocity;              }
     Vector2     getAcceleration()          const { return mAcceleration;          }
     Vector2     getScale()                 const { return mScale;                 }
-    Vector2     getColliderDimensions()    const { return mScale;                 }
+    Vector2     getColliderDimensions()    const { return mColliderDimensions;    }
     Vector2     getSpriteSheetDimensions() const { return mSpriteSheetDimensions; }
     Texture2D   getTexture()               const { return mTexture;               }
     TextureType getTextureType()           const { return mTextureType;           }
@@ -123,7 +126,6 @@ public:
     AIType      getAIType()                const { return mAIType;                }
     AIState     getAIState()               const { return mAIState;               }
 
-    
     bool isCollidingTop()    const { return mIsCollidingTop;    }
     bool isCollidingBottom() const { return mIsCollidingBottom; }
 
@@ -133,12 +135,16 @@ public:
         { mPosition = newPosition;                 }
     void setMovement(Vector2 newMovement)
         { mMovement = newMovement;                 }
+    void setVelocity(Vector2 newVelocity)
+        { mVelocity = newVelocity;                 }
     void setAcceleration(Vector2 newAcceleration)
         { mAcceleration = newAcceleration;         }
     void setScale(Vector2 newScale)
         { mScale = newScale;                       }
     void setTexture(const char *textureFilepath)
-        { mTexture = LoadTexture(textureFilepath); }
+        { mTexture = LoadTextureWithTransparency(textureFilepath, BLACK); }
+    void setTextureTransparent(const char *textureFilepath)
+        { mTexture = LoadTextureWithTransparency(textureFilepath, BLACK); }
     void setColliderDimensions(Vector2 newDimensions) 
         { mColliderDimensions = newDimensions;     }
     void setSpriteSheetDimensions(Vector2 newDimensions) 
@@ -163,6 +169,10 @@ public:
         { mAIState = newState;                     }
     void setAIType(AIType newType)
         { mAIType = newType;                       }
+    void setTextureType(TextureType type)
+        { mTextureType = type;                     }
+    void setAnimationAtlas(std::map<Direction, std::vector<int>> atlas)
+        { mAnimationAtlas = atlas;                 }
 };
 
 #endif // ENTITY_H
