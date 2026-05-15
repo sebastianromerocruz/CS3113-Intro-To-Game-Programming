@@ -152,4 +152,5 @@ $RECYCLE.BIN/
 *.pdf
 raylib_app
 
-lectures/00-test-lecture
+lectures/
+exercises/
