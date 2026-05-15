@@ -25,7 +25,7 @@
 10. [**Moses Center Statement of Disability**](#10)
 11. [**Academic Integrity**](#11)
     - [**Generative AI**](#11-1)
-    - [**Penalties**](#11-2)
+    <!--- [**Penalties**](#11-2)-->
 
 ---
 
@@ -34,7 +34,7 @@
 ### _Lecture Notes_
 
 1. [**The Basics: _Hello, Raylib!_**](lectures/01-introduction)
-2. [**Transformations**](lectures/02-transformations)
+<!--2. [**Transformations**](lectures/02-transformations)
 3. [**Textures / Delta Time**](lectures/03-textures-delta-time)
 4. [**User Input / Collision Detection**](lectures/04-user-input-collisions)
 5. [**Animation / The `Entity` Class**](lectures/05-animation-entities)
@@ -43,9 +43,9 @@
 8. [**Maps**](lectures/08-maps)
 9. [**Scenes**](lectures/09-scenes)
 10. [**Effects / Shaders**](lectures/10-effects-shaders)
-11. [**Playtesting**](lectures/11-playtesting) 
+11. [**Playtesting**](lectures/11-playtesting) -->
 
-<sub>Released on each Friday day before class.</sub>
+<sub>Released the day before each class (Mondays for Tuesday sessions, Wednesdays for Thursday sessions).</sub>
 
 <br>
 
@@ -59,6 +59,7 @@
     |---------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
     | [**sebastian.romerocruz@nyu.edu**](mailto:src402@nyu.edu) | [**calendly**](https://calendly.com/profromerocruz) |
 
+<!--
 - **Eric Zhao (Course Assistant)**
 
     | **E-Mail**                                  | **Office Hours**                                                     | **Location** |
@@ -66,6 +67,7 @@
     | [**ez2346@nyu.edu**](mailto:ez2346@nyu.edu) | **Tuesday:** 9:00 AM - 12:00 PM ([ZOOM](https://nyu.zoom.us/j/94279433694)) <br> **Tuesday:** 6:00 PM - 9:00 PM (In Office) <br> **Friday:** 12:00 AM - 2:00 PM (In Office) | Jacobs Hall 223, Room F |
 
     *If you need to email Eric for anything related to this class, please include the course number (CS3113) and your first and last name in the subject line.*
+-->
 
 
 <br>
@@ -74,6 +76,9 @@
 
 ### _Class Information_
 
+- **Dates**: May 19, 2026 – June 30, 2026
+- **Meeting Times**: Tuesdays and Thursdays, 1:00 PM – 5:10 PM
+- **Location**: Jacobs Hall, 6 Metrotech, Room 203 (Brooklyn Campus)
 - **Pre-Requisites**: [_**CS-UY 2124 Object-Oriented Programming (dē factō)**_](http://bulletin.engineering.nyu.edu/preview_course_nopop.php?catoid=15&coid=36541) (C- or better)
 - **Credits**: 3
 
@@ -113,6 +118,9 @@ You will also need a [**Github**](https://github.com/) account!
 
 ### _Grading Scheme_
 
+<!--
+ORIGINAL DISTRIBUTION (fall/spring semesters):
+
 | **Item**                                    | **Percentage** |
 |-------------------------------------------------------------------------|----------------|
 | **_Project 1_**: **Draw a Simple 2D Scene** | 10%            |
@@ -121,16 +129,27 @@ You will also need a [**Github**](https://github.com/) account!
 | **_Project 4_**: **Rise of The AI**         | 25%            |
 | **_Project 5_**: **Students' Choice**       | 30%            |
 | **_Classwork_**                             | 10%            |
+-->
 
-- **Projects** (90%)
-    - Assigned roughly every two weeks, these are programming projects based on class material and are to be _independently done_. 
+| **Item**                                    | **Percentage** |
+|-------------------------------------------------------------------------|----------------|
+| **_Project 1_**: **Draw a Simple 2D Scene** | 8%             |
+| **_Project 2_**: **Pong**                   | 8%             |
+| **_Project 3_**: **Lunar Lander**           | 13%            |
+| **_Project 4_**: **Rise of The AI**         | 23%            |
+| **_Project 5_**: **Students' Choice**       | 28%            |
+| **_Classwork_**                             | 20%            |
+
+- **Projects** (80%)
+    - Assigned roughly every week, these are programming projects based on class material. The use of AI coding agents is **permitted** for this summer section; see the [**Generative AI**](#11-1) section for the full policy.
     - As you can see, this class is very project-heavy. What this means is that, while there are no exams nor quizzes, the grade of each of the projects has a relatively large impact on your overall course grade.
     - This class assumes a solid understanding of the C++ language, including syntax, control flow, functional decomposition, and object-oriented programming. For this reason, we will not be grading you on the quality of your code. 
-    - However, as the raylib library is quite expansive and as there are multiple ways of approaching it, you are expected to _only use structures that we have learned in class_. For example, if we define a specific class during lecture, and we require its use in a project, **you must use it for full credit**. 
-    - Of course, if you are free to make your own modifications and create any auxiliary functions/classes/libraries to best suit your programming style. If you are ever unsure of whether you are allowed to use something in a homework project, please ask us first.
+    - You are expected to _only use structures that we have learned in class_. If you wish to use something outside of what has been covered (e.g. a third-party path-finding library), you must get explicit approval from Prof. Romero Cruz first. **Using unapproved structures will result in a grade of 50 on that project**, regardless of how well everything else works.
+    - Of course, you are free to make your own modifications and create any auxiliary functions/classes/libraries to best suit your programming style. If you are ever unsure of whether you are allowed to use something in a homework project, please ask us first.
+    - **For each project, 2 students will be selected at random to give a brief presentation of their submission.** You may be asked to walk through any part of your code and explain how it works. An inability to explain your own code will result in a **20-point deduction**. This applies whether or not AI was used in writing it. You are responsible for understanding everything you submit.
     - Every assignment will have an "extra credit" portion. This will **add 5% to your final grade** at the end of the semester if you complete the extra credit portion of **at least 3 of the projects**. While 5% may not seem like a lot, it can mean the difference between two letter grades. This can be especially helpful later in the semester, when the projects become longer and more complex.
 
-- **Classwork** (10%) is based on 5-7 group assignments to be completed, as the name implies, during class. In order to get credit for these, you will need to:
+- **Classwork** (20%) is based on 5-7 group assignments to be completed, as the name implies, during class. In order to get credit for these, you will need to:
     1. Be there.
     2. Complete the assignment with your team _before_ the end of class.
     3. Complete the assignment using only structures learned in class.
@@ -169,13 +188,13 @@ As for your final letter grade, the following scale will be used:
 
 #### Project Schedule
 
-| Project                 | Release Date        | Due Date                    |
-|-------------------------|---------------------|-----------------------------|
-| **Simple Scene**        | Friday, Feb 6       | Saturday, Feb 14, 11:59PM   |
-| **Pong**                | Friday, Feb 13      | Saturday, Feb 28, 11:59PM   |
-| **Lunar Lander**        | Friday, Feb 27      | Saturday, Mar 14, 11:59PM   |
-| **Rise of the AI**      | Friday, Mar 13      | Saturday, Apr  4, 11:59PM   |
-| **Students' Choice**    | Friday, Apr  3      | Saturday, Apr 24, 11:59PM   |
+| Project                 | Release Date          | Due Date                      |
+|-------------------------|-----------------------|-------------------------------|
+| **Simple Scene**        | Tuesday, May 19       | Saturday, May 30, 11:59 PM    |
+| **Pong**                | Thursday, May 28      | Saturday, June  6, 11:59 PM   |
+| **Lunar Lander**        | Thursday, June  4     | Saturday, June 13, 11:59 PM   |
+| **Rise of the AI**      | Tuesday, June  9      | Saturday, June 20, 11:59 PM   |
+| **Students' Choice**    | Tuesday, June 16      | Tuesday, June 30 (in class)   |
 
 <br>
 
@@ -241,6 +260,9 @@ NYU School of Engineering Policies and Procedures on Academic Misconduct [**Stud
 
 #### Generative AI
 
+<!--
+ORIGINAL POLICY (fall/spring semesters):
+
 You can only learn from the work from the work that you actually do yourself. CS 3113 is an intro class—the 1114 of game development. The goal here is for you to learn the very basic building blocks of a trade.
 
 So, you may be wondering: can I use generative AI (gen AI) in this class? This short answer is that, most of the time, _no, you cannot_. The long answer is more nuanced, given the omnipresence and easy-of-use of tech like ChatGPT and Copilot. My general advice is to use your common sense: _is gen AI doing most of the work for you_? If so, then you are likely in the danger zone, at least as far as this course is concerned.
@@ -259,14 +281,31 @@ In our opinion, we're not doing _anything_ in CS 3113 that warrants the use of g
      *  ...
      **/
     ```
+-->
+
+This summer section has a revised AI policy, given the accelerated pace of the course. **The use of AI coding agents (e.g. GitHub Copilot, Cursor, Claude Code, ChatGPT) is permitted** when working on your projects. That said, this is not a free pass; the following rules apply without exception:
+
+1. **You are still responsible for every line of code you submit.** For each project, 2 students will be selected at random to present their work. You may be asked to explain any part of your code on the spot. If you cannot, **20 points will be deducted from your project grade**. AI is a tool, not a co-author. Make sure you understand what it helped you write.
+
+2. **You must still only use structures taught in class.** AI agents will happily generate code using libraries, patterns, and abstractions we have never covered. It is _your_ responsibility to ensure that everything in your submission falls within what we have learned. If you would like to use something outside of that scope, ask Prof. Romero Cruz first. **Unapproved structures will result in a grade of 50 on that project**, regardless of functionality.
+
+3. **Do not enter project prompts, class notes, or my code into any AI engine.** This is unauthorized use of university and course materials, regardless of intent.
+
+4. **Cite your AI use.** Anywhere AI generated or significantly shaped a block of code, add a brief comment:
+    ```c++
+    // Generated with [tool] — prompt: "..."
+    ```
+    This is not punished. Hiding it is.
+
+The goal of this policy is to encourage the kind of AI-assisted coding that is increasingly normal in professional settings: where you direct the agent, review its output critically, and own the result. Use it as a collaborator, not a crutch.
 
 It's also worth remembering that a single 100-word ChatGPT-4 response uses the equivalent of [**a whole 500ml bottle of water**](https://www.techrepublic.com/article/generative-ai-data-center-water-use/), with [**ChatGPT-3 not doing much better**](https://arxiv.org/pdf/2304.03271). This may or may not sound like a lot, but with a [**quarter of the world's population having no access to potable water**](https://www.who.int/news/item/26-08-2025-1-in-4-people-globally-still-lack-access-to-safe-drinking-water---who--unicef), it might be worth reserving the use of generative AI for things that actually need it and not to generate code that will give you an F in this class.
 
 <a id="11-2"></a>
 
-#### Penalties
+<!--#### Penalties
 
 If we determine that you plagiarized in any way, with or without gen AI, the following penalties will be handed out, with no exceptions:
 
 - The penalty for 1st instance of plagiarism is an 0 on that project and an academic dishonesty report to the CSE department.
-- The penalty for a 2nd instance of plagiarism will result in an F for the course and 2nd report to the CSE department.
+- The penalty for a 2nd instance of plagiarism will result in an F for the course and 2nd report to the CSE department.-->
