@@ -126,13 +126,13 @@ project-name/
 SRCS = main.cpp
 TARGET = raylib_app
 
+# OS detection (macOS = Darwin, Windows via MinGW = MINGW*)
+UNAME_S := $(shell uname -s)
+
 # Add the CS3113 library if it exists
 ifeq ($(wildcard CS3113/cs3113.cpp),CS3113/cs3113.cpp)
     SRCS += CS3113/cs3113.cpp
 endif
-
-# OS detection (macOS = Darwin, Windows via MinGW = MINGW*)
-UNAME_S := $(shell uname -s)
 
 # Default values
 CXX = g++

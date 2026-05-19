@@ -2,7 +2,7 @@
 
 <h1 align=center>Hello, Raylib!</h1>
 
-<h3 align=center>XXIII Guardian Moon, Imperial Year MMXXVI</h3>
+<h3 align=center>XIX Harpstring Moon, Imperial Year MMXXVI</h3>
 
 <p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/0qUtT6k83Go?si=c-pKA-WsWJ57CQjp"><strong><u>Fior di Latte</u></strong></a> by Phoenix (2017)</em></p>
 
