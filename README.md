@@ -17,14 +17,19 @@
 3.  [**Class Information**](#3)
 4.  [**Description**](#4)
 5.  [**Objectives**](#5)
-6.  [**Computer/Software Requirements**](#6)
-7.  [**Grading Scheme**](#7)
-8.  [**Deadlines, Extensions, and Late Work Policy**](#8)
-    - [**Project Schedule**](#8-1)
-9. [**Getting Help and Slack**](#9)
-10. [**Moses Center Statement of Disability**](#10)
-11. [**Academic Integrity**](#11)
-    - [**Generative AI**](#11-1)
+6.  [**Course Structure**](#6)
+7.  [**Computer/Software Requirements**](#7)
+8.  [**Readings**](#8)
+9.  [**Grading Scheme**](#9)
+10. [**Deadlines, Extensions, and Late Work Policy**](#10)
+    - [**Project Schedule**](#10-1)
+11. [**Getting Help and Slack**](#11)
+12. [**Attendance**](#12)
+13. [**Moses Center Statement of Disability**](#13)
+14. [**Office of Student Advocacy**](#14)
+15. [**Academic Integrity**](#15)
+    - [**Generative AI**](#15-1)
+16. [**Inclusion**](#16)
     <!--- [**Penalties**](#11-2)-->
 
 ---
@@ -103,6 +108,14 @@ You will learn about vector, coordinate systems, sprites, animation, collisions,
 
 <a id="6"></a>
 
+### _Course Structure_
+
+Each class session consists of a lecture followed by a **classwork assignment** completed in small groups. Lecture notes are released the day before class and serve as the primary reference material for both the assignments and the projects.
+
+<br>
+
+<a id="7"></a>
+
 ### _Computer/Software Requirements_
 
 You need to use either a Mac, Linux, or Windows computer. You do not need a powerful machine as we are
@@ -114,7 +127,20 @@ You will also need a [**Github**](https://github.com/) account!
 
 <br>
 
-<a id="7"></a>
+<a id="8"></a>
+
+### _Readings_
+
+There is no required textbook for this course. All lecture notes and materials are provided in this repository and released the day before each class.
+
+The following are optional references you may find useful:
+
+- [**learncpp.com**](https://www.learncpp.com/): a free, thorough guide to modern C++
+- [**raylib cheatsheet**](https://www.raylib.com/cheatsheet/cheatsheet.html): quick reference for all raylib functions
+
+<br>
+
+<a id="9"></a>
 
 ### _Grading Scheme_
 
@@ -165,7 +191,7 @@ As for your final letter grade, the following scale will be used:
 
 <br>
 
-<a id="8"></a>
+<a id="10"></a>
 
 ### _Deadlines, Extensions, and Late Work Policy_
 
@@ -184,21 +210,21 @@ As for your final letter grade, the following scale will be used:
     - **Project 4**: You _must_ contact the [**Office of Student Advocacy**](https://engineering.nyu.edu/life-tandon/student-life/student-advocacy) in order to request an extension for this project, since its deadline coincides with the start of your work on your final project. If they approve it, then I will grant it with no problem at all.
     - **Project 5**: Your final project is graded _during the last day of lecture_, when you will present it to the class. This means that no extensions are, in theory, possible. However, should an emergency arise, I can grant you an incomplete grade (`I`) for the time being and give you a short extension. This really is a last-resort option, so try to avoid it as best as possible.
 
-<a id="8-1"></a>
+<a id="10-1"></a>
 
 #### Project Schedule
 
 | Project                 | Release Date          | Due Date                      |
 |-------------------------|-----------------------|-------------------------------|
-| **Simple Scene**        | Tuesday, May 19       | Saturday, May 30, 11:59 PM    |
-| **Pong**                | Thursday, May 28      | Saturday, June  6, 11:59 PM   |
-| **Lunar Lander**        | Thursday, June  4     | Saturday, June 13, 11:59 PM   |
-| **Rise of the AI**      | Tuesday, June  9      | Saturday, June 20, 11:59 PM   |
+| **Simple Scene**        | Tuesday, May 26       | Saturday, May 30, 11:59 PM    |
+| **Pong**                | Thursday, May 28      | Saturday, June 6, 11:59 PM   |
+| **Lunar Lander**        | Thursday, June 4     | Saturday, June 13, 11:59 PM   |
+| **Rise of the AI**      | Tuesday, June 9      | Saturday, June 20, 11:59 PM   |
 | **Students' Choice**    | Tuesday, June 16      | Tuesday, June 30 (in class)   |
 
 <br>
 
-<a id="9"></a>
+<a id="11"></a>
 
 ### _Getting Help and Slack_
 
@@ -224,7 +250,17 @@ If you are emailing me for help with your projects, upload your entire project t
 
 <br>
 
-<a id="10"></a>
+<a id="12"></a>
+
+### _Attendance_
+
+A student must attend, and be marked present for, at least **80% of the scheduled lectures** for this course. Failure to do so may result in a failing grade.
+
+Given the accelerated pace of this summer session, falling behind is very difficult to recover from. If you know you will be absent, please let Prof. Romero Cruz know in advance.
+
+<br>
+
+<a id="13"></a>
 
 ### Moses Center Statement of Disability
 
@@ -234,7 +270,15 @@ Accommodations matter a _lot_ for this class, so please don't hesitate.
 
 <br>
 
-<a id="11"></a>
+<a id="14"></a>
+
+### _Office of Student Advocacy_
+
+If medical, mental health, or personal circumstances are affecting your ability to keep up with the course, please reach out to the [**NYU Tandon Office of Student Advocacy**](https://engineering.nyu.edu/life-tandon/student-life/student-advocacy) sooner rather than later—they exist for exactly this kind of situation, and early communication makes a real difference. They can be reached at **advocacy.tandonstudentlife@nyu.edu** and are located in 5 MetroTech Center, LC240.
+
+<br>
+
+<a id="15"></a>
 
 ### Academic Integrity
 
@@ -256,7 +300,7 @@ NYU School of Engineering Policies and Procedures on Academic Misconduct [**Stud
 
     - **Forgery**: altering any academic document, including, but not limited to, academic records, admissions materials, or medical excuses.
 
-<a id="11-1"></a>
+<a id="15-1"></a>
 
 #### Generative AI
 
@@ -293,7 +337,7 @@ This summer section has a revised AI policy, given the accelerated pace of the c
 
 4. **Cite your AI use.** Anywhere AI generated or significantly shaped a block of code, add a brief comment:
     ```c++
-    // Generated with [tool] — prompt: "..."
+    // Generated with [tool]—prompt: "..."
     ```
     This is not punished. Hiding it is.
 
@@ -301,7 +345,7 @@ The goal of this policy is to encourage the kind of AI-assisted coding that is i
 
 It's also worth remembering that a single 100-word ChatGPT-4 response uses the equivalent of [**a whole 500ml bottle of water**](https://www.techrepublic.com/article/generative-ai-data-center-water-use/), with [**ChatGPT-3 not doing much better**](https://arxiv.org/pdf/2304.03271). This may or may not sound like a lot, but with a [**quarter of the world's population having no access to potable water**](https://www.who.int/news/item/26-08-2025-1-in-4-people-globally-still-lack-access-to-safe-drinking-water---who--unicef), it might be worth reserving the use of generative AI for things that actually need it and not to generate code that will give you an F in this class.
 
-<a id="11-2"></a>
+<a id="15-2"></a>
 
 <!--#### Penalties
 
@@ -309,3 +353,13 @@ If we determine that you plagiarized in any way, with or without gen AI, the fol
 
 - The penalty for 1st instance of plagiarism is an 0 on that project and an academic dishonesty report to the CSE department.
 - The penalty for a 2nd instance of plagiarism will result in an F for the course and 2nd report to the CSE department.-->
+
+<br>
+
+<a id="16"></a>
+
+### _Inclusion_
+
+This class is for everybody, regardless of background, identity, or where you're coming from—and I take that seriously. You should feel comfortable asking questions, disagreeing, and being yourself here. That's what makes the class better for everyone.
+
+If at any point you feel the environment isn't living up to that, please come talk to me.
