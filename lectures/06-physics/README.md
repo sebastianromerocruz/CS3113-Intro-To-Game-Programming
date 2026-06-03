@@ -1,17 +1,17 @@
- <h2 align=center>Week 06</h2>
+ <h2 align=center>Week VI</h2>
 
 <h1 align=center>Physics</h1>
 
-<h3 align=center>XXVII Pegasus Moon, Imperial Year MMXXVI</h3>
+<h3 align=center>IV Garland Moon, Imperial Year MMXXVI</h3>
 
 <p align=center><strong>Songs of the day</strong>:</p>
 <p align=center>
     <em>
-        <a href="https://youtu.be/r9nyEmHW0EA?si=8L75uSLdRwtQIxp2">
+        <a href="https://youtu.be/LkesIsPGlSU?si=Z2yarR4tu97nhJCc">
             <strong>
-                Iambic 9 Poetry
+                Plantasia
             </strong>
-        </a> by Squarepusher (2024)
+        </a> by Mort Garson (2019)
     </em>
 </p>
 
