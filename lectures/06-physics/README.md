@@ -11,7 +11,7 @@
             <strong>
                 Plantasia
             </strong>
-        </a> by Mort Garson (2019)
+        </a> by Mort Garson (1973)
     </em>
 </p>
 
