@@ -27,7 +27,7 @@ constexpr char PROTAG_FILEPATH[] = "assets/game/walk.png";
 AppStatus gAppStatus     = RUNNING;
 float     gAngle         = 0.0f,
           gPreviousTicks = 0.0f,
-          
+
           gAnimationTime = 0.0f;
 
 Vector2 gPosition  = ORIGIN,
@@ -48,30 +48,30 @@ void processInput();
 void update();
 void render();
 void shutdown();
-Rectangle getUVRectangle(const Texture2D *texture, int index, int rows, 
+Rectangle getUVRectangle(const Texture2D *texture, int index, int rows,
     int cols);
-bool isColliding(const Vector2 *positionA, const Vector2 *scaleA, 
+bool isColliding(const Vector2 *positionA, const Vector2 *scaleA,
     const Vector2 *positionB, const Vector2 *scaleB);
 
 /**
- * @brief Calculates and returns the UV coordinates and dimensions of a 
+ * @brief Calculates and returns the UV coordinates and dimensions of a
  * rectangle slice from a texture based on the given index, number of rows, and
  * number of columns.
- * 
+ *
  * @param texture a pointer to a `Texture2D` struct, contains information about
  * a 2D texture such as its width and height.
- * @param index represents the index of the specific slice within a texture 
- * atlas. Each slice is a sub-image within the texture atlas that contains 
+ * @param index represents the index of the specific slice within a texture
+ * atlas. Each slice is a sub-image within the texture atlas that contains
  * multiple images arranged in rows and columns.
  * @param rows represents the number of rows in which the texture is divided.
- * This parameter is used to calculate the vertical position of the texture 
+ * This parameter is used to calculate the vertical position of the texture
  * slice based on the index provided.
  * @param cols represents the number of columns in a grid layout. It is used in
  * the `getUVRectangle` function to calculate the UV coordinates for a specific
  * index within the grid.
- * 
+ *
  * @return a `Rectangle` struct that represents a portion of a texture based on
- * the provided parameters. The `Rectangle` struct contains the top-left 
+ * the provided parameters. The `Rectangle` struct contains the top-left
  * x-coordinate, top-left y-coordinate, width, and height of the specified
  * portion of the texture.
  */
@@ -86,14 +86,14 @@ Rectangle getUVRectangle(const Texture2D *texture, int index, int rows, int cols
     float sliceWidth  = texture->width  / (float) cols;
     float sliceHeight = texture->height / (float) rows;
 
-    // printf("Rectangle { %.2f, %.2f, %.2f, %.2f }\n", 
-    //     uCoord, 
-    //     vCoord, 
-    //     sliceWidth, 
+    // printf("Rectangle { %.2f, %.2f, %.2f, %.2f }\n",
+    //     uCoord,
+    //     vCoord,
+    //     sliceWidth,
     //     sliceHeight
     // );
 
-    return { 
+    return {
         uCoord,     // top-left x-coord
         vCoord,     // top-left y-coord
         sliceWidth, // width of slice
@@ -103,9 +103,9 @@ Rectangle getUVRectangle(const Texture2D *texture, int index, int rows, int cols
 
 /**
  * @brief Checks for a square collision between 2 Rectangle objects.
- * 
- * @see 
- * 
+ *
+ * @see
+ *
  * @param positionA The position of the first object
  * @param scaleA The scale of the first object
  * @param positionB The position of the second object
@@ -113,26 +113,24 @@ Rectangle getUVRectangle(const Texture2D *texture, int index, int rows, int cols
  * @return true if a collision is detected,
  * @return false if a collision is not detected
  */
-bool isColliding(const Vector2 *positionA,  const Vector2 *scaleA, 
+bool isColliding(const Vector2 *positionA,  const Vector2 *scaleA,
                  const Vector2 *positionB, const Vector2 *scaleB)
 {
     float xDistance = fabs(positionA->x - positionB->x) - ((scaleA->x + scaleB->x) / 2.0f);
     float yDistance = fabs(positionA->y - positionB->y) - ((scaleA->y + scaleB->y) / 2.0f);
 
-    if (xDistance < 0.0f && yDistance < 0.0f) return true;
-
-    return false;
+    return xDistance < 0.0f && yDistance < 0.0f;
 }
 
 /**
  * Renders a texture on screen with specified position, scale, and texture type.
- * 
+ *
  * @param texture pointer to a `Texture2D` struct, which contains information
- * about a 2D texture, such as its width, height, and pixel data. This struct 
+ * about a 2D texture, such as its width, height, and pixel data. This struct
  * is used to represent textures in 2D graphics rendering.
- * @param position the position at which the object will be rendered on the 
- * screen. It is a pointer to a `Vector2` struct that contains the x and y 
- * coordinates of the position. The object will be centered at these 
+ * @param position the position at which the object will be rendered on the
+ * screen. It is a pointer to a `Vector2` struct that contains the x and y
+ * coordinates of the position. The object will be centered at these
  * coordinates on the screen.
  * @param scale the scaling factor to be applied to the rendered object.
  * @param textureType an enum type that specifies the type of texture being
@@ -140,7 +138,7 @@ bool isColliding(const Vector2 *positionA,  const Vector2 *scaleA,
  *      - SINGLE: for objects not using a texture-atlas
  *      - ATLAS:  for ebjects using a texture atlas
  */
-void renderObject(const Texture2D *texture, const Vector2 *position, 
+void renderObject(const Texture2D *texture, const Vector2 *position,
                   const Vector2 *scale, TextureType textureType)
 {
     Rectangle textureArea;
@@ -180,7 +178,7 @@ void renderObject(const Texture2D *texture, const Vector2 *position,
 
     // Render the texture on screen
     DrawTexturePro(
-        *texture, 
+        *texture,
         textureArea, destinationArea, originOffset,
         gAngle, WHITE
     );
@@ -200,7 +198,7 @@ void initialise()
     SetTargetFPS(FPS);
 }
 
-void processInput() 
+void processInput()
 {
     gMovement = { 0.0f, 0.0f };
 
@@ -228,7 +226,7 @@ void processInput()
     if (IsKeyPressed(KEY_Q) || WindowShouldClose()) gAppStatus = TERMINATED;
 }
 
-void update() 
+void update()
 {
     // Delta time
     float ticks = (float) GetTime();

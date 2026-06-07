@@ -68,9 +68,7 @@ bool isColliding(const Vector2 *positionA,  const Vector2 *scaleA,
     float xDistance = fabs(positionA->x - positionB->x) - ((scaleA->x + scaleB->x) / 2.0f);
     float yDistance = fabs(positionA->y - positionB->y) - ((scaleA->y + scaleB->y) / 2.0f);
 
-    if (xDistance < 0.0f && yDistance < 0.0f) return true;
-
-    return false;
+    return xDistance < 0.0f && yDistance < 0.0f;
 }
 
 void renderObject(const Texture2D *texture, const Vector2 *position, 

@@ -47,9 +47,7 @@ bool Entity::isColliding(Entity *other) const
     float yDistance = fabs(mPosition.y - other->getPosition().y) - 
         ((mColliderDimensions.y + other->getColliderDimensions().y) / 2.0f);
 
-    if (xDistance < 0.0f && yDistance < 0.0f) return true;
-
-    return false;
+    return xDistance < 0.0f && yDistance < 0.0f;
 }
 
 /**
