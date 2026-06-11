@@ -27,9 +27,10 @@
         - [**Constructor and Destructor**](#2-3-1)
         - [**`build`**](#2-3-2)
         - [**`render`**](#2-3-3)
-        - [**`isSolidTileAt`**](#2-3-4)
-3. [**Overloading The `Entity` Class's `checkCollisionX` & `checkCollisionY` Methods**](#3)
-4. [**Cameras in raylib**](#4)
+3. [**Cameras in raylib**](#3)
+4. [**The `Map` Class, Continued**](#2-3-4)
+    - [**`isSolidTileAt`**](#2-3-4)
+5. [**Overloading The `Entity` Class's `checkCollisionX` & `checkCollisionY` Methods**](#4)
 
 ---
 
@@ -141,7 +142,17 @@ public:
 };
 ```
 
-I mean, what a mess. Once we start building more complicated maps, are we really going to manually tell each individual tile to go to each individual position? I can't imagine the horrors of that approach (except, I can, because that's how it was done in the assembly day). So, how else can we approach this? The answer is very analogous to how we handled our [**animations**](https://github.com/sebastianromerocruz/CS-3113-Intro-To-Game-Programming/tree/main/lectures/05-animation-entities#texture-atlases-and-sprite-sheets). Take a look at the following scene:
+But there's a more fundamental problem hiding under all of this, one that is arguably more important than the messiness of the API. Every single one of those tiles is a **full `Entity` object**—heap-allocated, with its own texture handle, velocity, animation state, collider, and whatever else we've crammed into that class over the semester. For a map of even modest size, that's dozens (or hundreds) of objects all constructed and scattered through memory. Each call to `new Entity[NUMBER_OF_TILES]` asks the allocator to carve out a large contiguous block, and as we add more arrays (more platforms, more platforms per level, multiple levels) those blocks start fighting for space. The result is **memory fragmentation**: free memory exists, but not as one usable piece. Our program's heap starts to resemble a city with a lot of abandoned lots—technically space is there, but nothing large enough to build on.
+
+Even setting fragmentation aside, there is a **cache-performance** argument. When the CPU reads something from RAM—a variable, an object, anything—it doesn't fetch just that one thing. It fetches a small surrounding block of memory (typically 64 bytes) all at once, betting that if you needed _this_ byte, you will probably need the _next_ byte soon. That bet is the entire basis of why looping through an array is fast.
+
+The problem is that `Entity` is a large object. By the time you count its position, velocity, texture handle, collider, animation state, and everything else we've added this semester, it is several hundred bytes wide. When your `render` loop hits `tiles[0]`, the CPU fetches 64 nearby bytes—but `tiles[1]` starts hundreds of bytes later, well outside that block. So it has to go back to RAM again. And again for `tiles[2]`. And so on, for every single tile, every single frame. Each one of those trips is a **cache miss**, and each miss costs the CPU dozens to hundreds of idle cycles spent just waiting.
+
+With hundreds of tiles, you are engineering cache misses on every iteration—slow in a way a profiler will tell you about but a compiler warning never will.
+
+The `Map` class we are about to build sidesteps all of this. Its tiles live as a flat array of plain `unsigned int` indices—no allocation per tile, no wasted fields, layout that's exactly as wide as the data we actually need. Iterating over them to draw or test collisions is a tight, cache-friendly walk through contiguous memory. That shift, from "a heap of objects" to "an array of integers plus one shared texture", is the deeper reason we make this change.
+
+Take a look at the following scene:
 
 <a id="fg-1"></a>
 
@@ -399,13 +410,17 @@ The `render` method is similar to the `build` method in that it also iterates th
 
 Our first step is to determine what kind of tile from our [**tileset / atlas**](#fg-3) our current tile will be, so we need to access our level data.
 
-Since `mLevelData` is a one-dimensional array, we can't use double-indexing to get the desired tile type (e.g. something like `mLevelData[row][col]`). This isn't really an issue, though, since there's a really handy formula for achieving the same effect on a flattened array:
+Since `mLevelData` is a one-dimensional array, we can’t use double-indexing to get the desired tile type (e.g. something like `mLevelData[row][col]`). This isn’t really an issue, though, since there’s a really handy formula for achieving the same effect on a flattened array:
 
 > Current Row * Number of Columns + Current Column
 
-Compilers actually use this same logic behind the scenes when you index a 2D array like `array[row][column]`—it’s automatically converted into an equivalent 1D memory access using this formula. 
+Think of it like finding your seat in a movie theatre. Say the theatre has **14 seats per row** and you’re looking for seat `(row 3, seat 5)` (zero-indexed). You wouldn’t wander around guessing—you’d skip past every complete row that came before yours: row 0, row 1, row 2, that’s `3 × 14 = 42` seats already gone. Then you count 5 more seats into your row and land on seat number `47`. That is exactly `row * numberOfColumns + col`. Our map works the same way: each “row” of tiles is laid end-to-end in a single array, and the formula is just the usher pointing you to the right one.
 
-When we “flatten” a 2D array into a 1D array, we store all the elements of each row one after another in memory. To access the element that would normally be at a specific row and column, we need to calculate its offset from the start of the array. The formula `row * mMapColumns + col` does exactly that: it skips over all the elements in the previous rows (`row * mMapColumns`) and then moves forward by column elements (`col`) within the current row.
+This also explains why we chose a 1D array in the first place rather than a dynamically allocated 2D array (`unsigned int**`). With `unsigned int**`, each row is its own separate heap allocation. Accessing `arr[row][col]` therefore requires **two** memory reads: one to fetch the pointer to that row, then a second to fetch the actual element. With a flat `unsigned int*`, the offset is pure arithmetic—computed entirely in registers—followed by exactly **one** memory read. No pointer chasing, no extra indirection, and all the data sits in one contiguous block, which plays nicely with the cache-performance argument we made earlier. Compilers actually use this same logic behind the scenes when you index a stack-allocated 2D array like `array[row][column]`—it’s automatically converted into an equivalent 1D memory access using this formula.
+
+"But wait," I hear you ask. "What about a `std::vector<std::vector<unsigned int>>`?"
+
+Ah yes. A `vector<vector<T>>` is `unsigned int**` in a trench coat: each inner vector is still its own heap allocation, the row buffers are still scattered across memory, and you still need two pointer hops to reach a tile. As a bonus, each `std::vector` object silently carries a pointer, a size, _and_ a capacity—all to support resizing that will never happen, because tile maps do not grow at runtime. To be fair, a _flat_ `std::vector<unsigned int>` (one vector, no nesting) would be perfectly fine and nearly equivalent to what we have here. But the nested form is paying the full cost of a dynamic container for a job that was decided at compile time. That’s like hiring a moving crew for a piece of furniture that’s bolted to the floor.
 
 ```cpp
 void Map::render()
@@ -545,18 +560,195 @@ And lo!
     </sub>
 </p>
 
+<br>
+
+<a id="3"></a>
+
+## Cameras in raylib
+
+Before we make our map interactive, there is one more visual system to put in place—and it is one you will notice the instant it is missing. Think of it like building a movie set: you want the stage dressed and the camera positioned _before_ the actors start performing. You'll sometimes hear developers say that a good game is one that has the **three Cs** covered:
+
+1. **Character**
+2. **Controller**
+3. **Camera**
+
+We've covered the first two extensively, and it's about time we cover the third. In video games, a **camera** determines what part of the world the player sees. Even in 2D games, the world often extends far beyond the visible screen—the camera acts like a **window** into that larger world.
+
+Without a camera system, the view would stay fixed at a single point, meaning the player could walk off-screen and we'd be none the wiser. By controlling the camera's position and movement, we can:
+
+- **Follow the player** smoothly as they explore the world
+- **Create cinematic effects** (like zooms or shakes; more on that next week)
+- **Constrain visibility** to specific areas for pacing or difficulty
+- **Enhance immersion**, making the world feel larger and more dynamic
+
+In short, the camera connects **gameplay** and **presentation**—it tells the player _where to look_.
+
+<a id="3-1"></a>
+
+### Camera Setup
+
+We use Raylib's built-in `Camera2D` structure to control what part of the world is visible. Since the camera isn't really a game object—it's more of a rendering concern—we declare it as a **global variable** rather than a member of `GameState`:
+
+```cpp
+// Global Variables
+// ...
+Camera2D gCamera = { 0 };
+```
+
+Here's how it is then initialized in the `initialise()` function:
+
+```cpp
+gCamera.target   = gState.xochitl->getPosition(); // Start centered on the player
+gCamera.offset   = ORIGIN;                        // Keep player centered on screen
+gCamera.rotation = 0.0f;                          // No rotation
+gCamera.zoom     = 1.0f;                          // Normal zoom level
+```
+
+In order here's what each of these do and how we use them:
+
+| Attribute      | Description                                                                               |
+| -------------- | ----------------------------------------------------------------------------------------- |
+| **`target`**   | The world position the camera looks at. Here, it starts at the player's position.         |
+| **`offset`**   | The point on the screen where the target appears — the center of the window in this case. |
+| **`zoom`**     | Controls how close or far the camera is (1.0 = normal, >1 = zoom in, <1 = zoom out).      |
+| **`rotation`** | Rotates the entire view (set to 0 for a stable, upright camera).                          |
+
+<a id="fg-7"></a>
+
+<p align=center>
+    <sub>
+        <strong>Figure VII</strong>: The list of relevant attributes belonging to the <code>Camera2D</code> object.
+    </sub>
+</p>
+
+Together, these values define **what the camera looks at** and **how it's displayed** on the screen.
+
+<a id="3-2"></a>
+
+### Smooth Camera Movement
+
+Technically, all we need to do every frame in order to have the camera follow our player is to set its `target` attribute to their position:
+
+```cpp
+// main.cpp
+
+// ...
+
+void update() 
+{
+    // ...
+
+    while (deltaTime >= FIXED_TIMESTEP)
+    {
+        // ...
+
+        gCamera.target = gState.xochitl->getPosition();
+
+        // ...
+    }
+}
+
+//
+```
+
+What we can do instead for a smoother effect is have our camera **ease** toward it gradually. In my code, I handle this via the function `panCamera()`:
+
+```cpp
+void panCamera(Camera2D *camera, const Vector2 *targetPosition)
+{
+    Vector2 positionDifference = Vector2Subtract(*targetPosition, camera->target);
+    camera->target = Vector2Add(camera->target, Vector2Scale(positionDifference, 0.1f));
+}
+```
+
+Here's what's happening:
+
+1. We compute how far the camera is from the player (`positionDifference`).
+2. We move the camera **10% of the way** toward that position each frame (`0.1f` smoothing factor).
+
+This gives the camera a subtle "lag" effect—it follows the player smoothly rather than snapping rigidly. Increasing the smoothing factor makes the camera move more tightly; decreasing it makes it float more loosely.
+
+<a id="3-3"></a>
+
+### Horizontal-Only Tracking
+
+Often, in platformers, we want the camera to follow the player's **x-position** (left and right) but not vertical movement. We can achieve this by calling `panCamera` in the following fashion:
+
+```cpp
+// main.cpp
+
+// ...
+
+void update() 
+{
+    // ...
+
+    while (deltaTime >= FIXED_TIMESTEP)
+    {
+        // ...
+
+        Vector2 currentPlayerPosition = { gState.xochitl->getPosition().x, ORIGIN.y };
+        panCamera(&gCamera, &currentPlayerPosition);
+
+        // ...
+    }
+}
+
+//
+```
+
+By keeping the `y`-value fixed, the view remains steady even when the player jumps or falls.
+
+<a id="3-4"></a>
+
+### Rendering with the Camera
+
+When using cameras, all world-space drawing has to be done between these two Raylib calls:
+
+```cpp
+BeginMode2D(gCamera);
+    gState.map->render();
+    gState.xochitl->render();
+EndMode2D();
+```
+
+Everything drawn between these calls is transformed according to the camera's position, zoom, and rotation — so when the camera moves, the world appears to scroll naturally across the screen.
+
+<br>
+
 <a id="2-3-4"></a>
 
 #### The `isSolidTileAt` Method
 
-Of course, the reason why Xochitl is going straight through the ground right now is because she a) is in zero communication with the `Map` class, and b) even if she were, she has no way of telling which tiles of the map are solid and which aren't. We very clearly need a system through which our `Entity` objects will be able to check its collisions with each of these tiles.
+Of course, the reason why Xochitl was going straight through the ground in [**Figure VI**](#fg-6) is because she a) is in zero communication with the `Map` class, and b) even if she were, she has no way of telling which tiles of the map are solid and which aren't. We very clearly need a system through which our `Entity` objects will be able to check its collisions with each of these tiles.
 
 The way our `Entity` objects will do this is by calling the `Map` object's `isSolidTileAt` method, which will:
 
 1. Return `true` if the tile in question is, indeed, solid (or `false` otherwise).
-2. Will also determine how much x- and y-overlap our `Entity` object has with that tile (similar to how we did when checking collisions between two `Entity` objects).
+2. Also return how much x- and y-overlap our `Entity` object has with that tile (similar to how we did when checking collisions between two `Entity` objects).
 
-There's a lot of moving parts to this method, so let's tackle them one-by-one:
+Before we look at the code, let's build the intuition from something more tactile.
+
+Imagine a parking lot: a grid of identical spaces, each the same width and height, painted on the asphalt. Some spaces have cars in them (solid tiles) and some are empty (tile index `0`). You are the parking attendant at the entrance with one clipboard and one job—given a single point in the lot (say, the tip of a car bumper crossing a painted line), answer **two questions**:
+
+1. **Is this point inside an occupied space?**
+2. **If so, how far past the painted line did it go?**
+
+Your process goes like this:
+
+1. **Is the bumper even in the lot?** If it's out on the street, you can stop right there.
+2. **Which space is it in?** Measure how far the bumper is from the lot entrance, divide by the space width—that's the column. Same math gets you the row.
+3. **Is that space taken?** Check the chart. If the space is empty (tile `0`), nothing to report.
+4. **How far past the line?** Half the space width, minus the distance from the space's center to the bumper tip. The deeper the bumper is inside the space, the larger this number.
+
+`isSolidTileAt` is exactly this attendant:
+
+<p align=center>
+    <img src="assets/README/isSolidTileAt-overlap.svg">
+    </img>
+</p>
+
+With that picture in mind, here's how each step of the attendant's checklist maps to code:
 
 ```cpp
 bool Map::isSolidTileAt(Vector2 position, float *xOverlap, float *yOverlap)
@@ -653,7 +845,7 @@ Y = mTopBoundary + 1 * 50 + 25
   = mTopBoundary + 75
 ```
 
-<a id="fg-7"></a>
+<a id="fg-8"></a>
 
 <p align=center>
     <img src="assets/README/tile-centres.png">
@@ -662,7 +854,7 @@ Y = mTopBoundary + 1 * 50 + 25
 
 <p align=center>
     <sub>
-        <strong>Figure VII</strong>: A visual of why the above math works, showing only the calculation for <code>tileCentreX</code>.
+        <strong>Figure VIII</strong>: A visual of why the above math works, showing only the calculation for <code>tileCentreX</code>.
     </sub>
 </p>
 
@@ -692,7 +884,7 @@ The same logic applies for `yOverlap` vertically! Once we're done modifying thes
 
 <br>
 
-<a id="3"></a>
+<a id="4"></a>
 
 ## Overloading The `Entity` Class's `checkCollisionX` & `checkCollisionY` Methods
 
@@ -766,14 +958,14 @@ So what do we do inside of `Entity`'s `update` now? It's actually quite simple: 
 
 The logic will go as follows: These new methods will be _probing_ for three points **per edge** (six total) and checking whether the tile that we are colliding with is supposed to be solid or not using the `isSolidTileAt` method. For instance, in the case of a pit:
 
-<a id="fg-8"></a>
+<a id="fg-9"></a>
 
 <p align=center>
     <img src="assets/README/check-col-x-map.png">
     </img>
 </p>
 
-<a id="fg-9"></a>
+<a id="fg-10"></a>
 
 <p align=center>
     <img src="assets/README/check-col-y-map.png">
@@ -782,7 +974,7 @@ The logic will go as follows: These new methods will be _probing_ for three poin
 
 <p align=center>
     <sub>
-        <strong>Figures VIII & IX</strong>: Collision detection in both cardinal coordinates, where the red probes represent a collision detected.
+        <strong>Figures IX & X</strong>: Collision detection in both cardinal coordinates, where the red probes represent a collision detected.
     </sub>
 </p>
 
@@ -915,7 +1107,7 @@ void Entity::update(float deltaTime, Entity *player, Map *map,
 
 To finally get what we've been looking for:
 
-<a id="fg-10"></a>
+<a id="fg-11"></a>
 
 <p align=center>
     <img src="assets/README/map-final.gif">
@@ -924,154 +1116,7 @@ To finally get what we've been looking for:
 
 <p align=center>
     <sub>
-        <strong>Figure X</strong>: <em>Habēmus Mapam</em>.
+        <strong>Figure XI</strong>: <em>Habēmus Mapam</em>.
     </sub>
 </p>
 
-<br>
-
-<a id="4"></a>
-
-## Cameras in raylib
-
-One last, unrelated, yet extremely important thing. You'll sometimes hear developers say that a good game is one that has the **three Cs** covered:
-
-1. **Character**
-2. **Controller**
-3. **Camera**
-
-We've covered the first two extensively, and it's about time we cover the third. In video games, a **camera** determines what part of the world the player sees. Even in 2D games, the world often extends far beyond the visible screen—the camera acts like a **window** into that larger world.
-
-Without a camera system, the view would stay fixed at a single point, meaning the player could walk off-screen and we'd be none the wiser. By controlling the camera’s position and movement, we can:
-
-- **Follow the player** smoothly as they explore the world
-- **Create cinematic effects** (like zooms or shakes; more on that next week)
-- **Constrain visibility** to specific areas for pacing or difficulty
-- **Enhance immersion**, making the world feel larger and more dynamic
-
-In short, the camera connects **gameplay** and **presentation**—it tells the player _where to look_.
-
-<a id="4-1"></a>
-
-### Camera Setup
-
-We use Raylib’s built-in `Camera2D` structure to control what part of the world is visible. Since the camera isn’t really a game object—it’s more of a rendering concern—we declare it as a **global variable** rather than a member of `GameState`:
-
-```cpp
-// Global Variables
-// ...
-Camera2D gCamera = { 0 };
-```
-
-Here’s how it is then initialized in the `initialise()` function:
-
-```cpp
-gCamera.target   = gState.xochitl->getPosition(); // Start centered on the player
-gCamera.offset   = ORIGIN;                        // Keep player centered on screen
-gCamera.rotation = 0.0f;                          // No rotation
-gCamera.zoom     = 1.0f;                          // Normal zoom level
-```
-
-In order here's what each of these do and how we use them:
-
-| Attribute      | Description                                                                               |
-| -------------- | ----------------------------------------------------------------------------------------- |
-| **`target`**   | The world position the camera looks at. Here, it starts at the player’s position.         |
-| **`offset`**   | The point on the screen where the target appears — the center of the window in this case. |
-| **`zoom`**     | Controls how close or far the camera is (1.0 = normal, >1 = zoom in, <1 = zoom out).      |
-| **`rotation`** | Rotates the entire view (set to 0 for a stable, upright camera).                          |
-
-<sub>**Figure XI**: The list of relevant attributes belonging to the `Camera2D` object.</sub>
-
-Together, these values define **what the camera looks at** and **how it’s displayed** on the screen.
-
-<a id="4-2"></a>
-
-### Smooth Camera Movement
-
-Technically, all we need to do every frame in order to have the camera follow our player is to set its `target` attribute to their position:
-
-```cpp
-// main.cpp
-
-// ...
-
-void update() 
-{
-    // ...
-
-    while (deltaTime >= FIXED_TIMESTEP)
-    {
-        // ...
-
-        gCamera.target = gState.xochitl->getPosition();
-
-        // ...
-    }
-}
-
-//
-```
-
-What we can do instead for a smoother effect is have our camera **ease** toward it gradually. In my code, I handle this via the function `panCamera()`:
-
-```cpp
-void panCamera(Camera2D *camera, const Vector2 *targetPosition)
-{
-    Vector2 positionDifference = Vector2Subtract(*targetPosition, camera->target);
-    camera->target = Vector2Add(camera->target, Vector2Scale(positionDifference, 0.1f));
-}
-```
-
-Here’s what’s happening:
-
-1. We compute how far the camera is from the player (`positionDifference`).
-2. We move the camera **10% of the way** toward that position each frame (`0.1f` smoothing factor).
-
-This gives the camera a subtle “lag” effect—it follows the player smoothly rather than snapping rigidly. Increasing the smoothing factor makes the camera move more tightly; decreasing it makes it float more loosely.
-
-<a id="4-3"></a>
-
-### Horizontal-Only Tracking
-
-Often, in platformers, we want the camera to follow the player’s **x-position** (left and right) but not vertical movement. We can achieve this by calling `panCamera` in the following fashion:
-
-```cpp
-// main.cpp
-
-// ...
-
-void update() 
-{
-    // ...
-
-    while (deltaTime >= FIXED_TIMESTEP)
-    {
-        // ...
-
-        Vector2 currentPlayerPosition = { gState.xochitl->getPosition().x, ORIGIN.y };
-        panCamera(&gCamera, &currentPlayerPosition);
-
-        // ...
-    }
-}
-
-//
-```
-
-By keeping the `y`-value fixed, the view remains steady even when the player jumps or falls.
-
-<a id="4-4"></a>
-
-### Rendering with the Camera
-
-When using cameras, all world-space drawing has to be done between these two Raylib calls:
-
-```cpp
-BeginMode2D(gCamera);
-    gState.map->render();
-    gState.xochitl->render();
-EndMode2D();
-```
-
-Everything drawn between these calls is transformed according to the camera’s position, zoom, and rotation — so when the camera moves, the world appears to scroll naturally across the screen.

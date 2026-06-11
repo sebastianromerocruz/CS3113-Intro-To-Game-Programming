@@ -107,12 +107,18 @@ bool Map::isSolidTileAt(Vector2 position, float *xOverlap, float *yOverlap)
         mTopBoundary + tileYIndex * mTileSize + mTileSize / 2.0f;
 
     /*
-    When our collision probe touches a solid tile, we calculate how far the probe has penetrated into that tile along each axis — this is what we call the overlap. Each tile has a center point and a known half-size (half of mTileSize). By comparing the probe’s position to the tile’s center, we find how deep the probe is inside the tile: if the distance between them is smaller than the tile’s half-size, then the probe is overlapping. The overlap value (mTileSize / 2) - fabs(position - tileCenter) tells us exactly how much to push the entity back so that it sits flush against the tile’s edge without clipping inside. We calculate this separately for both the X and Y axes, which lets us resolve collisions in either direction — for example, preventing the player from sinking into the ground or walking through walls.
+    When our collision probe touches a solid tile, we calculate how far the probe has penetrated into that tile along each axis — this is what we call the overlap. Each tile has a center point and a known half-size (half of mTileSize). By comparing the probe’s position to the tile’s center, we find how deep the probe is inside the tile: if the distance between them is smaller than the tile’s half-size, then the probe is overlapping. The overlap value (mTileSize / 2) - fabs(position - tileCenter) tells us exactly how much to push the entity back so that it sits flush against the tile’s edge without clipping inside. We calculate this separately for both the X and Y axes, which lets us resolve collisions in either direction—for example, preventing the player from sinking into the ground or walking through walls.
     */
     *xOverlap =
-        fmaxf(0.0f, (mTileSize / 2.0f) - fabs(position.x - tileCentreX));
+        fmaxf(
+            0.0f, 
+            (mTileSize / 2.0f) - fabs(position.x - tileCentreX)
+        );
     *yOverlap =
-        fmaxf(0.0f, (mTileSize / 2.0f) - fabs(position.y - tileCentreY));
+        fmaxf(
+            0.0f, 
+            (mTileSize / 2.0f) - fabs(position.y - tileCentreY)
+        );
 
     return true;
 }
