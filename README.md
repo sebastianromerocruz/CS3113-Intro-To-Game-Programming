@@ -46,9 +46,10 @@
 6. [**Physics**](lectures/06-physics)
 7. [**AI In Games**](lectures/07-ai)
 8. [**Maps**](lectures/08-maps)
+9. [**Scenes**](lectures/09-scenes)
+
 
 <!--
-9. [**Scenes**](lectures/09-scenes)
 10. [**Effects / Shaders**](lectures/10-effects-shaders)
 11. [**Playtesting**](lectures/11-playtesting) -->
 

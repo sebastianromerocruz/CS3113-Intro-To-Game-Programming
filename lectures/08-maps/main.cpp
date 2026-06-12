@@ -16,9 +16,11 @@ constexpr char    BG_COLOUR[]      = "#C0897E";
 constexpr Vector2 ORIGIN           = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 },
                   ATLAS_DIMENSIONS = { 6, 8 };
 
-constexpr int   NUMBER_OF_TILES = 20, NUMBER_OF_BLOCKS = 3;
-constexpr float TILE_DIMENSION = 75.0f, ACCELERATION_OF_GRAVITY = 981.0f,
-                FIXED_TIMESTEP = 1.0f / 60.0f, END_GAME_THRESHOLD = 800.0f;
+constexpr int   NUMBER_OF_TILES = 20;
+constexpr float TILE_DIMENSION          = 75.0f,
+                ACCELERATION_OF_GRAVITY = 981.0f,
+                FIXED_TIMESTEP          = 1.0f / 60.0f,
+                END_GAME_THRESHOLD      = 800.0f;
 
 constexpr int          LEVEL_WIDTH = 14, LEVEL_HEIGHT = 8;
 constexpr unsigned int LEVEL_DATA[] = {
@@ -74,7 +76,7 @@ void initialise()
 
     gState.bgm = LoadMusicStream("assets/game/04 - Silent Forest.wav");
     SetMusicVolume(gState.bgm, 0.33f);
-    // PlayMusicStream(gState.bgm);
+    PlayMusicStream(gState.bgm);
 
     gState.jumpSound = LoadSound("assets/game/Dirt Jump.wav");
 
