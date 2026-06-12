@@ -1,27 +1,20 @@
 #include "CS3113/LevelB.h"
 
 // Global Constants
-constexpr int SCREEN_WIDTH     = 1000,
-              SCREEN_HEIGHT    = 600,
-              FPS              = 120,
-              NUMBER_OF_LEVELS = 2;
+constexpr int SCREEN_WIDTH = 1000, SCREEN_HEIGHT = 600, FPS = 120;
 
 constexpr Vector2 ORIGIN = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
 
 constexpr float FIXED_TIMESTEP = 1.0f / 60.0f;
 
 // Global Variables
-AppStatus gAppStatus   = RUNNING;
-float gPreviousTicks   = 0.0f,
-      gTimeAccumulator = 0.0f;
+AppStatus gAppStatus     = RUNNING;
+float     gPreviousTicks = 0.0f, gTimeAccumulator = 0.0f;
 
 Camera2D gCamera = { 0 };
 
-Scene *gCurrentScene = nullptr;
-std::vector<Scene*> gLevels = {};
-
-LevelA *gLevelA = nullptr;
-LevelB *gLevelB = nullptr;
+Scene                     *gCurrentScene = nullptr;
+std::map<SceneID, Scene *> gLevels       = {};
 
 // Function Declarations
 void switchToScene(Scene *scene);
@@ -44,13 +37,10 @@ void initialise()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Scenes");
     InitAudioDevice();
 
-    gLevelA = new LevelA(ORIGIN, "#C0897E");
-    gLevelB = new LevelB(ORIGIN, "#011627");
+    gLevels[LEVEL_A] = new LevelA(ORIGIN, "#C0897E");
+    gLevels[LEVEL_B] = new LevelB(ORIGIN, "#011627");
 
-    gLevels.push_back(gLevelA);
-    gLevels.push_back(gLevelB);
-
-    switchToScene(gLevels[0]);
+    switchToScene(gLevels[LEVEL_A]);
 
     gCamera.offset   = ORIGIN;
     gCamera.rotation = 0.0f;
@@ -63,8 +53,10 @@ void processInput()
 {
     gCurrentScene->getState().xochitl->resetMovement();
 
-    if      (IsKeyDown(KEY_A)) gCurrentScene->getState().xochitl->moveLeft();
-    else if (IsKeyDown(KEY_D)) gCurrentScene->getState().xochitl->moveRight();
+    if (IsKeyDown(KEY_A))
+        gCurrentScene->getState().xochitl->moveLeft();
+    else if (IsKeyDown(KEY_D))
+        gCurrentScene->getState().xochitl->moveRight();
 
     if (IsKeyPressed(KEY_W) &&
         gCurrentScene->getState().xochitl->isCollidingBottom())
@@ -81,7 +73,7 @@ void processInput()
 
 void update()
 {
-    float ticks = (float) GetTime();
+    float ticks     = (float) GetTime();
     float deltaTime = ticks - gPreviousTicks;
     gPreviousTicks  = ticks;
 
@@ -98,7 +90,9 @@ void update()
         gCurrentScene->update(FIXED_TIMESTEP);
         deltaTime -= FIXED_TIMESTEP;
 
-        Vector2 currentPlayerPosition = { gCurrentScene->getState().xochitl->getPosition().x, ORIGIN.y };
+        Vector2 currentPlayerPosition = {
+            gCurrentScene->getState().xochitl->getPosition().x, ORIGIN.y
+        };
         panCamera(&gCamera, &currentPlayerPosition);
     }
 }
@@ -116,10 +110,9 @@ void render()
 
 void shutdown()
 {
-    delete gLevelA;
-    delete gLevelB;
-
-    for (int i = 0; i < NUMBER_OF_LEVELS; i++) gLevels[i] = nullptr;
+    for (std::pair<const SceneID, Scene *> &entry : gLevels)
+        delete entry.second;
+    gLevels.clear();
 
     CloseAudioDevice();
     CloseWindow();
@@ -134,9 +127,9 @@ int main(void)
         processInput();
         update();
 
-        if (gCurrentScene->getState().nextSceneID > 0)
+        if (gCurrentScene->getState().nextSceneID != NO_SCENE)
         {
-            int id = gCurrentScene->getState().nextSceneID;
+            SceneID id = gCurrentScene->getState().nextSceneID;
             switchToScene(gLevels[id]);
         }
 

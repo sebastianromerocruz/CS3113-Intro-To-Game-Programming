@@ -28,7 +28,8 @@
     2. [**Migrating Functionality To The `LevelA` Class**](#3-2)
     3. [**Cleaning Up `main`**](#3-3)
 4. [**Switching Levels**](#4)
-5. [**A Subtle Memory Leak**](#5)
+5. [**Cleaning Up In `shutdown()`**](#5)
+6. [**A Subtle Memory Leak**](#6)
 
 ---
 
@@ -104,7 +105,7 @@ struct GameState
     Music bgm;
     Sound jumpSound;
 
-    int nextSceneID;
+    SceneID nextSceneID;
 };
 
 class Scene 
@@ -578,37 +579,54 @@ void switchToScene(Scene *scene)
 // ...
 ```
 
-So, if we have two scene types (I created a virtually identical level over at [**`LevelB.h`**](CS3113/LevelB.h)/[**`LevelB.cpp`**](CS3113/LevelB.cpp)), we'd start our game the following way:
+So, if we have two scene types (I created a virtually identical level over at [**`LevelB.h`**](CS3113/LevelB.h)/[**`LevelB.cpp`**](CS3113/LevelB.cpp)), we need a way for each scene to signal which scene should come next.
+
+The first instinct is to use a raw `int` for this—just store the array index of the next scene. But raw integers as identifiers carry two real problems:
+
+1. **The sentinel collision.** We need a "no switch pending" value, and `0` is the obvious choice. But `0` is also the index of the first scene. The check `nextSceneID > 0` silently rules out ever switching _back_ to scene zero—a bug that quietly limits your game design.
+
+2. **Readability.** `mGameState.nextSceneID = 1` tells you nothing. `mGameState.nextSceneID = LEVEL_B` is self-documenting.
+
+The fix is a `SceneID` enum, defined alongside the other engine-wide enums in `cs3113.h`:
+
+```cpp
+// cs3113.h
+
+enum SceneID { NO_SCENE = -1, LEVEL_A, LEVEL_B };
+```
+
+`NO_SCENE = -1` is our unambiguous sentinel—it can never collide with a valid scene identifier. `LEVEL_A` and `LEVEL_B` then count up from `0` automatically.
+
+With that in place we can add the field to `GameState` using the proper type:
+
+```cpp
+// Scene.h
+
+struct GameState
+{
+    // ...
+
+    SceneID nextSceneID;
+};
+```
+
+And our scene collection in `main` becomes a `std::map<SceneID, Scene*>` instead of a raw vector, so each scene is fetched by name rather than by position. Because the map owns the pointers, there is no need for separate named globals—we construct each level directly into its slot:
 
 ```cpp
 // main.cpp
 
-// ...
-
-constexpr int NUMBER_OF_LEVELS = 2;
-
-// ...
-
 Camera2D gCamera = { 0 };
 
 Scene *gCurrentScene = nullptr;
-std::vector<Scene*> gLevels = {};
-
-LevelA *gLevelA = nullptr;
-LevelB *gLevelB = nullptr;
-
-// ...
+std::map<SceneID, Scene*> gLevels = {};
 
 void initialise()
 {
     // ...
-    gLevelA = new LevelA(ORIGIN, "#C0897E");
-    gLevelB = new LevelB(ORIGIN, "#011627");
+    gLevels[LEVEL_A] = new LevelA(ORIGIN, "#C0897E");
+    gLevels[LEVEL_B] = new LevelB(ORIGIN, "#011627");
 
-    gLevels.push_back(gLevelA);
-    gLevels.push_back(gLevelB);
-
-    switchToScene(gLevels[0]);
+    switchToScene(gLevels[LEVEL_A]);
 
     gCamera.offset   = ORIGIN;
     gCamera.rotation = 0.0f;
@@ -617,58 +635,32 @@ void initialise()
 }
 ```
 
-Next, we'll add a new field to our `GameState` struct over in the `Scene` class that will represent the _index_ (within the vector of `Scene` pointers) of the level it should switch after it is "finished":
-
-```cpp
-// Scene.h
-
-// ...
-
-struct GameState
-{
-    // ...
-
-    int nextSceneID;
-};
-
-// ...
-```
-
 For the sake of simplicity, I'll tell our game to switch levels if Xochitl falls through the pit in level A (a little silly, I know):
 
 ```cpp
 // LevelA.cpp
 
-// ...
-
 void LevelA::initialise()
 {
-    // 0 will be our "don't switch scenes yet" state
-    mGameState.nextSceneID = 0;
+    mGameState.nextSceneID = NO_SCENE;
 
     // ...
 }
 
-// ...
 void LevelA::update(float deltaTime)
 {
     // ...
 
-    // 1 is the index of LevelB in the vector in main.cpp
-    if (mGameState.xochitl->getPosition().y > 800.0f) mGameState.nextSceneID = 1;
+    if (mGameState.xochitl->getPosition().y > 800.0f) mGameState.nextSceneID = LEVEL_B;
 
     // ...
 }
-
-// ...
 ```
 
-Finally, in `main` we'll commit the very rare act of changing our core game-loop to accomodate for these potential scene switches:
+Finally, in `main` we'll commit the very rare act of changing our core game-loop to accommodate for these potential scene switches. The sentinel check is now `!= NO_SCENE`—unambiguous regardless of how many scenes you add:
 
 ```cpp
 // main.cpp
-
-// ...
 
 int main(void)
 {
@@ -679,9 +671,9 @@ int main(void)
         processInput();
         update();
 
-        if (gCurrentScene->getState().nextSceneID > 0)
+        if (gCurrentScene->getState().nextSceneID != NO_SCENE)
         {
-            int id = gCurrentScene->getState().nextSceneID;
+            SceneID id = gCurrentScene->getState().nextSceneID;
             switchToScene(gLevels[id]);
         }
 
@@ -710,6 +702,37 @@ And we're ready to go!
 
 <a id="5"></a>
 
+## Cleaning Up In `shutdown()`
+
+With the map as the single owner of all scene pointers, cleanup becomes straightforward:
+
+```cpp
+// main.cpp
+
+void shutdown()
+{
+    for (std::pair<const SceneID, Scene *> &entry : gLevels)
+        delete entry.second;
+    gLevels.clear();
+
+    CloseAudioDevice();
+    CloseWindow();
+}
+```
+
+The key thing to understand here is the loop's element type. `std::map<SceneID, Scene*>` stores each key-value pair as a `std::pair<const SceneID, Scene*>`—the key is `const` because map keys are immutable once inserted (it's similar to Python dictionaries' `.items()` method). Each `entry` therefore has two members:
+
+- **`entry.first`**: the `SceneID` key (`LEVEL_A`, `LEVEL_B`, etc.)
+- **`entry.second`**: the `Scene*` value, which is what we actually allocated
+
+We call `delete entry.second` to free each scene, and then `gLevels.clear()` to empty the map of the now-dangling pointers. Finally, `CloseAudioDevice()` and `CloseWindow()` tear down the Raylib context.
+
+The other benefit of this pattern is that it scales for free: adding a third level to `initialise()` means `shutdown()` picks it up automatically without any changes.
+
+<br>
+
+<a id="6"></a>
+
 ## A Subtle Memory Leak
 
 There is a bug hiding in `switchToScene` as we've written it. Take another look:
@@ -723,9 +746,9 @@ void switchToScene(Scene *scene)
 }
 ```
 
-When this is called the first time—`switchToScene(gLevels[0])`—`gCurrentScene` is `nullptr`, so there's nothing to worry about. But when the player falls through the pit and we call `switchToScene(gLevels[1])`, the old `gCurrentScene` (LevelA) has already called `initialise()` and is sitting on a live `Entity*`, a live `Map*`, and two loaded audio resources. We simply overwrite `gCurrentScene` with the new scene pointer and call `initialise()` on it, never giving LevelA a chance to clean up. Those resources are now unreachable.
+When this is called the first time—`switchToScene(gLevels[LEVEL_A])`—`gCurrentScene` is `nullptr`, so there's nothing to worry about. But when the player falls through the pit and we call `switchToScene(gLevels[LEVEL_B])`, the old `gCurrentScene` (LevelA) has already called `initialise()` and is sitting on a live `Entity*`, a live `Map*`, and two loaded audio resources. We simply overwrite `gCurrentScene` with the new scene pointer and call `initialise()` on it, never giving LevelA a chance to clean up. Those resources are now unreachable.
 
-You might think: "but `delete gLevelA` is called in global `shutdown()`, and the destructor calls `shutdown()`, so they'll be freed then." That's true for the current linear one-way flow. But consider what happens if you ever add a way to revisit LevelA—or even call `switchToScene` on the same level twice by accident. `initialise()` would allocate a new `Entity*` and `Map*` and assign them to `mGameState.xochitl` and `mGameState.map`, overwriting the old pointers. Those old allocations are now leaked with no way to recover them.
+You might think: "but global `shutdown()` iterates `gLevels` and deletes every scene, and the destructor calls `shutdown()`, so they'll be freed then." That's true for the current linear one-way flow. But consider what happens if you ever add a way to revisit LevelA—or even call `switchToScene` on the same level twice by accident. `initialise()` would allocate a new `Entity*` and `Map*` and assign them to `mGameState.xochitl` and `mGameState.map`, overwriting the old pointers. Those old allocations are now leaked with no way to recover them.
 
 The fix is to call `shutdown()` on the departing scene before switching:
 

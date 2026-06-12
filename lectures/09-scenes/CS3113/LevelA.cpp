@@ -7,7 +7,7 @@ LevelA::~LevelA() { shutdown(); }
 
 void LevelA::initialise()
 {
-    mGameState.nextSceneID = 0;
+    mGameState.nextSceneID = NO_SCENE;
 
     mGameState.bgm = LoadMusicStream("assets/game/04 - Silent Forest.wav");
     SetMusicVolume(mGameState.bgm, 0.33f);
@@ -71,7 +71,7 @@ void LevelA::update(float deltaTime)
     );
 
     if (mGameState.xochitl->getPosition().y > END_GAME_THRESHOLD)
-        mGameState.nextSceneID = 1;
+        mGameState.nextSceneID = LEVEL_B;
 }
 
 void LevelA::render()
