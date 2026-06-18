@@ -11,7 +11,7 @@ struct GameState
     Music bgm;
     Sound jumpSound;
 
-    int nextSceneID;
+    SceneID nextSceneID;
 };
 
 class Scene

@@ -1,10 +1,9 @@
 #include "CS3113/ShaderProgram.h"
 
 // Global Constants
-constexpr int SCREEN_WIDTH     = 1000,
-              SCREEN_HEIGHT    = 600,
-              FPS              = 120,
-              NUMBER_OF_LEVELS = 2;
+constexpr int SCREEN_WIDTH  = 1000,
+              SCREEN_HEIGHT = 600,
+              FPS           = 120;
 
 constexpr Vector2 ORIGIN = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
 
@@ -15,11 +14,8 @@ AppStatus gAppStatus   = RUNNING;
 float gPreviousTicks   = 0.0f,
       gTimeAccumulator = 0.0f;
 
-Scene *gCurrentScene = nullptr;
-std::vector<Scene*> gLevels = {};
-
-LevelA *gLevelA = nullptr;
-LevelB *gLevelB = nullptr;
+Scene                     *gCurrentScene = nullptr;
+std::map<SceneID, Scene *> gLevels       = {};
 
 Effects *gEffects = nullptr;
 
@@ -50,13 +46,10 @@ void initialise()
 
     gShader.load("shaders/vertex.glsl", "shaders/fragment.glsl");
 
-    gLevelA = new LevelA(ORIGIN, "#C0897E");
-    gLevelB = new LevelB(ORIGIN, "#011627");
+    gLevels[LEVEL_A] = new LevelA(ORIGIN, "#C0897E");
+    gLevels[LEVEL_B] = new LevelB(ORIGIN, "#011627");
 
-    gLevels.push_back(gLevelA);
-    gLevels.push_back(gLevelB);
-
-    switchToScene(gLevels[0]);
+    switchToScene(gLevels[LEVEL_A]);
 
     gCamera.offset   = ORIGIN;
     gCamera.rotation = 0.0f;
@@ -135,10 +128,9 @@ void render()
 
 void shutdown()
 {
-    delete gLevelA;
-    delete gLevelB;
-
-    for (int i = 0; i < NUMBER_OF_LEVELS; i++) gLevels[i] = nullptr;
+    for (std::pair<const SceneID, Scene *> &entry : gLevels)
+        delete entry.second;
+    gLevels.clear();
 
     delete gEffects;
     gEffects = nullptr;
@@ -158,9 +150,9 @@ int main(void)
         processInput();
         update();
 
-        if (gCurrentScene->getState().nextSceneID > 0)
+        if (gCurrentScene->getState().nextSceneID != NO_SCENE)
         {
-            int id = gCurrentScene->getState().nextSceneID;
+            SceneID id = gCurrentScene->getState().nextSceneID;
             switchToScene(gLevels[id]);
         }
 

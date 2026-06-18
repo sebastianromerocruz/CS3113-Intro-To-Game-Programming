@@ -13,8 +13,9 @@
 #include <string>
 #include <iostream>
 
-enum AppStatus   { TERMINATED, RUNNING };
-enum TextureType { SINGLE, ATLAS       };
+enum AppStatus   { TERMINATED, RUNNING         };
+enum TextureType { SINGLE, ATLAS               };
+enum SceneID     { NO_SCENE = -1, LEVEL_A, LEVEL_B };
 
 Color     ColorFromHex(const char *hex);
 void      Normalise(Vector2 *vector);
