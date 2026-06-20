@@ -32,10 +32,10 @@ Playtesting is the structured practice of putting your game in front of people w
 
 It lives inside the broader **game development cycle**, typically running in parallel with production rather than after it:
 
-1. **Prototype** — a rough version built to test a single idea or mechanic
-2. **Playtest** — real players interact with the prototype; you observe and collect feedback
-3. **Analyze** — you identify patterns in what you observed and what players reported
-4. **Iterate** — you change the game based on what you learned, then playtest again
+1. **Prototype**: a rough version built to test a single idea or mechanic
+2. **Playtest**: real players interact with the prototype; you observe and collect feedback
+3. **Analyze**: you identify patterns in what you observed and what players reported
+4. **Iterate**: you change the game based on what you learned, then playtest again
 
 That loop repeats. A common shorthand in the industry is: the last 10% of polish takes as long as the first 90% of building. Playtesting is how you find out what that 10% actually is.
 
@@ -44,7 +44,7 @@ It's worth distinguishing playtesting from two things it's often confused with:
 - **QA testing** (Quality Assurance) is about technical correctness—finding crashes, broken collision, audio that doesn't trigger, save data that corrupts. QA happens close to ship. Playtesting happens throughout development, and its subject is the *experience*, not the *stability*.
 - **User research / focus groups** are about gathering opinions on what players *want*. Playtesting is about observing what players *do* and understanding why. The distinction matters: players are often wrong about what they want but never wrong about what they felt.
 
-The earliest playtesting should happen embarrassingly early — before the art is done, before the levels are balanced, sometimes before the mechanics are fully implemented. The longer you wait, the more attached you become to decisions that might need to change, and the more expensive those changes become.
+The earliest playtesting should happen embarrassingly early—before the art is done, before the levels are balanced, sometimes before the mechanics are fully implemented. The longer you wait, the more attached you become to decisions that might need to change, and the more expensive those changes become.
 
 <br>
 
@@ -56,7 +56,7 @@ The number one mistake designers make in their first playtesting session is this
 
 **Don't.**
 
-The moment you open your mouth to clarify a mechanic, you have invalidated the session. You've learned that without your explanation the mechanic was confusing — and then you've erased that data by providing the explanation. The rule is simple:
+The moment you open your mouth to clarify a mechanic, you have invalidated the session. You've learned that without your explanation the mechanic was confusing—and then you've erased that data by providing the explanation. The rule is simple:
 
 > _If your game needs you standing next to it to work, your game doesn't work._
 
@@ -67,14 +67,14 @@ This is psychologically difficult. Watching someone be confused by, bored with, 
 What playtesting actually is:
 
 - **A diagnostic tool.** It surfaces gaps between what you intended and what the player experiences.
-- **An empathy exercise.** It forces you to see your game through eyes that don't share your context — your months of building it, your mental model of how it "should" be played.
+- **An empathy exercise.** It forces you to see your game through eyes that don't share your context—your months of building it, your mental model of how it "should" be played.
 - **An iterative checkpoint.** Every session should give you a short list of concrete things to address before the next one.
 
 What it is not:
 
 - **A focus group.** You are not asking players what game they want you to make. That's a different job, and asking playtesters to design your game for you produces bad games.
 - **A validation session.** "Did people like it?" is not a research question. You already know the answer is "some did, some didn't." That tells you nothing about what to fix.
-- **QA testing.** QA is about finding bugs. Playtesting is about finding friction — moments where the game breaks the player's sense of agency, understanding, or fun.
+- **QA testing.** QA is about finding bugs. Playtesting is about finding friction—moments where the game breaks the player's sense of agency, understanding, or fun.
 
 During the session itself, try to keep quiet and take notes. What did the player try that didn't work? Where did they slow down? Where did they speed up? Did they read the UI? Did they laugh, sigh, lean forward? These observations are often more valuable than anything they write in a survey afterward, because behavior is harder to rationalise than opinion.
 
@@ -86,13 +86,13 @@ During the session itself, try to keep quiet and take notes. What did the player
 
 After the session, you need a survey. And here is where most student projects produce useless data.
 
-The trap is the **predicate question** — a question that smuggles its answer in the premise:
+The trap is the **predicate question**—a question that smuggles its answer in the premise:
 
 - _Did you find the controls easy to use?_
 - _Did you enjoy the boss fight?_
 - _Was the tutorial helpful?_
 
-These are yes/no questions with a built-in "correct" answer. Playtesters—especially classmates who know you—will default to the answer they think you want to hear. Even if they answer honestly, "no" tells you nothing. No, the controls weren't easy — but why? Which control? What did you try first? What did you expect?
+These are yes/no questions with a built-in "correct" answer. Playtesters—especially classmates who know you—will default to the answer they think you want to hear. Even if they answer honestly, "no" tells you nothing. No, the controls weren't easy—but why? Which control? What did you try first? What did you expect?
 
 The second trap is the **pure rating scale**:
 
@@ -140,7 +140,7 @@ This isn't small talk; it's context. If your die-hard action gamer says the comb
 
 Immediately after play, while the feeling is still fresh, ask about the emotional arc of the session before you ask about mechanics. Feelings first, details second.
 
-The best experience questions use **behavioral recall** — they ask the player to describe what happened, not to rate it:
+The best experience questions use **behavioral recall**—they ask the player to describe what happened, not to rate it:
 
 > _Describe a moment during the game where you felt stuck or unsure what to do next. What were you doing when that happened?_
 
@@ -207,10 +207,10 @@ Finally: keep it short. Five to eight questions is enough. A long survey trains 
 
 ### Questions that work vs. questions that don't
 
-| Doesn't work | Works — and why |
+| Doesn't work | Works, and why |
 |---|---|
 | _Did you enjoy the game?_ | _What was the most memorable moment from your session?_ (asks for a specific, not a judgment) |
-| _Was the game too hard or too easy?_ | _How many times did you die or fail before reaching the end? How did that feel — fair, frustrating, or easy to brush off?_ (grounds difficulty in actual events) |
+| _Was the game too hard or too easy?_ | _How many times did you die or fail before reaching the end? How did that feel—fair, frustrating, or easy to brush off?_ (grounds difficulty in actual events) |
 | _Did you like the art style?_ | _Was there a visual element that stood out to you—positively or negatively?_ (open enough to catch things you didn't expect) |
 | _Would you recommend this game?_ | _Who do you think this game is for? What kind of player would enjoy it most?_ (reveals your audience perception) |
 | _What should I add to make it better?_ | _Was there a moment where you wanted to do something and couldn't? What were you trying to do?_ (identifies friction without outsourcing design decisions) |
