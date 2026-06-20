@@ -48,9 +48,10 @@
 8. [**Maps**](lectures/08-maps)
 9. [**Scenes**](lectures/09-scenes)
 10. [**Effects / Shaders**](lectures/10-effects-shaders)
+11. [**Playtesting**](lectures/11-playtesting)
 
 <!--
-11. [**Playtesting**](lectures/11-playtesting) -->
+ -->
 
 <sub>Released the day before each class (Mondays for Tuesday sessions, Wednesdays for Thursday sessions).</sub>
 
