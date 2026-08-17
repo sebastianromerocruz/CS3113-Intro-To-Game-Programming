@@ -148,9 +148,19 @@ $RECYCLE.BIN/
 *.lnk
 
 # Custom
-
+.claude
 *.pdf
 raylib_app
 
-lectures/
-exercises/
+lectures/*
+!lectures/01-introduction
+
+exercises/*
+
+grading
+.clangd
+.clang-format
+.clang-tidy
+prettify.sh
+
+syllabus
