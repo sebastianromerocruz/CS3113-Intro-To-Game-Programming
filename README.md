@@ -39,7 +39,7 @@
 ### _Lecture Notes_
 
 1. [**The Basics: _Hello, Raylib!_**](lectures/01-introduction)
-2. [**Transformations**](lectures/02-transformations)
+<!--2. [**Transformations**](lectures/02-transformations)
 3. [**Textures / Delta Time**](lectures/03-textures-delta-time)
 4. [**User Input / Collision Detection**](lectures/04-user-input-collisions)
 5. [**Animation / The `Entity` Class**](lectures/05-animation-entities)
@@ -48,7 +48,7 @@
 8. [**Maps**](lectures/08-maps)
 9. [**Scenes**](lectures/09-scenes)
 10. [**Effects / Shaders**](lectures/10-effects-shaders)
-11. [**Playtesting**](lectures/11-playtesting)
+11. [**Playtesting**](lectures/11-playtesting)-->
 
 <!--
  -->

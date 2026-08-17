@@ -2,9 +2,9 @@
 
 <h1 align=center>Hello, Raylib!</h1>
 
-<h3 align=center>XIX Harpstring Moon, Imperial Year MMXXVI</h3>
+<h3 align=center>XIV Horsebow Moon, Imperial Year MMXXVI</h3>
 
-<p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/0qUtT6k83Go?si=c-pKA-WsWJ57CQjp"><strong><u>Fior di Latte</u></strong></a> by Phoenix (2017)</em></p>
+<p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/_SftevyQ4kw?si=hVwBryzAPZogWrmH"><strong><u>Reste Avec Moi</u></strong></a> by Pépite (2017)</em></p>
 
 ---
 
@@ -111,7 +111,7 @@ constexpr int SCREEN_WIDTH  = 1200,
               FPS           = 60;
 
 // Global Variables
-AppStatus gAppStatus   = RUNNING;
+AppStatus gAppStatus = RUNNING;
 
 // Function Declarations
 void initialise();
@@ -128,7 +128,7 @@ void initialise()
     SetTargetFPS(FPS);
 }
 
-void processInput() 
+void processInput()
 {
     if (WindowShouldClose()) gAppStatus = TERMINATED;
 }
@@ -144,8 +144,8 @@ void render()
     EndDrawing();
 }
 
-void shutdown() 
-{ 
+void shutdown()
+{
     CloseWindow(); // Close window and OpenGL context
 }
 
@@ -256,7 +256,7 @@ AppStatus gAppStatus = RUNNING;
 
 int main()
 {
-    while (gAppStatus == RUNNING) 
+    while (gAppStatus == RUNNING)
     {
         // ...
     }
@@ -316,7 +316,7 @@ The first function we find in our `main` is that of `initialise`. As previously 
 Our game is pretty empty at the moment, so all we have in terms of interactivity is the ability to close the window. That is precisely what this selection statement is checking for:
 
 ```cpp
-void processInput() 
+void processInput()
 {
     if (WindowShouldClose()) gAppStatus = TERMINATED;
 }
@@ -383,8 +383,8 @@ The buffer that we are filling up during the course of `render` is the **back bu
 There won't be much here for a while besides the following line:
 
 ```cpp
-void shutdown() 
-{ 
+void shutdown()
+{
     CloseWindow(); // Close window and OpenGL context
 }
 ```
