@@ -64,7 +64,7 @@
 
     | **E-Mail**                                  | **Office Hours**                                                     | **Location** |
     |---------------------------------------------|----------------------------------------------------------------------|--------------|
-    | [**ez2346@nyu.edu**](mailto:ez2346@nyu.edu) | **Tuesday:** 9:00 AM - 12:00 PM ([ZOOM](https://nyu.zoom.us/j/94279433694)) <br> **Tuesday:** 6:00 PM - 9:00 PM (In Office) <br> **Friday:** 12:00 AM - 2:00 PM (In Office) | Jacobs Hall 223, Room F |
+    | [**ez2346@nyu.edu**](mailto:ez2346@nyu.edu) | **Monday/Wednesday:** 2:00 PM - 12:00 PM (In Offine) <br> **Tuesday:** 12:30 PM - 2:00 PM (In Office) <br> **Thursday:** 9:00 AM - 11:00 PM (Zoom) | Jacobs Hall 223, Room F <br> [Zoom]() |
 
     *If you need to email Eric for anything related to this class, please include the course number (CS3113) and your first and last name in the subject line.*
 
@@ -172,12 +172,12 @@ As for your final letter grade, the following scale will be used:
 
 | Project                 | Release Date        | Due Date                    |
 |-------------------------|---------------------|-----------------------------|
-| **Simple Scene**        | Friday, Feb 6       | Saturday, Feb 14, 11:59PM   |
-| **Pong**                | Friday, Feb 13      | Saturday, Feb 28, 11:59PM   |
-| **Lunar Lander**        | Friday, Feb 27      | Saturday, Mar 14, 11:59PM   |
-| **Rise of the AI**      | Friday, Mar 13      | Saturday, Apr  4, 11:59PM   |
-| **Students' Choice**    | Friday, Apr  3      | Saturday, Apr 24, 11:59PM   |
-
+| **Simple Scene**        | Monday, Sep 28th    | Monday, Oct 5th, 11:59PM    |
+| **Pong**                | Monday, Oct 5t      | Wednesday, Oct 14th, 11:59PM|
+| **Lunar Lander**        | Wednesday, Oct 14th | Monday, Oct 26th, 11:59PM   |
+| **Rise of the AI**      | Monday, Oct 26th    | Monday, Nov 9th, 11:59PM    |
+| **Students' Choice**    | Monday, Nov 9th     | Monday, Dec 7th, 11:59PM    |
+<!-- Presentation dates: Dec 7th, Dec 14th -->
 <br>
 
 <a id="9"></a>
