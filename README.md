@@ -17,15 +17,21 @@
 3.  [**Class Information**](#3)
 4.  [**Description**](#4)
 5.  [**Objectives**](#5)
-6.  [**Computer/Software Requirements**](#6)
-7.  [**Grading Scheme**](#7)
-8.  [**Deadlines, Extensions, and Late Work Policy**](#8)
-    - [**Project Schedule**](#8-1)
-9. [**Getting Help and Slack**](#9)
-10. [**Moses Center Statement of Disability**](#10)
-11. [**Academic Integrity**](#11)
-    - [**Generative AI**](#11-1)
-    - [**Penalties**](#11-2)
+6.  [**Course Structure**](#6)
+7.  [**Computer/Software Requirements**](#7)
+8.  [**Readings**](#8)
+9.  [**Grading Scheme**](#9)
+10. [**Deadlines, Extensions, and Late Work Policy**](#10)
+    - [**Project Schedule**](#10-1)
+11. [**Getting Help and Slack**](#11)
+12. [**Attendance**](#12)
+    - [**Phones in Class**](#12-1)
+13. [**Moses Center Statement of Disability**](#13)
+14. [**Office of Student Advocacy**](#14)
+15. [**Academic Integrity**](#15)
+    - [**Generative AI**](#15-1)
+16. [**Inclusion**](#16)
+    - [**Penalties**](#15-2)
 
 ---
 
@@ -34,8 +40,7 @@
 ### _Lecture Notes_
 
 1. [**The Basics: _Hello, Raylib!_**](lectures/01-introduction)
-2. [**Transformations**](lectures/02-transformations)
-<!--
+<!--2. [**Transformations**](lectures/02-transformations)
 3. [**Textures / Delta Time**](lectures/03-textures-delta-time)
 4. [**User Input / Collision Detection**](lectures/04-user-input-collisions)
 5. [**Animation / The `Entity` Class**](lectures/05-animation-entities)
@@ -44,7 +49,10 @@
 8. [**Maps**](lectures/08-maps)
 9. [**Scenes**](lectures/09-scenes)
 10. [**Effects / Shaders**](lectures/10-effects-shaders)
-11. [**Playtesting**](lectures/11-playtesting) -->
+11. [**Playtesting**](lectures/11-playtesting)-->
+
+<!--
+ -->
 
 <sub>Released on each Friday day before class.</sub>
 
@@ -75,6 +83,10 @@
 
 ### _Class Information_
 
+- **Section**: CS-UY 3113 A
+- **Dates**: September 2, 2026 – December 14, 2026
+- **Meeting Times**: Mondays, 11:00 AM – 1:50 PM
+- **Location**: Jacobs Hall, 6 Metrotech, Room 673 (Brooklyn Campus)
 - **Pre-Requisites**: [_**CS-UY 2124 Object-Oriented Programming (dē factō)**_](http://bulletin.engineering.nyu.edu/preview_course_nopop.php?catoid=15&coid=36541) (C- or better)
 - **Credits**: 3
 
@@ -99,6 +111,14 @@ You will learn about vector, coordinate systems, sprites, animation, collisions,
 
 <a id="6"></a>
 
+### _Course Structure_
+
+Each class session consists of a lecture followed by a **classwork assignment** completed in small groups. Lecture notes are released the day before class and serve as the primary reference material for both the assignments and the projects.
+
+<br>
+
+<a id="7"></a>
+
 ### _Computer/Software Requirements_
 
 You need to use either a Mac, Linux, or Windows computer. You do not need a powerful machine as we are
@@ -110,20 +130,33 @@ You will also need a [**Github**](https://github.com/) account!
 
 <br>
 
-<a id="7"></a>
+<a id="8"></a>
+
+### _Readings_
+
+There is no required textbook for this course. All lecture notes and materials are provided in this repository and released the day before each class.
+
+The following are optional references you may find useful:
+
+- [**learncpp.com**](https://www.learncpp.com/): a free, thorough guide to modern C++
+- [**raylib cheatsheet**](https://www.raylib.com/cheatsheet/cheatsheet.html): quick reference for all raylib functions
+
+<br>
+
+<a id="9"></a>
 
 ### _Grading Scheme_
 
-| **Item**                                                                | **Percentage** |
+| **Item**                                    | **Percentage** |
 |-------------------------------------------------------------------------|----------------|
-| **_Project 1_**: **Draw a Simple 2D Scene** | 10%            |
-| **_Project 2_**: **Pong**                   | 10%            |
-| **_Project 3_**: **Lunar Lander**           | 15%            |
-| **_Project 4_**: **Rise of The AI**         | 25%            |
-| **_Project 5_**: **Students' Choice**                               | 30%            |
-| **_Classwork_**                                                         | 10%            |
+| **_Project 1_**: **Draw a Simple 2D Scene** | 8%             |
+| **_Project 2_**: **Pong**                   | 8%             |
+| **_Project 3_**: **Lunar Lander**           | 13%            |
+| **_Project 4_**: **Rise of The AI**         | 23%            |
+| **_Project 5_**: **Students' Choice**       | 28%            |
+| **_Classwork_**                             | 20%            |
 
-- **Projects** (90%)
+- **Projects** (80%)
     - Assigned roughly every two weeks, these are programming projects based on class material and are to be _independently done_. 
     - As you can see, this class is very project-heavy. What this means is that, while there are no exams nor quizzes, the grade of each of the projects has a relatively large impact on your overall course grade.
     - This class assumes a solid understanding of the C++ language, including syntax, control flow, functional decomposition, and object-oriented programming. For this reason, we will not be grading you on the quality of your code. 
@@ -131,7 +164,7 @@ You will also need a [**Github**](https://github.com/) account!
     - Of course, if you are free to make your own modifications and create any auxiliary functions/classes/libraries to best suit your programming style. If you are ever unsure of whether you are allowed to use something in a homework project, please ask us first.
     - Every assignment will have an "extra credit" portion. This will **add 5% to your final grade** at the end of the semester if you complete the extra credit portion of **at least 3 of the projects**. While 5% may not seem like a lot, it can mean the difference between two letter grades. This can be especially helpful later in the semester, when the projects become longer and more complex.
 
-- **Classwork** (10%) is based on 5-7 group assignments to be completed, as the name implies, during class. In order to get credit for these, you will need to:
+- **Classwork** (20%) is based on 5-7 group assignments to be completed, as the name implies, during class. In order to get credit for these, you will need to:
     1. Be there.
     2. Complete the assignment with your team _before_ the end of class.
     3. Complete the assignment using only structures learned in class.
@@ -147,7 +180,7 @@ As for your final letter grade, the following scale will be used:
 
 <br>
 
-<a id="8"></a>
+<a id="10"></a>
 
 ### _Deadlines, Extensions, and Late Work Policy_
 
@@ -166,7 +199,7 @@ As for your final letter grade, the following scale will be used:
     - **Project 4**: You _must_ contact the [**Office of Student Advocacy**](https://engineering.nyu.edu/life-tandon/student-life/student-advocacy) in order to request an extension for this project, since its deadline coincides with the start of your work on your final project. If they approve it, then I will grant it with no problem at all.
     - **Project 5**: Your final project is graded _during the last day of lecture_, when you will present it to the class. This means that no extensions are, in theory, possible. However, should an emergency arise, I can grant you an incomplete grade (`I`) for the time being and give you a short extension. This really is a last-resort option, so try to avoid it as best as possible.
 
-<a id="8-1"></a>
+<a id="10-1"></a>
 
 #### Project Schedule
 
@@ -180,7 +213,7 @@ As for your final letter grade, the following scale will be used:
 <!-- Presentation dates: Dec 7th, Dec 14th -->
 <br>
 
-<a id="9"></a>
+<a id="11"></a>
 
 ### _Getting Help and Slack_
 
@@ -206,7 +239,25 @@ If you are emailing me for help with your projects, upload your entire project t
 
 <br>
 
-<a id="10"></a>
+<a id="12"></a>
+
+### _Attendance_
+
+A student must attend, and be marked present for, at least **80% of the scheduled lectures** for this course. Failure to do so may result in a failing grade.
+
+If you know you will be absent, please let Prof. Romero Cruz know in advance.
+
+<a id="12-1"></a>
+
+#### Phones in Class
+
+Phones must be put away and silenced during lecture and classwork time. This class moves quickly and relies on you actually following along and working with your team—a phone on the desk is one of the biggest predictors of missing something important. If you're expecting an urgent call, that's fine, just step outside to take it.
+
+This isn't about distrust; it's about protecting your own attention (and your team's, during classwork) for the 3+ hours a week we actually have together.
+
+<br>
+
+<a id="13"></a>
 
 ### Moses Center Statement of Disability
 
@@ -216,7 +267,15 @@ Accommodations matter a _lot_ for this class, so please don't hesitate.
 
 <br>
 
-<a id="11"></a>
+<a id="14"></a>
+
+### _Office of Student Advocacy_
+
+If medical, mental health, or personal circumstances are affecting your ability to keep up with the course, please reach out to the [**NYU Tandon Office of Student Advocacy**](https://engineering.nyu.edu/life-tandon/student-life/student-advocacy) sooner rather than later—they exist for exactly this kind of situation, and early communication makes a real difference. They can be reached at **advocacy.tandonstudentlife@nyu.edu** and are located in 5 MetroTech Center, LC240.
+
+<br>
+
+<a id="15"></a>
 
 ### Academic Integrity
 
@@ -238,13 +297,13 @@ NYU School of Engineering Policies and Procedures on Academic Misconduct [**Stud
 
     - **Forgery**: altering any academic document, including, but not limited to, academic records, admissions materials, or medical excuses.
 
-<a id="11-1"></a>
+<a id="15-1"></a>
 
 #### Generative AI
 
-You can only learn from the work from the work that you actually do yourself. CS 3113 is an intro class—the 1114 of game development. The goal here is for you to learn the very basic building blocks of a trade.
+You can only learn from the work that you actually do yourself. CS 3113 is an intro class—the 1114 of game development. The goal here is for you to learn the very basic building blocks of a trade, and that learning happens in a specific place: your _zone of proximal development_, the gap between what you can already do on your own and what you can do with the right amount of guidance. That gap is where the skill actually gets built, and it's easy to skip past it without realizing what you've lost.
 
-So, you may be wondering: can I use generative AI (gen AI) in this class? This short answer is that, most of the time, _no, you cannot_. The long answer is more nuanced, given the omnipresence and easy-of-use of tech like ChatGPT and Copilot. My general advice is to use your common sense: _is gen AI doing most of the work for you_? If so, then you are likely in the danger zone, at least as far as this course is concerned.
+So, you may be wondering: can I use generative AI (gen AI) in this class? The short answer is that, most of the time, _no, you cannot_. The long answer is more nuanced, given the omnipresence and ease-of-use of tech like Claude, ChatGPT, and Copilot. Gen AI is very good at reaching past that gap and handing you a finished answer, which quietly closes off the exact struggle that would have taught you something. My general advice is to use your common sense: _is gen AI doing the work you're supposed to be wrestling with yourself_? If so, then you are likely in the danger zone, at least as far as this course is concerned.
 
 In our opinion, we're not doing _anything_ in CS 3113 that warrants the use of gen AI. However, in order to minimize ambiguity, please abide by the following rules and you will be fine:
 
@@ -263,7 +322,7 @@ In our opinion, we're not doing _anything_ in CS 3113 that warrants the use of g
 
 It's also worth remembering that a single 100-word ChatGPT-4 response uses the equivalent of [**a whole 500ml bottle of water**](https://www.techrepublic.com/article/generative-ai-data-center-water-use/), with [**ChatGPT-3 not doing much better**](https://arxiv.org/pdf/2304.03271). This may or may not sound like a lot, but with a [**quarter of the world's population having no access to potable water**](https://www.who.int/news/item/26-08-2025-1-in-4-people-globally-still-lack-access-to-safe-drinking-water---who--unicef), it might be worth reserving the use of generative AI for things that actually need it and not to generate code that will give you an F in this class.
 
-<a id="11-2"></a>
+<a id="15-2"></a>
 
 #### Penalties
 
@@ -271,3 +330,13 @@ If we determine that you plagiarized in any way, with or without gen AI, the fol
 
 - The penalty for 1st instance of plagiarism is an 0 on that project and an academic dishonesty report to the CSE department.
 - The penalty for a 2nd instance of plagiarism will result in an F for the course and 2nd report to the CSE department.
+
+<br>
+
+<a id="16"></a>
+
+### _Inclusion_
+
+This class is for everybody, regardless of background, identity, or where you're coming from—and I take that seriously. You should feel comfortable asking questions, disagreeing, and being yourself here. That's what makes the class better for everyone.
+
+If at any point you feel the environment isn't living up to that, please come talk to me.

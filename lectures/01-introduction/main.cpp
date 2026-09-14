@@ -4,12 +4,12 @@
 enum AppStatus { TERMINATED, RUNNING };
 
 // Global Constants
-constexpr int SCREEN_WIDTH        = 800 * 1.5f,
-              SCREEN_HEIGHT       = 450 * 1.5f,
-              FPS                 = 60;
+constexpr int SCREEN_WIDTH  = 1200,
+              SCREEN_HEIGHT = 675,
+              FPS           = 60;
 
 // Global Variables
-AppStatus gAppStatus   = RUNNING;
+AppStatus gAppStatus = RUNNING;
 
 // Function Declarations
 void initialise();
@@ -26,7 +26,7 @@ void initialise()
     SetTargetFPS(FPS);
 }
 
-void processInput() 
+void processInput()
 {
     if (WindowShouldClose()) gAppStatus = TERMINATED;
 }
@@ -42,8 +42,8 @@ void render()
     EndDrawing();
 }
 
-void shutdown() 
-{ 
+void shutdown()
+{
     CloseWindow(); // Close window and OpenGL context
 }
 
