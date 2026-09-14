@@ -25,6 +25,7 @@
     - [**Project Schedule**](#10-1)
 11. [**Getting Help and Slack**](#11)
 12. [**Attendance**](#12)
+    - [**Phones in Class**](#12-1)
 13. [**Moses Center Statement of Disability**](#13)
 14. [**Office of Student Advocacy**](#14)
 15. [**Academic Integrity**](#15)
@@ -71,7 +72,7 @@
 
     | **E-Mail**                                  | **Office Hours**                                                     | **Location** |
     |---------------------------------------------|----------------------------------------------------------------------|--------------|
-    | [**ez2346@nyu.edu**](mailto:ez2346@nyu.edu) | **Tuesday:** 9:00 AM - 12:00 PM ([ZOOM](https://nyu.zoom.us/j/94279433694)) <br> **Tuesday:** 6:00 PM - 9:00 PM (In Office) <br> **Friday:** 12:00 AM - 2:00 PM (In Office) | Jacobs Hall 223, Room F |
+    | [**ez2346@nyu.edu**](mailto:ez2346@nyu.edu) | TBD | Jacobs Hall 223, Room F |
 
     *If you need to email Eric for anything related to this class, please include the course number (CS3113) and your first and last name in the subject line.*
 
@@ -245,6 +246,14 @@ If you are emailing me for help with your projects, upload your entire project t
 A student must attend, and be marked present for, at least **80% of the scheduled lectures** for this course. Failure to do so may result in a failing grade.
 
 If you know you will be absent, please let Prof. Romero Cruz know in advance.
+
+<a id="12-1"></a>
+
+#### Phones in Class
+
+Phones must be put away and silenced during lecture and classwork time. This class moves quickly and relies on you actually following along and working with your team—a phone on the desk is one of the biggest predictors of missing something important. If you're expecting an urgent call, that's fine, just step outside to take it.
+
+This isn't about distrust; it's about protecting your own attention (and your team's, during classwork) for the 3+ hours a week we actually have together.
 
 <br>
 
