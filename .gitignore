@@ -154,6 +154,7 @@ raylib_app
 
 lectures/*
 !lectures/01-introduction
+!lectures/02-transformations
 
 exercises/*
 
