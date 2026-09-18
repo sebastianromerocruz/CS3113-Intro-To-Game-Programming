@@ -41,7 +41,6 @@ CMakeCache.txt
 CMakeFiles
 CMakeScripts
 Testing
-Makefile
 cmake_install.cmake
 install_manifest.txt
 compile_commands.json
@@ -157,6 +156,8 @@ lectures/*
 !lectures/02-transformations
 
 exercises/*
+!exercises/01-transformations
+exercises/01-transformations/SOLUTION.cpp
 
 grading
 .clangd
