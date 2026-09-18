@@ -2,9 +2,9 @@
 
 <h1 align=center>Transformations</h1>
 
-<h3 align=center>XXI Harpstring Moon, Imperial Year MMXXVI</h3>
+<h3 align=center>XXI Horsebow Moon, Imperial Year MMXXVI</h3>
 
-<p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/Q02RoRVJOVs?si=MUWENoPDiEak0N-K"><strong><u>Iced Coffee</u></strong></a> by Red Velvet (2022)</em></p>
+<p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/jJVe_6N8cLY"><strong><u>Take a Chance</u></strong></a> by DOMi & JD Beck, Anderson .Paak (2022)</em></p>
 
 ---
 
