@@ -158,6 +158,7 @@ lectures/*
 exercises/*
 !exercises/01-transformations
 exercises/01-transformations/SOLUTION.cpp
+exercises/01-transformations/assets/01-transformations-solution.zip
 
 grading
 .clangd
