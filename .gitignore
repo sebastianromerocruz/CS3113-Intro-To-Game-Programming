@@ -154,6 +154,7 @@ raylib_app
 lectures/*
 !lectures/01-introduction
 !lectures/02-transformations
+!lectures/03-textures-delta-time
 
 exercises/*
 !exercises/01-transformations

@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 360" font-family="'Courier New', Courier, monospace">
+
+  <!-- Background -->
+  <rect width="880" height="360" fill="#F1EEF7" rx="12"/>
+
+  <!-- Header -->
+  <path d="M 0 0 h 880 v 46 H 0 Z" fill="#CFC9E6"/>
+  <path d="M 0 0 h 880 v 12 q 0 0 0 0 H 0 Z" fill="#CFC9E6" rx="12"/>
+  <rect width="880" height="12" fill="#CFC9E6" rx="12"/>
+  <text x="440" y="29" text-anchor="middle" font-size="14" font-weight="bold" fill="#2C2360">The Frame Rate Problem — and How Delta Time Solves It</text>
+
+  <!-- Centre divider -->
+  <line x1="440" y1="46" x2="440" y2="310" stroke="#B8B0D8" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+
+  <!-- ════════════════════════════════════════ -->
+  <!--            LEFT: Without Δt             -->
+  <!-- ════════════════════════════════════════ -->
+
+  <text x="220" y="70" text-anchor="middle" font-size="13" font-weight="bold" fill="#9B1C1C">Without Δt</text>
+
+  <!-- formula pill -->
+  <rect x="112" y="78" width="216" height="20" rx="5" fill="#EAE5F5"/>
+  <text x="220" y="92" text-anchor="middle" font-size="9.5" fill="#555">position += speed</text>
+
+  <!-- ── 60 fps row ── -->
+  <text x="78" y="144" text-anchor="end" font-size="11" font-weight="bold" fill="#5B4EA8">60 fps</text>
+  <text x="78" y="156" text-anchor="end" font-size="8.5" fill="#9B8FCC">Δt ≈ 0.017s</text>
+
+  <!-- track background -->
+  <rect x="82" y="140" width="300" height="5" fill="#E0DBF0" rx="2.5"/>
+
+  <!-- 13 ticks at 25px spacing (represents denser frame rate) -->
+  <line x1="82"  y1="133" x2="82"  y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="107" y1="133" x2="107" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="132" y1="133" x2="132" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="157" y1="133" x2="157" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="182" y1="133" x2="182" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="207" y1="133" x2="207" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="232" y1="133" x2="232" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="257" y1="133" x2="257" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="282" y1="133" x2="282" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="307" y1="133" x2="307" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="332" y1="133" x2="332" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="357" y1="133" x2="357" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="382" y1="133" x2="382" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+
+  <!-- full progress fill -->
+  <rect x="82" y="140" width="300" height="5" fill="#7B6FBC" rx="2.5"/>
+  <!-- ball at end (x=382) -->
+  <circle cx="382" cy="142" r="11" fill="#5B4EA8" stroke="white" stroke-width="2.5"/>
+  <text x="382" y="169" text-anchor="middle" font-size="10" font-weight="bold" fill="#5B4EA8">60 units</text>
+
+  <!-- ── 30 fps row ── -->
+  <text x="78" y="218" text-anchor="end" font-size="11" font-weight="bold" fill="#BF4060">30 fps</text>
+  <text x="78" y="230" text-anchor="end" font-size="8.5" fill="#D4889A">Δt ≈ 0.033s</text>
+
+  <!-- track background -->
+  <rect x="82" y="214" width="300" height="5" fill="#E0DBF0" rx="2.5"/>
+
+  <!-- 7 ticks at 50px spacing (half as many = half the frame rate) -->
+  <line x1="82"  y1="207" x2="82"  y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="132" y1="207" x2="132" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="182" y1="207" x2="182" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="232" y1="207" x2="232" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="282" y1="207" x2="282" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="332" y1="207" x2="332" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="382" y1="207" x2="382" y2="214" stroke="#D4889A" stroke-width="2"/>
+
+  <!-- half progress fill (150px, ends at x=232) -->
+  <rect x="82" y="214" width="150" height="5" fill="#BF4060" rx="2.5"/>
+  <!-- ball at halfway (x=232) -->
+  <circle cx="232" cy="216" r="11" fill="#BF4060" stroke="white" stroke-width="2.5"/>
+  <text x="232" y="243" text-anchor="middle" font-size="10" font-weight="bold" fill="#BF4060">30 units</text>
+
+  <!-- gap annotation: double-headed arrow from x=232 to x=382 -->
+  <line x1="232" y1="260" x2="382" y2="260" stroke="#9B1C1C" stroke-width="1.5"/>
+  <polygon points="382,260 375,256 375,264" fill="#9B1C1C"/>
+  <polygon points="232,260 239,256 239,264" fill="#9B1C1C"/>
+  <!-- dashed drop lines -->
+  <line x1="232" y1="228" x2="232" y2="259" stroke="#9B1C1C" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="382" y1="154" x2="382" y2="259" stroke="#9B1C1C" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="307" y="255" text-anchor="middle" font-size="9" font-weight="bold" fill="#9B1C1C">30 units behind!</text>
+
+  <!-- time axis left -->
+  <line x1="82" y1="283" x2="385" y2="283" stroke="#C0B8DC" stroke-width="1"/>
+  <polygon points="387,283 380,280 380,286" fill="#C0B8DC"/>
+  <line x1="232" y1="280" x2="232" y2="286" stroke="#C0B8DC" stroke-width="1"/>
+  <text x="82"  y="296" text-anchor="middle" font-size="8.5" fill="#AAA">t = 0s</text>
+  <text x="232" y="296" text-anchor="middle" font-size="8.5" fill="#AAA">t = 0.5s</text>
+  <text x="382" y="296" text-anchor="middle" font-size="8.5" fill="#AAA">t = 1s</text>
+
+
+  <!-- ════════════════════════════════════════ -->
+  <!--             RIGHT: With Δt              -->
+  <!-- ════════════════════════════════════════ -->
+
+  <text x="660" y="70" text-anchor="middle" font-size="13" font-weight="bold" fill="#1A6B1A">With Δt</text>
+
+  <!-- formula pill -->
+  <rect x="552" y="78" width="216" height="20" rx="5" fill="#E3F0E3"/>
+  <text x="660" y="92" text-anchor="middle" font-size="9.5" fill="#555">position += speed × Δt</text>
+
+  <!-- ── 60 fps row (right) ── -->
+  <text x="518" y="144" text-anchor="end" font-size="11" font-weight="bold" fill="#5B4EA8">60 fps</text>
+  <text x="518" y="156" text-anchor="end" font-size="8.5" fill="#9B8FCC">Δt ≈ 0.017s</text>
+
+  <rect x="522" y="140" width="300" height="5" fill="#E0DBF0" rx="2.5"/>
+
+  <!-- 13 ticks at 25px spacing -->
+  <line x1="522" y1="133" x2="522" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="547" y1="133" x2="547" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="572" y1="133" x2="572" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="597" y1="133" x2="597" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="622" y1="133" x2="622" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="647" y1="133" x2="647" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="672" y1="133" x2="672" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="697" y1="133" x2="697" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="722" y1="133" x2="722" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="747" y1="133" x2="747" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="772" y1="133" x2="772" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="797" y1="133" x2="797" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+  <line x1="822" y1="133" x2="822" y2="140" stroke="#9B8FCC" stroke-width="1.5"/>
+
+  <rect x="522" y="140" width="300" height="5" fill="#7B6FBC" rx="2.5"/>
+  <circle cx="822" cy="142" r="11" fill="#5B4EA8" stroke="white" stroke-width="2.5"/>
+  <text x="822" y="169" text-anchor="middle" font-size="10" font-weight="bold" fill="#5B4EA8">60 units</text>
+
+  <!-- ── 30 fps row (right) ── -->
+  <text x="518" y="218" text-anchor="end" font-size="11" font-weight="bold" fill="#BF4060">30 fps</text>
+  <text x="518" y="230" text-anchor="end" font-size="8.5" fill="#D4889A">Δt ≈ 0.033s</text>
+
+  <rect x="522" y="214" width="300" height="5" fill="#E0DBF0" rx="2.5"/>
+
+  <!-- 7 ticks at 50px spacing -->
+  <line x1="522" y1="207" x2="522" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="572" y1="207" x2="572" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="622" y1="207" x2="622" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="672" y1="207" x2="672" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="722" y1="207" x2="722" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="772" y1="207" x2="772" y2="214" stroke="#D4889A" stroke-width="2"/>
+  <line x1="822" y1="207" x2="822" y2="214" stroke="#D4889A" stroke-width="2"/>
+
+  <!-- FULL progress fill — 30 fps now reaches the end too -->
+  <rect x="522" y="214" width="300" height="5" fill="#BF4060" rx="2.5"/>
+  <circle cx="822" cy="216" r="11" fill="#BF4060" stroke="white" stroke-width="2.5"/>
+  <text x="822" y="243" text-anchor="middle" font-size="10" font-weight="bold" fill="#BF4060">60 units</text>
+
+  <!-- "bigger steps" hint -->
+  <text x="672" y="207" text-anchor="middle" font-size="8" fill="#BF4060" font-style="italic">bigger steps per frame</text>
+
+  <!-- match bracket -->
+  <line x1="837" y1="153" x2="837" y2="228" stroke="#1A6B1A" stroke-width="2"/>
+  <line x1="833" y1="153" x2="841" y2="153" stroke="#1A6B1A" stroke-width="2"/>
+  <line x1="833" y1="228" x2="841" y2="228" stroke="#1A6B1A" stroke-width="2"/>
+  <text x="851" y="197" font-size="15" fill="#1A6B1A" font-weight="bold">✓</text>
+
+  <!-- time axis right -->
+  <line x1="522" y1="283" x2="825" y2="283" stroke="#C0B8DC" stroke-width="1"/>
+  <polygon points="827,283 820,280 820,286" fill="#C0B8DC"/>
+  <line x1="672" y1="280" x2="672" y2="286" stroke="#C0B8DC" stroke-width="1"/>
+  <text x="522" y="296" text-anchor="middle" font-size="8.5" fill="#AAA">t = 0s</text>
+  <text x="672" y="296" text-anchor="middle" font-size="8.5" fill="#AAA">t = 0.5s</text>
+  <text x="822" y="296" text-anchor="middle" font-size="8.5" fill="#AAA">t = 1s</text>
+
+
+  <!-- ════════════ FOOTER ════════════ -->
+  <path d="M 0 310 h 880 v 38 q 0 12 -12 12 H 12 q -12 0 -12 -12 Z" fill="#CFC9E6"/>
+  <rect x="0" y="310" width="880" height="5" fill="#B8B0D8"/>
+  <text x="220" y="337" text-anchor="middle" font-size="11" font-weight="bold" fill="#9B1C1C">60 fps → 60 units  ✗   |   30 fps → 30 units  ✗</text>
+  <text x="660" y="337" text-anchor="middle" font-size="11" font-weight="bold" fill="#1A6B1A">60 fps → 60 units  ✓   |   30 fps → 60 units  ✓</text>
+
+</svg>
