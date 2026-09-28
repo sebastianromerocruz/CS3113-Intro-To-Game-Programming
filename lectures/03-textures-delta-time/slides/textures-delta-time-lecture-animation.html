@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CS-UY 3113 | Textures and Delta Time | Animated</title>
+<style>
+  /* Deck for the Textures and Delta Time lecture, sections 2 and 3 of the
+     README only (Textures, Delta Time) — no "Some Housecleaning" and no
+     live-coding section. Same engine as the Transformations deck: a
+     hand-rolled step machine driven by the arrow keys, in question-and-answer
+     form. Each beat's "num" label matches the README's own section numbers
+     (2.x for Textures, 3.x for Delta Time) so the two documents cross-
+     reference directly. Shift + arrow jumps a section. Open with #3.2 to
+     start at deck-section 3, beat 2 (answered), or #3.2q for the same beat
+     with the question showing. Not fully self-contained: it references
+     ../assets/game/edelgard_square.png, so keep this file inside slides/. */
+
+  :root {
+    --ink: #171715;
+    --red: #c1272d;
+    --cream: #f7f7f4;
+    --mute: #6d6d6d;
+    --faint: #9f9f97;
+    --rule: #d9d9d3;
+  }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--cream);
+    overflow: hidden;
+  }
+
+  .slide {
+    position: relative;
+    width: 1333px;
+    height: 750px;
+    margin: 0 auto;
+    padding: 40px 64px 76px;
+    box-sizing: border-box;
+    overflow: hidden;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+  }
+
+  .stage {
+    position: relative;
+    margin-top: 18px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .stage .num { color: var(--red); font-weight: 700; font-size: 15px; letter-spacing: 0.04em; }
+  .stage h1 { margin: 0; font-size: 30px; font-weight: 700; }
+
+  .subtitle {
+    margin: 8px 0 0;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--mute);
+  }
+
+  .diagram-wrap {
+    margin-top: 16px;
+    background: #efece3;
+    border-radius: 24px;
+    padding: 10px 20px;
+    position: relative;
+  }
+
+  .diagram-wrap .mark { position: absolute; top: 20px; left: 20px; width: 14px; height: 14px; background: var(--red); }
+
+  svg text { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  svg * { transition: opacity 0.35s ease, fill 0.3s ease, stroke 0.3s ease; }
+
+  svg .mv { transition: transform 0.6s ease; }
+
+  .stps {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    min-height: 38px;
+  }
+
+  .stp {
+    min-width: 120px;
+    text-align: center;
+    padding: 6px 14px;
+    border: 2px solid #d9d9d3;
+    color: var(--mute);
+    font-size: 15px;
+    font-weight: 600;
+    transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
+  }
+
+  .stp.active { border-color: var(--red); color: var(--ink); background: #fbeceb; }
+  .stp.done { border-color: var(--ink); color: var(--ink); }
+
+  .narration {
+    margin-top: 14px;
+    font-size: 19px;
+    line-height: 1.35;
+    min-height: 52px;
+  }
+
+  .narration strong { color: var(--red); }
+
+  .q { font-weight: 700; color: var(--ink); }
+  .q .qm {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    padding: 2px 9px;
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+  .q.big { font-size: 26px; line-height: 1.3; }
+  .q.small { font-size: 15px; color: var(--mute); margin-bottom: 8px; font-weight: 600; }
+  .q.small .qm { font-size: 11px; padding: 1px 7px; margin-right: 9px; }
+  .q code { font-size: 0.85em; }
+  .q.small code { background: #e2ded0; color: var(--ink); }
+  .narration code {
+    background: #171715;
+    color: #f7f7f4;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 16px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  .slide-footer {
+    position: absolute;
+    bottom: 24px;
+    left: 64px;
+    right: 64px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--faint);
+    border-top: 1px solid var(--rule);
+    padding-top: 10px;
+  }
+
+  .step-indicator {
+    position: absolute;
+    top: 20px;
+    right: 64px;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--mute);
+  }
+
+  .step-indicator .n { color: var(--red); font-weight: 700; }
+
+  .hint {
+    position: absolute;
+    top: 20px;
+    left: 64px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--mute);
+  }
+
+  .hint::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: var(--red);
+  }
+
+  /* ---- title slide ---- */
+  .cover { display: none; position: absolute; left: 64px; right: 64px; top: 84px; bottom: 96px; flex-direction: column; }
+  .is-cover .cover { display: flex; }
+  .is-cover .stage, .is-cover .subtitle, .is-cover .diagram-wrap, .is-cover .stps,
+  .is-cover .narration, .is-cover .step-indicator { display: none; }
+
+  .cover-eyebrow {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute);
+  }
+  .cover-eyebrow::before { content: ""; width: 10px; height: 10px; background: var(--red); }
+
+  .cover-main { flex: 1; display: flex; align-items: center; justify-content: space-between; }
+  .cover-text { width: 720px; }
+  .cover-week { font-size: 20px; font-weight: 700; color: var(--red); letter-spacing: 0.08em; text-transform: uppercase; }
+  .cover h1 { margin: 10px 0 0; font-size: 76px; line-height: 1.04; font-weight: 700; letter-spacing: -0.02em; }
+  .cover-rule { width: 64px; border-top: 4px solid var(--red); margin: 30px 0 26px; }
+  .cover-date { margin: 0 0 8px; font-size: 20px; color: var(--ink); }
+  .cover-song { margin: 0; font-size: 16px; color: var(--mute); }
+  .cover-song strong { color: var(--ink); }
+
+  .cover-art { width: 400px; height: 400px; flex: none; }
+  .cover-art .pulse { transform-origin: 0 0; animation: cover-pulse 1.6s ease-in-out infinite; }
+  .cover-art .clockhand { transform-origin: 0 0; animation: cover-spin 6s linear infinite; }
+  /* a lub-dub heartbeat, like the pulse exercise in section 3 */
+  @keyframes cover-pulse {
+    0%       { transform: scale(0.9); }
+    14%      { transform: scale(1.18); }
+    28%      { transform: scale(0.96); }
+    42%      { transform: scale(1.1); }
+    70%, 100% { transform: scale(0.9); }
+  }
+  @keyframes cover-spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="slide">
+  <div class="hint">&larr; / &rarr; step &nbsp;&middot;&nbsp; shift + &larr; / &rarr; section</div>
+  <div class="step-indicator">SECTION <span class="n" id="sec-n">1</span> / <span id="sec-total">10</span> &nbsp;&middot;&nbsp; STEP <span class="n" id="step-n">1</span> / <span id="step-total">8</span></div>
+
+  <div class="cover" id="cover">
+    <div class="cover-eyebrow">CS-UY 3113 &nbsp;&middot;&nbsp; Introduction to Game Programming</div>
+    <div class="cover-main">
+      <div class="cover-text">
+        <div class="cover-week">Week III</div>
+        <h1>Textures and<br>Delta Time</h1>
+        <div class="cover-rule"></div>
+        <p class="cover-date">XXVIII Horsebow Moon, Imperial Year MMXXVI</p>
+        <p class="cover-song"><strong>Song of the day</strong>: <em>Arcturus Beaming</em> by The Crane Wives (2024)</p>
+      </div>
+      <svg class="cover-art" viewBox="-200 -200 400 400" aria-hidden="true">
+        <defs>
+          <clipPath id="cover-clip"><rect x="-96" y="-96" width="192" height="192" rx="10"/></clipPath>
+        </defs>
+        <!-- UV corner ticks: the texture's own local grid -->
+        <g stroke="#dcd8cb" stroke-width="2">
+          <path d="M -150,-118 L -150,-140 L -128,-140" fill="none"/>
+          <path d="M 150,-118 L 150,-140 L 128,-140" fill="none"/>
+          <path d="M -150,118 L -150,140 L -128,140" fill="none"/>
+          <path d="M 150,118 L 150,140 L 128,140" fill="none"/>
+        </g>
+        <text x="-150" y="-152" font-size="12" letter-spacing="1" fill="#9f9f97">(0, 0)</text>
+        <text x="150" y="158" font-size="12" letter-spacing="1" fill="#9f9f97" text-anchor="end">(W, H)</text>
+        <!-- the "clock" for delta time: dashed face + a sweeping hand -->
+        <circle r="118" fill="none" stroke="#dcd8cb" stroke-width="2" stroke-dasharray="5 7"/>
+        <g class="clockhand"><line x1="0" y1="0" x2="0" y2="-104" stroke="#7a3b8f" stroke-width="4" stroke-linecap="round"/></g>
+        <!-- the raylib window mock, with the texture pulsing inside like a heartbeat -->
+        <rect x="-100" y="-100" width="200" height="200" rx="12" fill="#ffffff" stroke="#171715" stroke-width="3"/>
+        <path d="M -100,-78 L -100,-90 Q -100,-100 -88,-100 L 88,-100 Q 100,-100 100,-90 L 100,-78 Z" fill="#3c3c3c"/>
+        <circle cx="-86" cy="-89" r="3.5" fill="#ff5f57"/><circle cx="-74" cy="-89" r="3.5" fill="#febc2e"/><circle cx="-62" cy="-89" r="3.5" fill="#8a8a8a"/>
+        <g clip-path="url(#cover-clip)">
+          <rect x="-96" y="-78" width="192" height="174" fill="#f4f4f4"/>
+          <g class="pulse"><image href="../assets/game/edelgard_square.png" x="-72" y="-60" width="144" height="144" preserveAspectRatio="xMidYMid meet"/></g>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="stage">
+    <span class="num" id="num">2.1</span>
+    <h1 id="title">Two Sets of Coordinates</h1>
+  </div>
+  <p class="subtitle" id="subtitle"></p>
+
+  <div class="diagram-wrap">
+    <div class="mark"></div>
+    <svg id="stage" viewBox="0 0 1150 400" width="100%" height="340"></svg>
+  </div>
+
+  <div class="stps" id="chips"></div>
+
+  <div class="narration" id="narration"></div>
+
+  <div class="slide-footer"><span id="foot-left">Two Sets of Coordinates</span><span>NYU Tandon | Fall 2026</span></div>
+</div>
+
+<script>
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  const XLINK = "http://www.w3.org/1999/xlink";
+  const MONO = "'SF Mono', Menlo, Consolas, monospace";
+  const IMG = "../assets/game/edelgard_square.png";
+  const C = {
+    ink: "#404040", grey: "#6d6d6d", lgrey: "#9f9f97", black: "#171715", red: "#c1272d",
+    coral: "#f88379", coralT: "#fde3df", sand: "#efece3", sandD: "#e2ded0", white: "#ffffff",
+    orange: "#e08a1e", orangeT: "#fbeed9", plum: "#7a3b8f", plumT: "#eadcf1",
+    teal: "#2f7d63", pink: "#d9606b", grid: "#dcd8cb", raylibRed: "#e62735",
+  };
+
+  function E(tag, attrs, parent, text) {
+    const e = document.createElementNS(NS, tag);
+    if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function grp(p, op) { const g = E("g", {}, p); g.style.opacity = op === undefined ? 1 : op; return g; }
+  function rect(p, x, y, w, h, o) {
+    o = o || {};
+    const e = E("rect", { x, y, width: w, height: h, rx: o.rx || 0, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0 }, p);
+    if (o.dash) e.setAttribute("stroke-dasharray", o.dash);
+    return e;
+  }
+  function txt(p, x, y, s, o) {
+    o = o || {};
+    const t = E("text", { x, y, fill: o.fill || C.ink, "font-size": o.size || 16, "font-weight": o.weight || 400, "text-anchor": o.anchor || "start" }, p, s);
+    if (o.mono) t.style.fontFamily = MONO;
+    if (o.italic) t.setAttribute("font-style", "italic");
+    if (o.ls) t.setAttribute("letter-spacing", o.ls);
+    if (o.pre) t.style.whiteSpace = "pre";
+    if (o.halo) { t.setAttribute("stroke", o.halo); t.setAttribute("stroke-width", 4); t.setAttribute("stroke-linejoin", "round"); t.style.paintOrder = "stroke"; }
+    return t;
+  }
+  function ln(p, x1, y1, x2, y2, o) {
+    o = o || {};
+    const e = E("line", { x1, y1, x2, y2, stroke: o.stroke || C.ink, "stroke-width": o.sw || 4, "stroke-linecap": "round" }, p);
+    if (o.dash) e.setAttribute("stroke-dasharray", o.dash);
+    return e;
+  }
+  function path(p, d, o) {
+    o = o || {};
+    const e = E("path", { d, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0, "stroke-linecap": "round", "stroke-linejoin": "round" }, p);
+    if (o.dash) e.setAttribute("stroke-dasharray", o.dash);
+    return e;
+  }
+  function circ(p, cx, cy, r, o) {
+    o = o || {};
+    return E("circle", { cx, cy, r, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0 }, p);
+  }
+  function poly(p, pts, o) {
+    o = o || {};
+    const e = E("polygon", { points: pts, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0, "stroke-linejoin": "round" }, p);
+    if (o.dash) e.setAttribute("stroke-dasharray", o.dash);
+    return e;
+  }
+  function img(p, x, y, w, h, o) {
+    o = o || {};
+    const e = E("image", { x, y, width: w, height: h, preserveAspectRatio: "xMidYMid meet" }, p);
+    e.setAttribute("href", IMG);
+    e.setAttributeNS(XLINK, "href", IMG);
+    if (o.clip) e.setAttribute("clip-path", o.clip);
+    return e;
+  }
+  function vis(el, on) { el.style.opacity = on ? 1 : 0; }
+  function arrowhead(p, x, y, dir, fill) {
+    // dir: "r","l","d","u"
+    const pts = { r: [x, y, x - 12, y - 7, x - 12, y + 7], l: [x, y, x + 12, y - 7, x + 12, y + 7],
+                  d: [x, y, x - 7, y - 12, x + 7, y - 12], u: [x, y, x - 7, y + 12, x + 7, y + 12] }[dir];
+    return poly(p, pts.join(","), { fill: fill || C.ink });
+  }
+
+  // A translated/scaled sprite, drawn once centred on its own local origin so
+  // it can be repositioned smoothly with a CSS transform (like the triangle
+  // in the Transformations deck).
+  function mkSprite(p, size, o) {
+    o = o || {};
+    const g = grp(p, o.op === undefined ? 1 : o.op);
+    img(g, -size / 2, -size / 2, size, size, o);
+    g.classList.add("mv");
+    g.style.transformOrigin = "0px 0px";
+    return g;
+  }
+  function setSprite(s, x, y, scale) { s.style.transform = `translate(${x}px, ${y}px) scale(${scale === undefined ? 1 : scale})`; }
+
+  // A mock of the raylib window: 1200 x 675 game pixels squeezed into w.
+  function win(g, x, y, w, title) {
+    const k = w / 1200, h = 675 * k, bar = 20, o = {};
+    win.n = (win.n || 0) + 1;
+    const id = "clip" + win.n;
+    const cp = E("clipPath", { id }, E("defs", {}, g));
+    E("rect", { x, y: y + bar, width: w, height: h }, cp);
+    rect(g, x, y, w, h + bar, { rx: 10, fill: "#f4f4f4", stroke: C.black, sw: 3 });
+    path(g, `M${x},${y + bar} L${x},${y + 10} Q${x},${y} ${x + 10},${y} L${x + w - 10},${y} Q${x + w},${y} ${x + w},${y + 10} L${x + w},${y + bar} Z`, { fill: "#3c3c3c" });
+    circ(g, x + 14, y + 10, 4, { fill: "#ff5f57" }); circ(g, x + 28, y + 10, 4, { fill: "#febc2e" }); circ(g, x + 42, y + 10, 4, { fill: "#8a8a8a" });
+    txt(g, x + w / 2, y + 14, title, { size: 11, weight: 700, fill: "#cfcfcf", anchor: "middle" });
+    o.content = grp(g);
+    o.content.setAttribute("clip-path", `url(#${id})`);
+    o.P = (sx, sy) => [x + sx * k, y + bar + sy * k];
+    o.k = k; o.x = x; o.y = y + bar; o.w = w; o.h = h;
+    return o;
+  }
+
+  // A code listing: one group per line, so lines can be revealed and highlighted.
+  function codePanel(g, x, y, w, lines, o) {
+    o = o || {};
+    const LH = o.lh || 24, size = o.size || 15, cp = { rows: [], bands: [] };
+    rect(g, x, y, w, lines.length * LH + 24, { rx: 14, fill: C.white, stroke: C.black, sw: 3 });
+    lines.forEach((s, i) => {
+      const lg = grp(g, 1), by = y + 12 + i * LH;
+      cp.bands.push(rect(lg, x + 8, by, w - 16, LH - 2, { rx: 5 }));
+      txt(lg, x + 18, by + LH - 8, s, { size, mono: true, pre: true });
+      cp.rows.push(lg);
+    });
+    return cp;
+  }
+  function hl(cp, idx, col) { cp.bands.forEach((b, i) => b.setAttribute("fill", idx.indexOf(i) >= 0 ? (typeof col === "object" ? col[i] : (col || C.coralT)) : "none")); }
+  function showRows(cp, n) { cp.rows.forEach((r, i) => vis(r, i < n)); }
+
+  const fmt = (n) => n.toFixed(2);
+
+  const scenes = [];
+  function scene(def) { scenes.push(def); }
+
+  // ================= 0 Title slide =================
+  scene({
+    cover: true, num: "", title: "Textures and Delta Time", subtitle: "",
+    chips: [], init: {},
+    steps: [{ narrate: "" }],
+    build() { return {}; },
+    render() {},
+  });
+
+  // ================= 2.1 Two Sets of Coordinates =================
+  (function () {
+    scene({
+      num: "2.1", title: "Two Sets of Coordinates", subtitle: "A texture file and your game window speak two different languages.",
+      chips: ["The design", "The screen", "UV mapping", "The recipe"],
+      init: { design: false, screen: false, map: false, list: 0 },
+      steps: [
+        { design: true, chip: 1, foot: "the texture, on its own",
+          narrate: "A texture starts life as its own file, completely independent of your game. It has its own local grid, running from <code>(0, 0)</code> to <code>(width, height)</code>." },
+        { design: true, screen: true, chip: 2, foot: "the same image, placed in the game",
+          q: "The texture file and the game window each speak their own coordinate language. What do we call the texture's?",
+          narrate: "<strong>UV coordinates</strong>. The game's own coordinates are just our regular <strong>XY</strong>, in screen space." },
+        { design: true, screen: true, map: true, chip: 3, foot: "UV → XY",
+          narrate: "Turning a texture's local UV coordinates into a position on the screen is called <a href=\"#\" style=\"color:inherit\"><strong>UV mapping</strong></a>. It's like applying a sticker (the texture) onto the back of your laptop (the screen)." },
+        { design: true, screen: true, map: true, list: 3, chip: 4, foot: "three things raylib needs from us",
+          q: "So what three things does raylib need from us to draw one texture?",
+          narrate: "The texture's local UV coordinates, the game object's on-screen dimensions, and the game object's origin location within the game space. That's the rest of today." },
+      ],
+      build(g) {
+        const r = {};
+        // left: the design
+        r.design = grp(g, 0);
+        rect(r.design, 40, 60, 330, 300, { rx: 16, fill: C.white, stroke: C.black, sw: 4 });
+        txt(r.design, 205, 92, "THE TEXTURE FILE", { size: 13, weight: 700, ls: "1px", anchor: "middle", fill: C.plum });
+        const clipD = "url(#" + (function () {
+          const id = "clipDesign";
+          const cp = E("clipPath", { id }, E("defs", {}, r.design));
+          rect(cp, 130, 110, 150, 150, { rx: 4 });
+          return id;
+        })() + ")";
+        rect(r.design, 130, 110, 150, 150, { fill: "#f4f4f4", stroke: C.grid, sw: 2 });
+        img(r.design, 130, 110, 150, 150, { clip: clipD });
+        txt(r.design, 122, 100, "(0, 0)", { size: 12, mono: true, weight: 700, fill: C.grey, anchor: "end" });
+        txt(r.design, 288, 278, "(W, H)", { size: 12, mono: true, weight: 700, fill: C.grey });
+        txt(r.design, 205, 340, "local UV coordinates", { size: 14, italic: true, fill: C.grey, anchor: "middle" });
+
+        // right: the screen (a tiny raylib window)
+        r.screen = grp(g, 0);
+        txt(r.screen, 960, 92, "YOUR GAME WINDOW", { size: 13, weight: 700, ls: "1px", anchor: "middle", fill: C.plum });
+        const w = win(r.screen, 780, 100, 360, "Textures");
+        const clipS = "url(#" + (function () {
+          const id = "clipScreen";
+          const cp = E("clipPath", { id }, E("defs", {}, r.screen));
+          const [sx, sy] = w.P(430, 220);
+          rect(cp, sx, sy, 130 * w.k, 130 * w.k, { rx: 3 });
+          return id;
+        })() + ")";
+        const [sx, sy] = w.P(430, 220);
+        img(w.content, sx, sy, 130 * w.k, 130 * w.k, { clip: clipS });
+        const [ox, oy] = w.P(0, 0);
+        ln(w.content, ox + 10, oy + 10, ox + 60, oy + 10, { stroke: C.red, sw: 2 }); arrowhead(w.content, ox + 68, oy + 10, "r", C.red);
+        ln(w.content, ox + 10, oy + 10, ox + 10, oy + 46, { stroke: C.red, sw: 2 }); arrowhead(w.content, ox + 10, oy + 54, "d", C.red);
+        txt(w.content, ox + 74, oy + 15, "x", { size: 13, italic: true, weight: 700, fill: C.red });
+        txt(w.content, ox + 16, oy + 68, "y", { size: 13, italic: true, weight: 700, fill: C.red });
+        txt(r.screen, 960, 340, "screen (XY) coordinates", { size: 14, italic: true, fill: C.grey, anchor: "middle" });
+
+        // the mapping arrow
+        r.map = grp(g, 0);
+        path(r.map, "M395,210 C 460,180 500,180 565,205", { stroke: C.plum, sw: 4, dash: "2 8" });
+        arrowhead(r.map, 578, 210, "r", C.plum);
+        txt(r.map, 485, 175, "UV mapping", { size: 15, weight: 700, fill: C.plum, anchor: "middle" });
+
+        // the recipe list
+        r.list = grp(g, 0);
+        r.items = [
+          ["1", "The texture's local UV coordinates."],
+          ["2", "The game object's on-screen dimensions (width, height)."],
+          ["3", "The game object's origin location (x, y) in the game space."],
+        ].map(([n, s], i) => {
+          const q = grp(r.list, 0), y = 60 + i * 96;
+          rect(q, 40, y, 1100, 76, { rx: 14, fill: i % 2 ? C.orangeT : C.coralT, stroke: C.black, sw: 3 });
+          txt(q, 70, y + 48, n, { size: 30, weight: 700, mono: true, fill: C.red });
+          txt(q, 118, y + 48, s, { size: 19, weight: 600 });
+          return q;
+        });
+        return r;
+      },
+      render(s, r) {
+        vis(r.design, !!s.design); vis(r.screen, !!s.screen); vis(r.map, !!s.map);
+        vis(r.list, s.list > 0);
+        r.items.forEach((q, i) => vis(q, s.list > 0 && i < s.list));
+        r.design.style.display = s.list > 0 ? "none" : "inline";
+        r.screen.style.display = s.list > 0 ? "none" : "inline";
+        r.map.style.display = s.list > 0 ? "none" : "inline";
+      },
+    });
+  })();
+
+  // ================= 2.2 Step 1: The Source Rectangle =================
+  (function () {
+    scene({
+      num: "2.2", title: "Step 1: The Source Rectangle", subtitle: "Which portion of the texture do we want to render?",
+      chips: ["The whole image", "The Rectangle"],
+      init: { pic: false, code: 0 },
+      steps: [
+        { pic: true, chip: 1, foot: "corners at (0, 0) and (width, height)",
+          narrate: "Using the corners <code>(0, 0)</code> and <code>(width, height)</code> selects the <strong>entire texture</strong>. That's our whole image, in local UV terms." },
+        { pic: true, code: 9, chip: 2, foot: "a Rectangle, built from those corners",
+          narrate: "raylib has exactly the class for this: a <code>Rectangle</code>. We build it from the top-left corner and how large a slice, starting there, we want." },
+        { pic: true, code: 9, hl: true, chip: 2, foot: "gEdelgardTexture.width / .height",
+          q: "Could we ever use a smaller rectangle here, instead of the whole image?",
+          narrate: "Yes — a smaller source rectangle is exactly how spritesheets and animation frames work. We won't need that until later, but the mechanism is identical." },
+      ],
+      build(g) {
+        const r = {};
+        r.pic = grp(g, 0);
+        rect(r.pic, 60, 30, 320, 320, { fill: "#f4f4f4", stroke: C.grid, sw: 2 });
+        img(r.pic, 60, 30, 320, 320, {});
+        r.dash = rect(r.pic, 60, 30, 320, 320, { stroke: C.red, sw: 3, dash: "8 6" });
+        txt(r.pic, 52, 20, "(0, 0)", { size: 14, mono: true, weight: 700, fill: C.red, anchor: "end" });
+        txt(r.pic, 388, 368, "(width, height)", { size: 14, mono: true, weight: 700, fill: C.red });
+        r.cp = codePanel(g, 470, 40, 620, [
+          "// Whole texture (UV coordinates)",
+          "Rectangle textureArea = {",
+          "    // top-left corner",
+          "    0.0f, 0.0f,",
+          "",
+          "    // bottom-right corner (of texture)",
+          "    static_cast<float>(gEdelgardTexture.width),",
+          "    static_cast<float>(gEdelgardTexture.height)",
+          "};",
+        ], { size: 15, lh: 25 });
+        return r;
+      },
+      render(s, r) {
+        vis(r.pic, !!s.pic);
+        showRows(r.cp, s.code);
+        hl(r.cp, s.hl ? [6, 7] : [], C.coralT);
+      },
+    });
+  })();
+
+  // ================= 2.3 Steps 2–3: Destination & Origin =================
+  (function () {
+    scene({
+      num: "2.3", title: "Steps 2 & 3: Destination and Origin", subtitle: "Where on screen, how big, and about which point?",
+      chips: ["Destination", "Origin", "The code"],
+      init: { dest: false, org: false, code: 0 },
+      steps: [
+        { dest: true, chip: 1, foot: "position + size, on screen",
+          narrate: "Step 2 asks: where on the screen, and how big? A second <code>Rectangle</code> answers both at once: <code>gPosition</code> for where, <code>gScale</code> for how big." },
+        { dest: true, org: true, chip: 2, foot: "the rotational origin",
+          q: "What point inside that rectangle should count as the texture's rotational origin?",
+          narrate: "Its <strong>centre</strong>. That way the texture scales and rotates about its own middle, not its top-left corner." },
+        { dest: true, org: true, code: 11, chip: 3, foot: "destinationArea + objectOrigin",
+          narrate: "In code: the destination rectangle first, then an origin exactly half the scaled size in from each edge — the centre." },
+      ],
+      build(g) {
+        const r = {};
+        const w = r.w = win(g, 40, 40, 560, "Textures");
+        const [px, py] = w.P(600, 337.5), sw = 260 * w.k, sh = 260 * w.k;
+        r.dest = grp(w.content, 0);
+        rect(r.dest, px - sw / 2, py - sh / 2, sw, sh, { stroke: C.plum, sw: 3, dash: "6 5" });
+        img(r.dest, px - sw / 2, py - sh / 2, sw, sh, {});
+        txt(r.dest, px - sw / 2, py - sh / 2 - 8, "gPosition, gScale", { size: 13, weight: 700, fill: C.plum });
+        r.org = grp(w.content, 0);
+        circ(r.org, px, py, 6, { fill: C.red });
+        txt(r.org, px + 12, py + 20, "origin: centre", { size: 13, weight: 700, fill: C.red });
+
+        r.cp = codePanel(g, 640, 40, 460, [
+          "Rectangle destinationArea = {",
+          "    gPosition.x,",
+          "    gPosition.y,",
+          "    gScale.x,",
+          "    gScale.y",
+          "};",
+          "",
+          "Vector2 objectOrigin = {",
+          "    gScale.x / 2.0f,",
+          "    gScale.y / 2.0f",
+          "};",
+        ], { size: 14, lh: 24 });
+        return r;
+      },
+      render(s, r) {
+        vis(r.dest, !!s.dest); vis(r.org, !!s.org);
+        showRows(r.cp, s.code);
+        hl(r.cp, s.code >= 11 ? [8, 9] : [], C.coralT);
+      },
+    });
+  })();
+
+  // ================= 2.4 DrawTexturePro & Unloading =================
+  (function () {
+    const CODE = ["void DrawTexturePro(", "    Texture2D texture, // step 1's texture", "    Rectangle source,  // step 1's rectangle",
+                  "    Rectangle dest,    // step 2's rectangle", "    Vector2 origin,    // step 3's point", "    float rotation,    // about the z-axis",
+                  "    Color tint         // WHITE for no tint", ");"];
+    scene({
+      num: "2.4", title: "DrawTexturePro & Unloading", subtitle: "Three steps become one function call.",
+      chips: ["The signature", "The call", "Unload"],
+      init: {},
+      steps: [
+        { sig: true, chip: 1, foot: "one function, three steps' worth of arguments",
+          narrate: "All three steps become arguments to a single raylib function: <code>DrawTexturePro</code>." },
+        { sig: true, call: true, tri: true, chip: 2, foot: "our finished render()",
+          narrate: "Our call passes the texture, the source and destination rectangles, the origin, a rotation, and a tint. <code>WHITE</code> means no tint at all." },
+        { sig: true, call: true, tri: true, unload: true, chip: 3, foot: "in shutdown()",
+          q: "Why do we have to unload a texture ourselves?",
+          narrate: "Because a loaded texture lives on the <strong>GPU</strong>, not in regular memory the OS reclaims for you. Skip <code>UnloadTexture</code> and that memory just sits there for the life of the game." },
+      ],
+      build(g) {
+        const r = {};
+        r.cp = codePanel(g, 20, 30, 480, CODE, { size: 14.5, lh: 25 });
+        r.call = grp(g, 0);
+        rect(r.call, 20, 260, 480, 118, { rx: 12, fill: C.white, stroke: C.black, sw: 3 });
+        ["DrawTexturePro(", "    gEdelgardTexture, textureArea,", "    destinationArea, objectOrigin,", "    gAngle, WHITE", ");"].forEach((l, i) => {
+          txt(r.call, 36, 286 + i * 20, l, { size: 13, mono: true, pre: true });
+        });
+        const w = r.w = win(g, 540, 30, 590, "Textures");
+        const [cx, cy] = w.P(600, 337.5), size = 260 * w.k;
+        r.tri = mkSprite(w.content, size);
+        setSprite(r.tri, cx, cy, 1);
+        r.tri.style.opacity = 0;
+        r.unload = grp(g, 0);
+        rect(r.unload, 540, 400, 590, 90, { rx: 12, fill: C.coralT, stroke: C.black, sw: 3 });
+        txt(r.unload, 560, 430, "void shutdown()", { size: 14, mono: true, weight: 700 });
+        txt(r.unload, 560, 452, "{ CloseWindow(); UnloadTexture(gEdelgardTexture); }", { size: 13, mono: true });
+        txt(r.unload, 560, 476, "one UnloadTexture for every LoadTexture", { size: 13, italic: true, fill: C.grey });
+        return r;
+      },
+      render(s, r) {
+        vis(r.call, !!s.call); vis(r.tri, !!s.tri); vis(r.unload, !!s.unload);
+      },
+    });
+  })();
+
+  // ================= 3.1 Why We Need Delta Time =================
+  (function () {
+    scene({
+      num: "3.1", title: "Why We Need Delta Time", subtitle: "The same code, run a different number of times per second.",
+      chips: ["The problem", "One second later"],
+      init: { code: false, run: 0 },
+      steps: [
+        { code: true, chip: 1, foot: "gPosition.x += 1.0f, every frame",
+          narrate: "Right now, every time <code>update()</code> runs, we move something by a fixed amount. But <code>update()</code> runs once per <strong>frame</strong>, not once per second." },
+        { code: true, run: 1, chip: 2, foot: "after 1 second: A moved twice as far as B",
+          q: "If both machines run the same update() code, why do they end up in different places after one second?",
+          narrate: "Because <code>update()</code> runs a <strong>different number of times</strong> on each machine. A 60 FPS machine calls it twice as often as a 30 FPS one, in the same one second of wall-clock time." },
+      ],
+      build(g) {
+        const r = {};
+        r.cp = codePanel(g, 380, 140, 390, ["void update()", "{", "    gPosition.x += 1.0f;", "}"], { size: 16, lh: 26 });
+        const mk = (x, label) => {
+          const wobj = win(g, x, 40, 340, label);
+          const [sx, sy] = wobj.P(20, 270);
+          const s = mkSprite(wobj.content, 90 * wobj.k);
+          setSprite(s, sx, sy, 1);
+          const track = ln(wobj.content, wobj.P(20, 270)[0], sy, wobj.P(1180, 270)[0], sy, { stroke: C.grid, sw: 2, dash: "3 5" });
+          return { w: wobj, s, track, x0: sx, y: sy, k: wobj.k };
+        };
+        r.a = mk(20, "Computer A — 60 FPS");
+        r.b = mk(790, "Computer B — 30 FPS");
+        return r;
+      },
+      render(s, r) {
+        showRows(r.cp, s.code ? 4 : 0);
+        // Not to scale — exaggerated so the 2:1 ratio reads clearly at this size.
+        const dist = s.run ? 480 : 0;
+        setSprite(r.a.s, r.a.x0 + dist * r.a.k, r.a.y, 1);
+        setSprite(r.b.s, r.b.x0 + (dist / 2) * r.b.k, r.b.y, 1);
+      },
+    });
+  })();
+
+  // ================= 3.2 Implementing Delta Time =================
+  (function () {
+    scene({
+      num: "3.2", title: "Implementing Delta Time", subtitle: "Multiply the time-dependent variable by deltaTime.",
+      chips: ["The naive version", "The fix", "Fixed!"],
+      init: { code: "naive", run: 0 },
+      steps: [
+        { code: "naive", chip: 1, foot: "gPulseTime is our time-dependent variable",
+          narrate: "Take our heartbeat-pulse example: every frame, <code>gPulseTime</code> goes up by a fixed amount, and <code>gScale</code> is computed from its cosine. That's frame-dependent." },
+        { code: "fix", chip: 2, foot: "one multiplication",
+          q: "What is deltaTime actually multiplying here?",
+          narrate: "The amount we <em>would have</em> added this frame. Every frame now adds <code>1.0</code> plus or minus some change, depending on how much real time passed since the last frame." },
+        { code: "fix", run: 1, chip: 3, foot: "both pulsing in real time now",
+          narrate: "With that one change, both machines pulse at the <strong>same real-world rate</strong>, no matter how many frames each of them needs to get there." },
+      ],
+      build(g) {
+        const r = {};
+        r.naiveWrap = grp(g, 0);
+        r.naive = codePanel(r.naiveWrap, 30, 60, 560, ["void update()", "{", "    gPulseTime += 1.0f;", "", "    gScale = {", "        BASE_SIZE.x + MAX_AMP * cos(gPulseTime),", "        BASE_SIZE.y + MAX_AMP * cos(gPulseTime)", "    };", "}"], { size: 15, lh: 25 });
+        r.fixWrap = grp(g, 0);
+        r.fix = codePanel(r.fixWrap, 30, 60, 560, ["void update()", "{", "    gPulseTime += 1.0f * deltaTime;", "", "    gScale = {", "        BASE_SIZE.x + MAX_AMP * cos(gPulseTime),", "        BASE_SIZE.y + MAX_AMP * cos(gPulseTime)", "    };", "}"], { size: 15, lh: 25 });
+        hl(r.fix, [2], C.coralT);
+        const mk = (x, label) => {
+          const wrap = grp(g, 0);
+          const wobj = win(wrap, x, 40, 260, label);
+          const [cx, cy] = wobj.P(600, 337.5);
+          const s = mkSprite(wobj.content, 130 * wobj.k);
+          setSprite(s, cx, cy, 1);
+          return { wrap, w: wobj, s, cx, cy, phase: 0 };
+        };
+        r.a = mk(630, "60 FPS"); r.b = mk(920, "30 FPS");
+        r.raf = null;
+        r.reset = () => { r.t = 0; };
+        r.draw = () => {
+          const scaleA = 1 + 0.14 * Math.cos(r.t), scaleB = 1 + 0.14 * Math.cos(r.t);
+          setSprite(r.a.s, r.a.cx, r.a.cy, scaleA);
+          setSprite(r.b.s, r.b.cx, r.b.cy, scaleB);
+        };
+        r.tick = () => {
+          r.t += 0.045;
+          r.draw();
+          r.raf = requestAnimationFrame(r.tick);
+        };
+        r.reset(); r.draw();
+        return r;
+      },
+      stop(r) {
+        if (r.raf) { cancelAnimationFrame(r.raf); r.raf = null; }
+        r.a.s.style.transition = ""; r.b.s.style.transition = "";
+      },
+      render(s, r) {
+        vis(r.naiveWrap, s.code === "naive"); vis(r.fixWrap, s.code === "fix");
+        vis(r.a.wrap, !!s.run); vis(r.b.wrap, !!s.run);
+        if (s.run) {
+          if (!r.raf) { r.a.s.style.transition = "none"; r.b.s.style.transition = "none"; r.raf = requestAnimationFrame(r.tick); }
+        } else { this.stop(r); r.reset(); r.draw(); }
+      },
+    });
+  })();
+
+  // ================= 3.3 Calculating Delta Time (live) =================
+  (function () {
+    const CODE = ["float gPreviousTicks = 0.0f;", "", "void update()", "{", "    // Delta time",
+                  "    float ticks = static_cast<float>(GetTime()); // step 1", "    float deltaTime = ticks - gPreviousTicks;      // step 2",
+                  "    gPreviousTicks = ticks;                      // step 3", "", "    gPulseTime += 1.0f * deltaTime;", "}"];
+    scene({
+      num: "3.3", title: "Calculating Delta Time", subtitle: "Every frame, measure how much real time just passed.",
+      chips: ["Step 1", "Step 2", "Step 3", "Live"],
+      init: { code: 0, tl: 0, live: false },
+      steps: [
+        { code: 6, tl: 1, chip: 1, foot: "ticks: time since the game launched",
+          narrate: "Step 1: read how much time has passed since the game was launched. That's <code>GetTime()</code>, stored in <code>ticks</code>." },
+        { code: 7, tl: 2, chip: 2, foot: "deltaTime: the gap since last frame",
+          narrate: "Step 2: subtract the <code>ticks</code> value we saved last frame. That difference is <code>deltaTime</code> — the real time this one frame took." },
+        { code: 8, tl: 2, chip: 3, foot: "gPreviousTicks: ready for next frame",
+          narrate: "Step 3: save the current <code>ticks</code> as <code>gPreviousTicks</code>, so next frame can measure its own gap the same way." },
+        { code: 11, tl: 2, live: true, chip: 4, foot: "running for real, driven by real time",
+          narrate: "Run it for real: the pulse below is driven by the actual elapsed time between frames, exactly like <code>GetTime()</code> would give us in raylib." },
+      ],
+      build(g) {
+        const r = {};
+        r.cp = codePanel(g, 20, 30, 590, CODE, { size: 14.5, lh: 25 });
+        // timeline diagram
+        r.tlg = grp(g, 0);
+        const TX = 660, TY = 90, TW = 420;
+        ln(r.tlg, TX, TY, TX + TW, TY, { stroke: C.black, sw: 3 }); arrowhead(r.tlg, TX + TW + 12, TY, "r", C.black);
+        [0.2, 0.45, 0.7].forEach((f, i) => {
+          const x = TX + f * TW;
+          circ(r.tlg, x, TY, 5, { fill: i === 2 ? C.red : C.grey });
+          txt(r.tlg, x, TY - 14, i === 2 ? "ticks (now)" : "frame " + (i + 1), { size: 12, weight: 700, fill: i === 2 ? C.red : C.grey, anchor: "middle" });
+        });
+        r.delta = grp(r.tlg, 0);
+        const x1 = TX + 0.45 * TW, x2 = TX + 0.7 * TW;
+        ln(r.delta, x1, TY + 24, x2, TY + 24, { stroke: C.plum, sw: 4 });
+        arrowhead(r.delta, x1 - 1, TY + 24, "l", C.plum); arrowhead(r.delta, x2 + 1, TY + 24, "r", C.plum);
+        txt(r.delta, (x1 + x2) / 2, TY + 44, "deltaTime", { size: 14, weight: 700, fill: C.plum, anchor: "middle" });
+        txt(r.tlg, TX, TY + 74, "gPreviousTicks always holds the last frame's ticks", { size: 13, italic: true, fill: C.grey });
+
+        const w = r.w = win(g, 660, 190, 460, "Textures");
+        const [cx, cy] = w.P(600, 337.5);
+        r.sprite = mkSprite(w.content, 220 * w.k);
+        setSprite(r.sprite, cx, cy, 1);
+        r.read = txt(g, 660, 400, "", { size: 14, mono: true, weight: 700, pre: true });
+        r.raf = null; r.prev = null;
+        r.tick = (now) => {
+          if (r.prev === null) r.prev = now;
+          const dt = (now - r.prev) / 1000;
+          r.prev = now;
+          r.pulseTime = (r.pulseTime || 0) + 1.0 * dt * 6;
+          const scale = 1 + 0.16 * Math.cos(r.pulseTime);
+          setSprite(r.sprite, cx, cy, scale);
+          r.read.textContent = "deltaTime = " + dt.toFixed(4) + "s";
+          r.raf = requestAnimationFrame(r.tick);
+        };
+        return r;
+      },
+      stop(r) {
+        if (r.raf) { cancelAnimationFrame(r.raf); r.raf = null; r.prev = null; }
+        r.read.textContent = "";
+        r.sprite.style.transition = "";
+        setSprite(r.sprite, r.w.P(600, 337.5)[0], r.w.P(600, 337.5)[1], 1);
+      },
+      render(s, r) {
+        showRows(r.cp, s.code); hl(r.cp, s.code >= 6 ? [5, 6, 7].slice(0, s.code - 5) : [], C.coralT);
+        vis(r.tlg, s.tl > 0); vis(r.delta, s.tl > 1);
+        if (s.live) { if (!r.raf) { r.sprite.style.transition = "none"; r.raf = requestAnimationFrame(r.tick); } }
+        else { this.stop(r); }
+      },
+    });
+  })();
+
+  // ---------------- engine ----------------
+  const $ = (id) => document.getElementById(id);
+  const svg = $("stage");
+  const foot = txt(svg, 575, 394, "", { size: 13, italic: true, fill: C.grey, anchor: "middle" });
+
+  scenes.forEach((sc) => {
+    sc.g = E("g", {}, svg);
+    sc.g.style.display = "none";
+    sc.r = sc.build(sc.g) || {};
+    foot.parentNode.appendChild(foot);
+  });
+  const SEC0 = scenes[0].cover ? 1 : 0;   // the title slide is section 0
+  $("sec-total").textContent = scenes.length - SEC0;
+
+  // si: section, ti: beat, ph: 0 = question showing (diagram as before), 1 = answered
+  let si = 0, ti = 0, ph = 1, shownScene = -1;
+  const asks = (i, t) => !!scenes[i].steps[t].q;
+  const startPh = (i, t) => (asks(i, t) ? 0 : 1);
+
+  function readHash() {
+    const m = location.hash.match(/^#(\d+)\.(\d+)(q?)$/);
+    if (!m) { ph = startPh(si, ti); return; }
+    const a = Number(m[1]) - 1 + SEC0, b = Number(m[2]) - 1;
+    if (a >= 0 && a < scenes.length) { si = a; ti = Math.max(0, Math.min(scenes[a].steps.length - 1, b)); }
+    ph = m[3] && asks(si, ti) ? 0 : 1;
+  }
+
+  function buildChips(sc) {
+    const box = $("chips");
+    box.innerHTML = "";
+    sc.chips.forEach((label) => {
+      const d = document.createElement("div");
+      d.className = "stp";
+      d.textContent = label;
+      box.appendChild(d);
+    });
+  }
+
+  function render() {
+    const sc = scenes[si], s = sc.steps[ti];
+    scenes.forEach((x, k) => { if (k !== si && x.stop) x.stop(x.r); });
+    if (shownScene !== si) {
+      scenes.forEach((x, k) => { x.g.style.display = k === si ? "inline" : "none"; });
+      $("num").textContent = sc.num;
+      $("title").textContent = sc.title;
+      $("subtitle").textContent = sc.subtitle;
+      $("foot-left").textContent = sc.title;
+      buildChips(sc);
+      shownScene = si;
+    }
+    const asking = ph === 0 && !!s.q;
+    // while a question is showing, the diagram stays exactly as the previous beat left it
+    sc.render(asking ? (ti > 0 ? sc.steps[ti - 1] : sc.init) : s, sc.r, ti);
+    foot.textContent = asking ? "" : (s.foot || "");
+    const qm = '<span class="qm">Q</span>';
+    $("narration").innerHTML = asking ? '<div class="q big">' + qm + s.q + '</div>'
+      : (s.q ? '<div class="q small">' + qm + s.q + '</div>' : "") + s.narrate;
+    $("sec-n").textContent = si + 1 - SEC0;
+    document.body.classList.toggle("is-cover", !!sc.cover);
+    $("step-n").textContent = ti + 1;
+    $("step-total").textContent = sc.steps.length;
+    document.querySelectorAll(".stp").forEach((chip, k) => {
+      const n = k + 1;
+      chip.classList.remove("active", "done");
+      if (!s.chip) return;
+      if (s.chip === n) chip.classList.add("active");
+      else if (n < s.chip) chip.classList.add("done");
+    });
+    history.replaceState(null, "", "#" + (si + 1 - SEC0) + "." + (ti + 1) + (asking ? "q" : ""));
+  }
+
+  function go(d) {
+    const sc = scenes[si];
+    if (d > 0) {
+      if (ph === 0) ph = 1;
+      else if (ti < sc.steps.length - 1) { ti++; ph = startPh(si, ti); }
+      else if (si < scenes.length - 1) { si++; ti = 0; ph = startPh(si, 0); }
+    } else {
+      if (ph === 1 && asks(si, ti)) ph = 0;
+      else if (ti > 0) { ti--; ph = 1; }
+      else if (si > 0) { si--; ti = scenes[si].steps.length - 1; ph = 1; }
+    }
+    render();
+  }
+
+  function jumpScene(d) {
+    if (d < 0 && (ti > 0 || ph !== startPh(si, 0))) ti = 0;
+    else si = Math.max(0, Math.min(scenes.length - 1, si + d)), ti = 0;
+    ph = startPh(si, 0);
+    render();
+  }
+
+  window.addEventListener("keydown", (e) => {
+    const fwd = ["ArrowRight", "ArrowDown", " ", "PageDown"].includes(e.key);
+    const back = ["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key);
+    if (!fwd && !back) return;
+    e.preventDefault();
+    if (e.shiftKey) jumpScene(fwd ? 1 : -1);
+    else go(fwd ? 1 : -1);
+  });
+
+  window.addEventListener("hashchange", () => { readHash(); render(); });
+
+  readHash();
+  render();
+})();
+</script>
+
+</body>
+</html>

@@ -4,7 +4,7 @@
 
 <h3 align=center>XXVIII Horsebow Moon, Imperial Year MMXXVI</h3>
 
-<p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/8vEahj1dd2E?si=xolYZwJgVFHl8Qtl"><strong><u>Arcturus Beaming</u></strong></a> by The Crane Wives (2024)</em></p>
+<p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/JSxzqeSi9NQ"><strong><u>Everyone Adores You (at Least I Do)</u></strong></a> by Matt Maltese (2021)</em></p>
 
 ---
 

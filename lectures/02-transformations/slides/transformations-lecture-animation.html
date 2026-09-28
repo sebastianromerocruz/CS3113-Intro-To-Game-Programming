@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CS-UY 3113 | Transformations | Animated</title>
+<style>
+  /* One deck for the Transformations lecture, following the README up to the
+     live-coding part. A hand-rolled step machine driven by the arrow keys, in
+     question-and-answer form: each beat first asks its question (the diagram
+     stays as it was), and the next key press reveals the diagram and the
+     answer. Beats without a question just reveal. Shift + arrow jumps a
+     section. Open with #3.5 to start at section 3, beat 5 (answered), or
+     #3.5q for the same beat with the question showing. Self-contained: no
+     external files. */
+
+  :root {
+    --ink: #171715;
+    --red: #c1272d;
+    --cream: #f7f7f4;
+    --mute: #6d6d6d;
+    --faint: #9f9f97;
+    --rule: #d9d9d3;
+  }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--cream);
+    overflow: hidden;
+  }
+
+  .slide {
+    position: relative;
+    width: 1333px;
+    height: 750px;
+    margin: 0 auto;
+    padding: 40px 64px 76px;
+    box-sizing: border-box;
+    overflow: hidden;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+  }
+
+  .stage {
+    position: relative;
+    margin-top: 18px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .stage .num { color: var(--red); font-weight: 700; font-size: 15px; letter-spacing: 0.04em; }
+  .stage h1 { margin: 0; font-size: 30px; font-weight: 700; }
+
+  .subtitle {
+    margin: 8px 0 0;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--mute);
+  }
+
+  .diagram-wrap {
+    margin-top: 16px;
+    background: #efece3;
+    border-radius: 24px;
+    padding: 10px 20px;
+    position: relative;
+  }
+
+  .diagram-wrap .mark { position: absolute; top: 20px; left: 20px; width: 14px; height: 14px; background: var(--red); }
+
+  svg text { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  svg * { transition: opacity 0.35s ease, fill 0.3s ease, stroke 0.3s ease; }
+
+  svg .mv { transition: transform 0.6s ease; }
+
+  .stps {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    min-height: 38px;
+  }
+
+  .stp {
+    min-width: 120px;
+    text-align: center;
+    padding: 6px 14px;
+    border: 2px solid #d9d9d3;
+    color: var(--mute);
+    font-size: 15px;
+    font-weight: 600;
+    transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
+  }
+
+  .stp.active { border-color: var(--red); color: var(--ink); background: #fbeceb; }
+  .stp.done { border-color: var(--ink); color: var(--ink); }
+
+  .narration {
+    margin-top: 14px;
+    font-size: 19px;
+    line-height: 1.35;
+    min-height: 52px;
+  }
+
+  .narration strong { color: var(--red); }
+
+  .q { font-weight: 700; color: var(--ink); }
+  .q .qm {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    padding: 2px 9px;
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+  .q.big { font-size: 26px; line-height: 1.3; }
+  .q.small { font-size: 15px; color: var(--mute); margin-bottom: 8px; font-weight: 600; }
+  .q.small .qm { font-size: 11px; padding: 1px 7px; margin-right: 9px; }
+  .q code { font-size: 0.85em; }
+  .q.small code { background: #e2ded0; color: var(--ink); }
+  .narration code {
+    background: #171715;
+    color: #f7f7f4;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 16px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  .slide-footer {
+    position: absolute;
+    bottom: 24px;
+    left: 64px;
+    right: 64px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--faint);
+    border-top: 1px solid var(--rule);
+    padding-top: 10px;
+  }
+
+  .step-indicator {
+    position: absolute;
+    top: 20px;
+    right: 64px;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--mute);
+  }
+
+  .step-indicator .n { color: var(--red); font-weight: 700; }
+
+  .hint {
+    position: absolute;
+    top: 20px;
+    left: 64px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--mute);
+  }
+
+  .hint::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: var(--red);
+  }
+
+  /* ---- title slide ---- */
+  .cover { display: none; position: absolute; left: 64px; right: 64px; top: 84px; bottom: 96px; flex-direction: column; }
+  .is-cover .cover { display: flex; }
+  .is-cover .stage, .is-cover .subtitle, .is-cover .diagram-wrap, .is-cover .stps,
+  .is-cover .narration, .is-cover .step-indicator { display: none; }
+
+  .cover-eyebrow {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute);
+  }
+  .cover-eyebrow::before { content: ""; width: 10px; height: 10px; background: var(--red); }
+
+  .cover-main { flex: 1; display: flex; align-items: center; justify-content: space-between; }
+  .cover-text { width: 720px; }
+  .cover-week { font-size: 20px; font-weight: 700; color: var(--red); letter-spacing: 0.08em; text-transform: uppercase; }
+  .cover h1 { margin: 10px 0 0; font-size: 92px; line-height: 1.02; font-weight: 700; letter-spacing: -0.025em; }
+  .cover-rule { width: 64px; border-top: 4px solid var(--red); margin: 30px 0 26px; }
+  .cover-date { margin: 0 0 8px; font-size: 20px; color: var(--ink); }
+  .cover-song { margin: 0; font-size: 16px; color: var(--mute); }
+  .cover-song strong { color: var(--ink); }
+
+  .cover-art { width: 400px; height: 400px; flex: none; }
+  .cover-art .swing { transform-origin: 0 0; animation: cover-swing 4s ease-in-out infinite; }
+  .cover-art .pulse { transform-origin: 0 0; animation: cover-pulse 1.6s ease-in-out infinite; }
+  .cover-art .orbit { transform-origin: 0 0; animation: cover-orbit 9s linear infinite; }
+  @keyframes cover-swing {
+    0%, 100% { transform: rotate(-20deg); }
+    50%      { transform: rotate(20deg); }
+  }
+  /* a lub-dub heartbeat, like the exercise */
+  @keyframes cover-pulse {
+    0%       { transform: scale(0.86); }
+    14%      { transform: scale(1.24); }
+    28%      { transform: scale(0.95); }
+    42%      { transform: scale(1.14); }
+    70%, 100% { transform: scale(0.86); }
+  }
+  @keyframes cover-orbit { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="slide">
+  <div class="hint">&larr; / &rarr; step &nbsp;&middot;&nbsp; shift + &larr; / &rarr; section</div>
+  <div class="step-indicator">SECTION <span class="n" id="sec-n">1</span> / <span id="sec-total">10</span> &nbsp;&middot;&nbsp; STEP <span class="n" id="step-n">1</span> / <span id="step-total">8</span></div>
+
+  <div class="cover" id="cover">
+    <div class="cover-eyebrow">CS-UY 3113 &nbsp;&middot;&nbsp; Introduction to Game Programming</div>
+    <div class="cover-main">
+      <div class="cover-text">
+        <div class="cover-week">Week II</div>
+        <h1>Transformations</h1>
+        <div class="cover-rule"></div>
+        <p class="cover-date">XXI Harpstring Moon, Imperial Year MMXXVI</p>
+        <p class="cover-song"><strong>Song of the day</strong>: <em>Iced Coffee</em> by Red Velvet (2022)</p>
+      </div>
+      <svg class="cover-art" viewBox="-200 -200 400 400" aria-hidden="true">
+        <g stroke="#dcd8cb" stroke-width="1.5">
+          <line x1="-190" y1="-120" x2="190" y2="-120"/><line x1="-190" y1="-60" x2="190" y2="-60"/>
+          <line x1="-190" y1="60" x2="190" y2="60"/><line x1="-190" y1="120" x2="190" y2="120"/>
+          <line x1="-120" y1="-190" x2="-120" y2="190"/><line x1="-60" y1="-190" x2="-60" y2="190"/>
+          <line x1="60" y1="-190" x2="60" y2="190"/><line x1="120" y1="-190" x2="120" y2="190"/>
+        </g>
+        <g stroke="#171715" stroke-width="3" stroke-linecap="round">
+          <line x1="-190" y1="0" x2="190" y2="0"/><line x1="0" y1="-190" x2="0" y2="190"/>
+        </g>
+        <polygon points="196,0 184,-7 184,7" fill="#171715"/>
+        <polygon points="0,-196 -7,-184 7,-184" fill="#171715"/>
+        <circle r="130" fill="none" stroke="#9f9f97" stroke-width="2" stroke-dasharray="6 6"/>
+        <g class="orbit"><circle cx="130" cy="0" r="8" fill="#7a3b8f"/></g>
+        <g class="swing"><g class="pulse"><polygon points="72,0 -36,62.4 -36,-62.4" fill="#e62735"/></g></g>
+        <circle r="5" fill="#171715"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="stage">
+    <span class="num" id="num">1.1</span>
+    <h1 id="title">The XYZs of Game Programming</h1>
+  </div>
+  <p class="subtitle" id="subtitle"></p>
+
+  <div class="diagram-wrap">
+    <div class="mark"></div>
+    <svg id="stage" viewBox="0 0 1150 400" width="100%" height="340"></svg>
+  </div>
+
+  <div class="stps" id="chips"></div>
+
+  <div class="narration" id="narration"></div>
+
+  <div class="slide-footer"><span id="foot-left">The XYZs of Game Programming</span><span>NYU Tandon | Fall 2026</span></div>
+</div>
+
+<script>
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  const MONO = "'SF Mono', Menlo, Consolas, monospace";
+  const C = {
+    ink: "#404040", grey: "#6d6d6d", lgrey: "#9f9f97", black: "#171715", red: "#c1272d",
+    coral: "#f88379", coralT: "#fde3df", sand: "#efece3", sandD: "#e2ded0", white: "#ffffff",
+    orange: "#e08a1e", orangeT: "#fbeed9", plum: "#7a3b8f", plumT: "#eadcf1",
+    teal: "#2f7d63", pink: "#d9606b", grid: "#dcd8cb", raylibRed: "#e62735",
+  };
+
+  function E(tag, attrs, parent, text) {
+    const e = document.createElementNS(NS, tag);
+    if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function grp(p, op) { const g = E("g", {}, p); g.style.opacity = op === undefined ? 1 : op; return g; }
+  function rect(p, x, y, w, h, o) {
+    o = o || {};
+    const e = E("rect", { x, y, width: w, height: h, rx: o.rx || 0, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0 }, p);
+    if (o.dash) e.setAttribute("stroke-dasharray", o.dash);
+    return e;
+  }
+  function txt(p, x, y, s, o) {
+    o = o || {};
+    const t = E("text", { x, y, fill: o.fill || C.ink, "font-size": o.size || 16, "font-weight": o.weight || 400, "text-anchor": o.anchor || "start" }, p, s);
+    if (o.mono) t.style.fontFamily = MONO;
+    if (o.italic) t.setAttribute("font-style", "italic");
+    if (o.ls) t.setAttribute("letter-spacing", o.ls);
+    if (o.pre) t.style.whiteSpace = "pre";
+    if (o.halo) { t.setAttribute("stroke", o.halo); t.setAttribute("stroke-width", 4); t.setAttribute("stroke-linejoin", "round"); t.style.paintOrder = "stroke"; }
+    return t;
+  }
+  function ln(p, x1, y1, x2, y2, o) {
+    o = o || {};
+    const e = E("line", { x1, y1, x2, y2, stroke: o.stroke || C.ink, "stroke-width": o.sw || 4, "stroke-linecap": "round" }, p);
+    if (o.dash) e.setAttribute("stroke-dasharray", o.dash);
+    return e;
+  }
+  function path(p, d, o) {
+    o = o || {};
+    const e = E("path", { d, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0, "stroke-linecap": "round", "stroke-linejoin": "round" }, p);
+    if (o.dash) e.setAttribute("stroke-dasharray", o.dash);
+    return e;
+  }
+  function circ(p, cx, cy, r, o) {
+    o = o || {};
+    return E("circle", { cx, cy, r, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0 }, p);
+  }
+  function poly(p, pts, o) {
+    o = o || {};
+    const e = E("polygon", { points: pts, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0, "stroke-linejoin": "round" }, p);
+    if (o.dash) e.setAttribute("stroke-dasharray", o.dash);
+    return e;
+  }
+  function vis(el, on) { el.style.opacity = on ? 1 : 0; }
+  function arrowhead(p, x, y, dir, fill) {
+    // dir: "r","l","d","u"
+    const pts = { r: [x, y, x - 12, y - 7, x - 12, y + 7], l: [x, y, x + 12, y - 7, x + 12, y + 7],
+                  d: [x, y, x - 7, y - 12, x + 7, y - 12], u: [x, y, x - 7, y + 12, x + 7, y + 12] }[dir];
+    return poly(p, pts.join(","), { fill: fill || C.ink });
+  }
+
+  function arrowAt(p, x, y, ang, fill) {
+    const c = Math.cos(ang), s = Math.sin(ang);
+    const pts = [x, y, x - 14 * c - 7 * s, y - 14 * s + 7 * c, x - 14 * c + 7 * s, y - 14 * s - 7 * c];
+    return poly(p, pts.map((v) => v.toFixed(1)).join(","), { fill: fill || C.ink });
+  }
+
+  // ---------- shared building blocks ----------
+
+  // A cartesian plane with y pointing UP (the maths convention).
+  function plane(g, cx, cy, u, xr, yr) {
+    const gg = grp(g);
+    for (let x = Math.ceil(xr[0]); x <= Math.floor(xr[1]); x++) ln(gg, cx + x * u, cy - yr[1] * u, cx + x * u, cy - yr[0] * u, { stroke: C.grid, sw: 1.5 });
+    for (let y = Math.ceil(yr[0]); y <= Math.floor(yr[1]); y++) ln(gg, cx + xr[0] * u, cy - y * u, cx + xr[1] * u, cy - y * u, { stroke: C.grid, sw: 1.5 });
+    const x0 = cx + xr[0] * u - 8, x1 = cx + xr[1] * u + 8, y0 = cy - yr[1] * u - 8, y1 = cy - yr[0] * u + 8;
+    ln(gg, x0 + 6, cy, x1 - 6, cy, { stroke: C.black, sw: 3 });
+    ln(gg, cx, y0 + 6, cx, y1 - 6, { stroke: C.black, sw: 3 });
+    arrowhead(gg, x1, cy, "r", C.black); arrowhead(gg, x0, cy, "l", C.black);
+    arrowhead(gg, cx, y0, "u", C.black); arrowhead(gg, cx, y1, "d", C.black);
+    txt(gg, x1 + 4, cy + 22, "x", { size: 20, italic: true, weight: 700 });
+    txt(gg, cx + 14, y0 + 8, "y", { size: 20, italic: true, weight: 700 });
+    return { gg, X: (x) => cx + x * u, Y: (y) => cy - y * u };
+  }
+  function ptsStr(m, pts) { return pts.map(([x, y]) => m.X(x) + "," + m.Y(y)).join(" "); }
+
+  // A column vector / matrix drawn as brackets around text entries.
+  function brackets(p, x, y, w, h) {
+    path(p, `M${x + 10},${y} L${x},${y} L${x},${y + h} L${x + 10},${y + h}`, { stroke: C.black, sw: 3 });
+    path(p, `M${x + w - 10},${y} L${x + w},${y} L${x + w},${y + h} L${x + w - 10},${y + h}`, { stroke: C.black, sw: 3 });
+  }
+  function colVec(p, x, y, w, vals, o) {
+    o = o || {};
+    const rh = o.rh || 38, h = vals.length * rh + 12;
+    brackets(p, x, y, w, h);
+    vals.forEach((v, i) => txt(p, x + w / 2, y + 6 + rh * i + rh * 0.68, v[0], { size: o.size || 20, weight: 700, mono: true, fill: v[1] || C.ink, anchor: "middle" }));
+    return h;
+  }
+  function matrix2(p, x, y, cw, rows, o) {
+    o = o || {};
+    const rh = o.rh || 38, w = cw * 2 + 16, h = rows.length * rh + 12;
+    brackets(p, x, y, w, h);
+    rows.forEach((row, i) => row.forEach((s, j) => txt(p, x + 8 + cw * (j + 0.5), y + 6 + rh * i + rh * 0.68, s, { size: o.size || 19, weight: 700, mono: true, anchor: "middle" })));
+    return w;
+  }
+
+  // Vertices of a regular triangle centred on (cx, cy), screen (y-down) angles.
+  function triPts(cx, cy, r, rot) {
+    return [0, 1, 2].map((i) => {
+      const t = (rot + 120 * i) * Math.PI / 180;
+      return (cx + r * Math.cos(t)).toFixed(2) + "," + (cy + r * Math.sin(t)).toFixed(2);
+    }).join(" ");
+  }
+  // A pointing-up triangle for the icons.
+  function upTri(cx, cy, r, rot) {
+    return [-90, 30, 150].map((a) => {
+      const t = (a + (rot || 0)) * Math.PI / 180;
+      return (cx + r * Math.cos(t)).toFixed(2) + "," + (cy + r * Math.sin(t)).toFixed(2);
+    }).join(" ");
+  }
+  // A triangle drawn once at the origin and moved with a CSS transform,
+  // so position, angle and scale animate smoothly between steps.
+  function mkTri(p, r0, fill) {
+    const t = poly(p, triPts(0, 0, r0, 0), { fill });
+    t.classList.add("mv");
+    t.style.transformOrigin = "0px 0px";
+    return t;
+  }
+  function setTri(t, x, y, rot, s) { t.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg) scale(${s})`; }
+
+  // A mock of the raylib window: 1200 x 675 game pixels squeezed into w.
+  function win(g, x, y, w, title) {
+    const k = w / 1200, h = 675 * k, bar = 20, o = {};
+    win.n = (win.n || 0) + 1;
+    const id = "clip" + win.n;
+    const cp = E("clipPath", { id }, E("defs", {}, g));
+    E("rect", { x, y: y + bar, width: w, height: h }, cp);
+    rect(g, x, y, w, h + bar, { rx: 10, fill: "#f4f4f4", stroke: C.black, sw: 3 });
+    path(g, `M${x},${y + bar} L${x},${y + 10} Q${x},${y} ${x + 10},${y} L${x + w - 10},${y} Q${x + w},${y} ${x + w},${y + 10} L${x + w},${y + bar} Z`, { fill: "#3c3c3c" });
+    circ(g, x + 14, y + 10, 4, { fill: "#ff5f57" }); circ(g, x + 28, y + 10, 4, { fill: "#febc2e" }); circ(g, x + 42, y + 10, 4, { fill: "#8a8a8a" });
+    txt(g, x + w / 2, y + 14, title, { size: 11, weight: 700, fill: "#cfcfcf", anchor: "middle" });
+    o.content = grp(g);
+    o.content.setAttribute("clip-path", `url(#${id})`);
+    o.P = (sx, sy) => [x + sx * k, y + bar + sy * k];
+    o.k = k; o.x = x; o.y = y + bar; o.w = w; o.h = h;
+    return o;
+  }
+
+  // A code listing: one group per line, so lines can be revealed and highlighted.
+  function codePanel(g, x, y, w, lines, o) {
+    o = o || {};
+    const LH = o.lh || 24, size = o.size || 15, cp = { rows: [], bands: [] };
+    rect(g, x, y, w, lines.length * LH + 24, { rx: 14, fill: C.white, stroke: C.black, sw: 3 });
+    lines.forEach((s, i) => {
+      const lg = grp(g, 1), by = y + 12 + i * LH;
+      cp.bands.push(rect(lg, x + 8, by, w - 16, LH - 2, { rx: 5 }));
+      txt(lg, x + 18, by + LH - 8, s, { size, mono: true, pre: true });
+      cp.rows.push(lg);
+    });
+    return cp;
+  }
+  function hl(cp, idx, col) { cp.bands.forEach((b, i) => b.setAttribute("fill", idx.indexOf(i) >= 0 ? (typeof col === "object" ? col[i] : (col || C.coralT)) : "none")); }
+
+  const scenes = [];
+  function scene(def) { scenes.push(def); }
+
+  // ================= 0 Title slide =================
+  scene({
+    cover: true, num: "", title: "Introduction to Game Programming", subtitle: "",
+    chips: [], init: {},
+    steps: [{ narrate: "" }],
+    build() { return {}; },
+    render() {},
+  });
+
+  // ================= 1.1 The XYZs of Game Programming =================
+  (function () {
+    const PTS = [[2, 1.5], [-3, 2], [-2, -2], [3, -2.5]];
+    scene({
+      num: "1.1", title: "The XYZs of Game Programming", subtitle: "To simulate space, we first have to write it down.",
+      chips: ["Space", "Vectors", "The recipe"],
+      init: { view: "none", pts: 0, vec: 0, rec: 0 },
+      steps: [
+        { view: "plane", pts: 0, vec: 0, chip: 1, foot: "space, made of numbers",
+          q: "To make a game feel real, we have to simulate space. How do we write down <em>where</em> something is?",
+          narrate: "With numbers. Draw two axes, and every spot on the plane gets an address." },
+        { view: "plane", pts: 1, vec: 0, chip: 1, foot: "one point, two numbers",
+          narrate: "It takes two, one per axis. This point sits 2 to the right and 1.5 up, so we write it <code>(2, 1.5)</code>." },
+        { view: "plane", pts: 4, vec: 0, chip: 1, foot: "every position is a pair of numbers",
+          narrate: "Every position works the same way. Four points, four pairs of numbers, all in <strong>cartesian space</strong>." },
+        { view: "plane", pts: 4, vec: 2, chip: 2, foot: "a vector: one number per axis",
+          narrate: "Physics has a name for a bundle of coordinates like that: a <strong>vector</strong>. An x-coordinate stacked on a y-coordinate." },
+        { view: "plane", pts: 4, vec: 3, chip: 2, foot: "we live in three dimensions",
+          narrate: "We live in three dimensions, so a vector for a real object gets a third row: <strong>z</strong>. Games model space in exactly the same way." },
+        { view: "rec", rec: 1, chip: 3, foot: "part 1 of 3",
+          narrate: "When a game object moves, three things happen to its coordinates. First, an <strong>initial set of coordinates</strong>, stored in a vector." },
+        { view: "rec", rec: 2, chip: 3, foot: "part 2 of 3",
+          narrate: "Second, a <strong>transformation</strong> of some sort acts on those coordinates." },
+        { view: "rec", rec: 3, chip: 3, foot: "part 3 of 3",
+          narrate: "Third, the <strong>resulting coordinate vector</strong>. Vector in, vector out: that's all a transformation is. The rest of the lecture is about the three kinds." },
+      ],
+      build(g) {
+        const r = {};
+        r.pl = grp(g, 1);
+        const m = plane(r.pl, 330, 200, 48, [-5, 5], [-3, 3]);
+        r.pts = PTS.map(([x, y]) => {
+          const q = grp(r.pl, 0);
+          ln(q, m.X(x), m.Y(y), m.X(x), m.Y(0), { stroke: C.lgrey, sw: 2, dash: "5 4" });
+          ln(q, m.X(x), m.Y(y), m.X(0), m.Y(y), { stroke: C.lgrey, sw: 2, dash: "5 4" });
+          circ(q, m.X(x), m.Y(y), 7, { fill: C.red });
+          txt(q, m.X(x) + (x > 0 ? 12 : -12), m.Y(y) + (y > 0 ? -10 : 22), "(" + x + ", " + y + ")", { size: 15, weight: 700, fill: C.red, mono: true, anchor: x > 0 ? "start" : "end" });
+          return q;
+        });
+        // 2D and 3D vectors
+        [2, 3].forEach((n) => {
+          const q = grp(g, 0);
+          const rows = [["x", C.teal], ["y", C.pink]].concat(n === 3 ? [["z", C.plum]] : []);
+          colVec(q, 700, 100, 76, rows, { size: 24 });
+          ["x-coordinate", "y-coordinate", "z-coordinate"].slice(0, n).forEach((l, i) => {
+            txt(q, 800, 100 + 6 + 38 * i + 26, l, { size: 17, fill: [C.teal, C.pink, C.plum][i], weight: 700 });
+          });
+          txt(q, 700, 100 + n * 38 + 44, n === 2 ? "a point on the screen" : "a point in the world we live in", { size: 15, italic: true, fill: C.grey });
+          r["v" + n] = q;
+        });
+        // the recipe
+        r.rc = grp(g, 1);
+        r.box = [
+          ["1", "Initial coordinates", "a vector: (x, y, z)", C.orangeT],
+          ["2", "Transformation", "a function acting on them", C.plumT],
+          ["3", "Resulting coordinates", "a new vector: (x′, y′, z′)", C.coralT],
+        ].map(([n, a, b, col], i) => {
+          const q = grp(r.rc, 0), x = 45 + i * 380;
+          rect(q, x, 110, 300, 150, { rx: 16, fill: col, stroke: C.black, sw: 4 });
+          txt(q, x + 22, 158, n, { size: 30, weight: 700, mono: true, fill: C.red });
+          txt(q, x + 22, 200, a, { size: 20, weight: 700 });
+          txt(q, x + 22, 228, b, { size: 15, italic: true, fill: C.grey });
+          if (i < 2) { ln(q, x + 312, 185, x + 366, 185, { sw: 4 }); arrowhead(q, x + 376, 185, "r"); }
+          return q;
+        });
+        return r;
+      },
+      render(s, r) {
+        vis(r.pl, s.view === "plane"); vis(r.rc, s.view === "rec");
+        r.pts.forEach((q, i) => vis(q, i < s.pts));
+        vis(r.v2, s.vec === 2); vis(r.v3, s.vec === 3);
+        r.box.forEach((q, i) => vis(q, s.view === "rec" && i < s.rec));
+      },
+    });
+  })();
+
+  // ================= 2.1 Transformations =================
+  (function () {
+    // zoomed plane around (1, 0): 300 px per unit
+    const CX = 110, CY = 190, U = 220;
+    const X = (x) => CX + x * U, Y = (y) => CY - y * U;
+    const kinds = [
+      ["Scaling", "enlarges or shrinks an object by a scale factor"],
+      ["Rotation", "turns an object about its origin"],
+      ["Translation", "moves every point by the same distance"],
+    ];
+    scene({
+      num: "2.1", title: "Transformations", subtitle: "A function that takes a point in space and says where it goes next.",
+      chips: ["A point moves", "Three kinds"],
+      init: { view: "pt", f: 0, n: 0 },
+      steps: [
+        { view: "pt", f: 1, chip: 1, foot: "frame one",
+          narrate: "Let's follow a single point, <code>p</code>, across two frames. In frame one it sits at <code>(1, 0)</code>. (We're zoomed in a lot here.)" },
+        { view: "pt", f: 2, chip: 1, foot: "frame two",
+          narrate: "One frame later it's at <code>(1.05, −0.05)</code>. A tiny shift, but it moved." },
+        { view: "pt", f: 3, chip: 1, foot: "point p underwent a transformation",
+          narrate: "When a point ends up somewhere else, we say <strong>point <code>p</code> underwent a transformation</strong>: a function that takes a point in space and returns where it goes next." },
+        { view: "kinds", n: 3, chip: 2, foot: "scaling, rotation, translation",
+          q: "So what are the three transformations?",
+          narrate: "<strong>Scaling</strong>, <strong>rotation</strong>, and the familiar <strong>translation</strong>. It sounds like transformations are only about moving things, and in a sense they are, but there's more to it. Let's take them one by one." },
+      ],
+      build(g) {
+        const r = {};
+        r.pt = grp(g, 1);
+        for (let i = 0; i <= 4; i++) {
+          const x = i * 0.5;
+          ln(r.pt, X(x), Y(0.6), X(x), Y(-0.6), { stroke: C.grid, sw: 1.5 });
+          if (i > 0) txt(r.pt, X(x), Y(-0.6) + 20, String(x), { size: 13, fill: C.lgrey, anchor: "middle", mono: true });
+        }
+        ln(r.pt, X(0), Y(0), X(2) + 8, Y(0), { stroke: C.black, sw: 3 });
+        ln(r.pt, X(0), Y(0.6), X(0), Y(-0.6), { stroke: C.black, sw: 3 });
+        arrowhead(r.pt, X(2) + 20, Y(0), "r", C.black);
+        r.p1 = grp(r.pt, 0);
+        circ(r.p1, X(1), Y(0), 8, { fill: C.orange });
+        txt(r.p1, X(1) - 4, Y(0) - 18, "p, frame 1: (1, 0)", { size: 16, weight: 700, fill: C.orange, anchor: "middle", mono: true });
+        r.p2 = grp(r.pt, 0);
+        ln(r.p2, X(1), Y(0), X(1.05), Y(-0.05), { stroke: C.plum, sw: 3, dash: "4 4" });
+        circ(r.p2, X(1.05), Y(-0.05), 8, { fill: C.red });
+        txt(r.p2, X(1.05) + 16, Y(-0.05) + 26, "p, frame 2: (1.05, −0.05)", { size: 16, weight: 700, fill: C.red, mono: true });
+        r.fn = grp(r.pt, 0);
+        rect(r.fn, 700, 90, 400, 190, { rx: 16, fill: C.white, stroke: C.black, sw: 4 });
+        txt(r.fn, 900, 138, "a transformation", { size: 18, weight: 700, anchor: "middle", fill: C.plum });
+        txt(r.fn, 900, 190, "p′ = f(p)", { size: 32, weight: 700, mono: true, anchor: "middle" });
+        txt(r.fn, 900, 236, "f(1, 0) = (1.05, −0.05)", { size: 17, weight: 700, mono: true, anchor: "middle", fill: C.red });
+
+        r.kd = grp(g, 0);
+        r.cards = kinds.map(([t, d], i) => {
+          const q = grp(r.kd, 0), x = 30 + i * 375;
+          rect(q, x, 40, 340, 300, { rx: 18, fill: C.white, stroke: C.black, sw: 4 });
+          txt(q, x + 24, 86, t, { size: 26, weight: 700 });
+          txt(q, x + 24, 114, d, { size: 14, italic: true, fill: C.grey });
+          const cx = x + 170, cy = 235;
+          if (i === 0) {
+            poly(q, upTri(cx, cy + 8, 78, 0), { fill: C.coralT, stroke: C.red, sw: 4 });
+            poly(q, upTri(cx, cy + 8, 36, 0), { fill: C.orangeT, stroke: C.orange, sw: 4 });
+          } else if (i === 1) {
+            poly(q, upTri(cx, cy, 62, 0), { fill: C.orangeT, stroke: C.orange, sw: 4 });
+            poly(q, upTri(cx, cy, 62, 40), { fill: C.coralT, stroke: C.red, sw: 4 });
+            path(q, `M${cx + 40},${cy - 70} A 76 76 0 0 1 ${cx + 76},${cy - 42}`, { stroke: C.plum, sw: 4 });
+            arrowhead(q, cx + 76, cy - 42, "d", C.plum);
+          } else {
+            poly(q, upTri(cx - 70, cy, 42, 0), { fill: C.orangeT, stroke: C.orange, sw: 4 });
+            poly(q, upTri(cx + 70, cy, 42, 0), { fill: C.coralT, stroke: C.red, sw: 4 });
+            ln(q, cx - 20, cy, cx + 14, cy, { stroke: C.plum, sw: 4 });
+            arrowhead(q, cx + 24, cy, "r", C.plum);
+          }
+          return q;
+        });
+        return r;
+      },
+      render(s, r) {
+        vis(r.pt, s.view === "pt"); vis(r.kd, s.view === "kinds");
+        vis(r.p1, s.view === "pt" && s.f >= 1); vis(r.p2, s.f >= 2); vis(r.fn, s.f >= 3);
+        r.cards.forEach((q, i) => {
+          const on = s.view === "kinds" && i < s.n;
+          q.style.transitionDelay = on ? (i * 0.35) + "s" : "0s";
+          vis(q, on);
+        });
+      },
+    });
+  })();
+
+  // ================= 3.1 Scaling =================
+  (function () {
+    const small = [[-1, -1], [1, -1], [0, 1]], big = [[-2, -2], [2, -2], [0, 2]];
+    scene({
+      num: "3.1", title: "Scaling", subtitle: "Multiply every component by the scale factor.",
+      chips: ["Scale factor", "Multiply", "Two kinds"],
+      init: { sm: false, big: false, panel: "none", f: 0 },
+      steps: [
+        { sm: true, panel: "none", chip: 1, foot: "a small triangle",
+          narrate: "Scaling is a transformation that <strong>enlarges or shrinks</strong> an object. Here's a small triangle with vertices <code>(−1, −1)</code>, <code>(1, −1)</code> and <code>(0, 1)</code>." },
+        { sm: true, panel: "fs", chip: 1, foot: "the scale factor",
+          narrate: "How much it grows or shrinks is decided by the <strong>scale factor</strong>. Let's say <code>fs = 2</code>." },
+        { sm: true, big: true, panel: "fs", chip: 1, foot: "every point moved away from the origin",
+          q: "With a factor of 2, where do the corners end up?",
+          narrate: "Twice as far from the origin. The triangle is <strong>uniformly scaled</strong> by 2." },
+        { sm: true, big: true, panel: "calc", f: 1, chip: 2, foot: "follow one vertex",
+          narrate: "To work out one corner, like <code>(−1, −1)</code>, write it as a vector and multiply it by the scale factor." },
+        { sm: true, big: true, panel: "calc", f: 2, chip: 2, foot: "multiply each component",
+          narrate: "Multiplying a vector by a number means multiplying <strong>each component</strong> by it." },
+        { sm: true, big: true, panel: "calc", f: 3, chip: 2, foot: "−2, −2: the big triangle's corner",
+          narrate: "So <code>(−1, −1)</code> becomes <code>(−2, −2)</code>: exactly the big triangle's corner." },
+        { sm: true, big: true, panel: "scalar", chip: 3, foot: "a scalar has no direction",
+          q: "Why is it called <em>scaling</em>?",
+          narrate: "Because the factor is a <strong>scalar</strong>: it has no x-, y- or z-component of its own. It's us, the programmers, who choose which components of a point it multiplies." },
+        { sm: true, big: true, panel: "kinds", chip: 3, foot: "isotropic vs anisotropic",
+          narrate: "Scaling doesn't have to be even. <strong>Uniform</strong> scaling changes every direction equally (zooming, heartbeat effects). <strong>Non-uniform</strong> scaling changes at least one direction differently (a shadow on the ground). <code>DrawPoly</code> only does uniform, which is enough for now." },
+      ],
+      build(g) {
+        const r = {};
+        const m = plane(g, 330, 200, 54, [-3, 3], [-3, 3]);
+        r.sm = grp(g, 0);
+        poly(r.sm, ptsStr(m, small), { fill: C.orangeT, stroke: C.orange, sw: 4 });
+        [["(−1, −1)", -1, -1], ["(1, −1)", 1, -1]].forEach(([t, x, y]) => {
+          txt(r.sm, m.X(x), m.Y(y) + 20, t, { size: 14, weight: 700, mono: true, fill: C.orange, anchor: "middle", halo: C.coralT });
+        });
+        ln(r.sm, m.X(0) + 5, m.Y(1), m.X(1.5), m.Y(1), { stroke: C.orange, sw: 2, dash: "3 4" });
+        txt(r.sm, m.X(1.5) + 6, m.Y(1) + 5, "(0, 1)", { size: 14, weight: 700, mono: true, fill: C.orange });
+        r.bg = grp(g, 0);
+        poly(r.bg, ptsStr(m, big), { fill: C.coralT, stroke: C.red, sw: 4 });
+        [["(−2, −2)", -2, -2, "end"], ["(2, −2)", 2, -2, "start"], ["(0, 2)", 0, 2, "start"]].forEach(([t, x, y, a]) => {
+          txt(r.bg, m.X(x) + (a === "end" ? -8 : 8), m.Y(y) + (y < 0 ? 22 : -8), t, { size: 14, weight: 700, mono: true, fill: C.red, anchor: a });
+        });
+        r.sm.parentNode.appendChild(r.sm);
+        r.fs = grp(g, 0);
+        txt(r.fs, 680, 80, "scale factor", { size: 16, weight: 700, fill: C.grey });
+        txt(r.fs, 680, 126, "fs = 2", { size: 44, weight: 700, mono: true, fill: C.plum });
+        // the calculation row
+        const y0 = 180;
+        r.f = [grp(g, 0), grp(g, 0), grp(g, 0), grp(g, 0)];
+        txt(r.f[0], 660, y0 + 56, "fs", { size: 30, weight: 700, mono: true, fill: C.plum });
+        txt(r.f[0], 706, y0 + 54, "·", { size: 30, weight: 700 });
+        colVec(r.f[0], 726, y0, 86, [["−1", C.orange], ["−1", C.orange]]);
+        txt(r.f[1], 832, y0 + 56, "=", { size: 28, weight: 700 });
+        colVec(r.f[1], 858, y0, 124, [["−1·fs", C.ink], ["−1·fs", C.ink]], { size: 18 });
+        txt(r.f[2], 1000, y0 + 56, "=", { size: 28, weight: 700 });
+        colVec(r.f[2], 1026, y0, 86, [["−2", C.red], ["−2", C.red]]);
+        txt(r.f[3], 660, y0 + 130, "every component times the scale factor", { size: 15, italic: true, fill: C.grey });
+        // scalar vs vector
+        r.scal = grp(g, 0);
+        rect(r.scal, 650, 60, 200, 170, { rx: 16, fill: C.white, stroke: C.black, sw: 4 });
+        txt(r.scal, 750, 98, "scalar", { size: 20, weight: 700, anchor: "middle", fill: C.plum });
+        txt(r.scal, 750, 168, "2", { size: 64, weight: 700, mono: true, anchor: "middle", fill: C.plum });
+        txt(r.scal, 750, 208, "just a size", { size: 14, italic: true, fill: C.grey, anchor: "middle" });
+        txt(r.scal, 880, 158, "\u00d7", { size: 44, weight: 700, anchor: "middle" });
+        rect(r.scal, 910, 60, 200, 170, { rx: 16, fill: C.white, stroke: C.black, sw: 4 });
+        txt(r.scal, 1010, 98, "vector", { size: 20, weight: 700, anchor: "middle" });
+        colVec(r.scal, 968, 112, 84, [["x", C.teal], ["y", C.pink]], { size: 22 });
+        txt(r.scal, 1010, 216, "has components", { size: 14, italic: true, fill: C.grey, anchor: "middle" });
+        txt(r.scal, 880, 272, "no x, y or z of its own", { size: 17, weight: 700, fill: C.plum, anchor: "middle" });
+        txt(r.scal, 880, 298, "we choose which components it multiplies", { size: 15, italic: true, fill: C.grey, anchor: "middle" });
+        // uniform vs non-uniform
+        r.kd = grp(g, 0);
+        [["Uniform (isotropic)", "the same in every direction", "zooming, \"heartbeat\" effects", false, 40],
+         ["Non-uniform (anisotropic)", "different along at least one axis", "shadows on the ground", true, 205]].forEach(([t, d, e, flat, y]) => {
+          rect(r.kd, 640, y, 470, 150, { rx: 16, fill: C.white, stroke: C.black, sw: 4 });
+          txt(r.kd, 660, y + 38, t, { size: 21, weight: 700 });
+          txt(r.kd, 660, y + 66, d, { size: 15, italic: true, fill: C.grey });
+          txt(r.kd, 660, y + 96, "e.g. " + e, { size: 15, fill: C.ink });
+          const cx = 1010, cy = y + 88;
+          poly(r.kd, upTri(cx, cy, 26, 0), { fill: C.orangeT, stroke: C.orange, sw: 3 });
+          if (!flat) poly(r.kd, upTri(cx + 0, cy, 52, 0), { fill: "none", stroke: C.red, sw: 3, dash: "6 4" });
+          else poly(r.kd, `${cx - 66},${cy + 13} ${cx + 66},${cy + 13} ${cx},${cy - 13}`, { fill: "none", stroke: C.red, sw: 3, dash: "6 4" });
+        });
+        return r;
+      },
+      render(s, r) {
+        vis(r.sm, !!s.sm); vis(r.bg, !!s.big);
+        vis(r.fs, s.panel === "fs");
+        r.f.forEach((q, i) => vis(q, s.panel === "calc" && (i === 3 ? s.f >= 2 : i < s.f)));
+        vis(r.scal, s.panel === "scalar");
+        vis(r.kd, s.panel === "kinds");
+      },
+    });
+  })();
+
+  // ================= 4.1 Rotation =================
+  (function () {
+    const CXR = 330, CYR = 200, U = 54;
+    const sq = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+    scene({
+      num: "4.1", title: "Rotation", subtitle: "Turn every point about the object's origin.",
+      chips: ["Rotate", "Matrix"],
+      init: {},
+      steps: [
+        { org: true, chip: 1, foot: "the pivot",
+          narrate: "Here's a square centred on the origin. A rotation turns it about the object's <strong>origin</strong>, and all the rotations we do in this class happen about it." },
+        { rot: true, chip: 1, foot: "rotated by θ = 45°",
+          narrate: "Turn it by an angle <code>θ</code>, here 45°, and we get a diamond. Unlike scaling, rotation is <em>directional</em>: it needs its own x, y (and z) components." },
+        { rot: true, mat: true, gen: true, chip: 2, foot: "matrix multiplication",
+          q: "Can we just multiply every component by a number, like we did for scaling?",
+          narrate: "No. We need <strong>matrix multiplication</strong>, using the <strong>rotation matrix</strong>." },
+        { rot: true, mat: true, num: true, dots: true, chip: 2, foot: "(1, 1) lands on (0, 1.41)",
+          q: "Where does the corner <code>(1, 1)</code> land after a 45° turn?",
+          narrate: "At about <code>(0, 1.41)</code>, the top point of the diamond." },
+        { rot: true, note: true, chip: 2, foot: "linear algebra under the hood",
+          narrate: "We'll never write a matrix like that in raylib: it does the heavy lifting, so all we pass is an angle. It's still good to know there's quite a bit of linear algebra behind it." },
+      ],
+      build(g) {
+        const r = {};
+        const m = plane(g, CXR, CYR, U, [-3, 3], [-3, 3]);
+        r.sqO = poly(g, ptsStr(m, sq), { fill: C.orangeT, stroke: C.orange, sw: 4 });
+        r.sqR = poly(g, ptsStr(m, sq), { fill: "rgba(248,131,121,0.45)", stroke: C.red, sw: 4 });
+        r.sqR.classList.add("mv");
+        r.sqR.style.transformOrigin = CXR + "px " + CYR + "px";
+        r.sqR.style.transform = "rotate(0deg)";
+        txt(g, m.X(1) + 8, m.Y(1) - 8, "(1, 1)", { size: 14, weight: 700, mono: true, fill: C.orange });
+        r.org = grp(g, 0);
+        circ(r.org, CXR, CYR, 14, { stroke: C.plum, sw: 3 });
+        circ(r.org, CXR, CYR, 5, { fill: C.plum });
+        txt(r.org, CXR + 22, CYR + 34, "origin (pivot)", { size: 14, weight: 700, fill: C.plum });
+        r.arc = grp(g, 0);
+        path(r.arc, `M${CXR + 34},${CYR} A 34 34 0 0 0 ${CXR + 34 * Math.cos(Math.PI / 4)},${CYR - 34 * Math.sin(Math.PI / 4)}`, { stroke: C.plum, sw: 3 });
+        txt(r.arc, CXR + 42, CYR - 14, "θ", { size: 20, weight: 700, fill: C.plum, italic: true });
+        r.dots = grp(g, 0);
+        circ(r.dots, m.X(1), m.Y(1), 6, { fill: C.orange });
+        circ(r.dots, m.X(0), m.Y(Math.SQRT2), 6, { fill: C.red });
+        txt(r.dots, m.X(0) + 12, m.Y(Math.SQRT2) - 6, "(0, 1.41)", { size: 14, weight: 700, mono: true, fill: C.red });
+        // right panel
+        r.pm = grp(g, 0);
+        txt(r.pm, 650, 96, "R(θ) =", { size: 26, weight: 700, mono: true, fill: C.plum });
+        matrix2(r.pm, 770, 50, 116, [["cos θ", "−sin θ"], ["sin θ", "cos θ"]], { size: 19 });
+        r.pg = grp(g, 0);
+        txt(r.pg, 650, 262, "R(θ) ·", { size: 24, weight: 700, mono: true, fill: C.plum });
+        colVec(r.pg, 760, 216, 64, [["x", C.teal], ["y", C.pink]], { size: 22 });
+        txt(r.pg, 842, 262, "=", { size: 26, weight: 700 });
+        colVec(r.pg, 868, 216, 248, [["x cos θ − y sin θ", C.ink], ["x sin θ + y cos θ", C.ink]], { size: 15 });
+        r.pn = grp(g, 0);
+        txt(r.pn, 650, 262, "R(45°) ·", { size: 24, weight: 700, mono: true, fill: C.plum });
+        colVec(r.pn, 778, 216, 64, [["1", C.orange], ["1", C.orange]], { size: 22 });
+        txt(r.pn, 862, 262, "=", { size: 26, weight: 700 });
+        colVec(r.pn, 888, 216, 110, [["0", C.red], ["1.41", C.red]], { size: 22 });
+        txt(r.pn, 650, 340, "x′ = 1·cos 45° − 1·sin 45° = 0", { size: 15, mono: true });
+        txt(r.pn, 650, 362, "y′ = 1·sin 45° + 1·cos 45° ≈ 1.41", { size: 15, mono: true });
+        r.note = grp(g, 0);
+        rect(r.note, 650, 90, 450, 200, { rx: 16, fill: C.white, stroke: C.black, sw: 4 });
+        txt(r.note, 675, 138, "In raylib:", { size: 20, weight: 700 });
+        txt(r.note, 675, 176, "no matrices, just an angle", { size: 20, mono: true, fill: C.plum, weight: 700 });
+        txt(r.note, 675, 214, "… but the maths is still", { size: 18, italic: true, fill: C.grey });
+        txt(r.note, 675, 240, "there, under the hood.", { size: 18, italic: true, fill: C.grey });
+        return r;
+      },
+      render(s, r) {
+        vis(r.sqR, !!s.rot);
+        r.sqR.style.transform = s.rot ? "rotate(-45deg)" : "rotate(0deg)";
+        vis(r.org, !!s.org); vis(r.arc, !!s.rot);
+        vis(r.pm, !!s.mat); vis(r.pg, !!s.gen); vis(r.pn, !!s.num); vis(r.dots, !!s.dots); vis(r.note, !!s.note);
+      },
+    });
+  })();  // ================= 5.1 Translation =================
+  (function () {
+    const from = [[-2, 1], [-1, 1], [-1.5, 2]], to = [[1, -1], [2, -1], [1.5, 0]];
+    scene({
+      num: "5.1", title: "Translation", subtitle: "Move every point by the same distance in the same direction.",
+      chips: ["Move", "Add", "The catch"],
+      init: { a: 0, f: 0 },
+      steps: [
+        { a: 1, chip: 1, foot: "3 right, 2 down",
+          narrate: "Translation slides <strong>every</strong> point by the same distance in the same direction. Here, by the vector <code>(3, −2)</code>: 3 to the right, 2 down." },
+        { a: 2, chip: 1, foot: "same shape, same size, same angle",
+          narrate: "Same shape, same size, same angle. Just somewhere else." },
+        { a: 2, f: 1, chip: 2, foot: "follow the top vertex",
+          narrate: "To find where one vertex goes, like the top one at <code>(−1.5, 2)</code>, write it as a vector, next to the translation vector <code>(3, −2)</code>." },
+        { a: 2, f: 2, chip: 2, foot: "addition, not multiplication",
+          q: "And what do we do with the two?",
+          narrate: "We <strong>add</strong> them: <code>(−1.5 + 3, 2 − 2) = (1.5, 0)</code>." },
+        { a: 2, f: 2, note: true, chip: 3, foot: "which is why raylib is so handy",
+          narrate: "That's what sets translation apart: it's <strong>addition</strong>, while scaling and rotation are multiplication. Applying all three in a row is therefore quite involved, which is why we lean on raylib's simpler (if less flexible) interface." },
+      ],
+      build(g) {
+        const r = {};
+        const m = plane(g, 300, 200, 54, [-4, 3.5], [-3, 3]);
+        r.from = grp(g, 1);
+        poly(r.from, ptsStr(m, from), { fill: C.orangeT, stroke: C.orange, sw: 4 });
+        [["(−2, 1)", -2, 1, "end"], ["(−1, 1)", -1, 1, "start"], ["(−1.5, 2)", -1.5, 2, "middle"]].forEach(([t, x, y, a]) => {
+          txt(r.from, m.X(x) + (a === "end" ? -8 : a === "start" ? 9 : 0), m.Y(y) + (y === 2 ? -12 : a === "start" ? -8 : 20), t, { size: 14, weight: 700, mono: true, fill: C.orange, anchor: a });
+        });
+        r.vec = grp(g, 0);
+        const ang = Math.atan2(2, 3);
+        ln(r.vec, m.X(-1), m.Y(1), m.X(2) - 13 * Math.cos(ang), m.Y(-1) - 13 * Math.sin(ang), { stroke: C.plum, sw: 4 });
+        arrowAt(r.vec, m.X(2), m.Y(-1), ang, C.plum);
+        txt(r.vec, m.X(0.25), m.Y(0.6), "(3, −2)", { size: 17, weight: 700, mono: true, fill: C.plum });
+        r.to = grp(g, 0);
+        poly(r.to, ptsStr(m, to), { fill: C.coralT, stroke: C.red, sw: 4 });
+        [["(1, −1)", 1, -1, "end"], ["(2, −1)", 2, -1, "start"], ["(1.5, 0)", 1.5, 0, "middle"]].forEach(([t, x, y, a]) => {
+          txt(r.to, m.X(x) + (a === "end" ? -8 : a === "start" ? 8 : 0), m.Y(y) + (y === 0 ? -12 : 22), t, { size: 14, weight: 700, mono: true, fill: C.red, anchor: a });
+        });
+        r.hi = grp(g, 0);
+        circ(r.hi, m.X(-1.5), m.Y(2), 7, { fill: C.orange });
+        circ(r.hi, m.X(1.5), m.Y(0), 7, { fill: C.red });
+        // formula
+        const y0 = 130;
+        r.f1 = grp(g, 0); r.f2 = grp(g, 0);
+        colVec(r.f1, 640, y0, 92, [["−1.5", C.orange], ["2", C.orange]]);
+        txt(r.f1, 750, y0 + 54, "+", { size: 30, weight: 700 });
+        colVec(r.f1, 780, y0, 76, [["3", C.plum], ["−2", C.plum]]);
+        txt(r.f2, 876, y0 + 54, "=", { size: 28, weight: 700 });
+        colVec(r.f2, 906, y0, 92, [["1.5", C.red], ["0", C.red]]);
+        r.note = grp(g, 0);
+        rect(r.note, 640, 250, 470, 96, { rx: 14, fill: C.white, stroke: C.black, sw: 3 });
+        txt(r.note, 662, 286, "scaling, rotation: multiplication", { size: 17, weight: 700 });
+        txt(r.note, 662, 318, "translation: addition", { size: 17, weight: 700, fill: C.red });
+        return r;
+      },
+      render(s, r) {
+        vis(r.vec, s.a >= 1); vis(r.to, s.a >= 2);
+        vis(r.hi, s.f >= 1); vis(r.f1, s.f >= 1); vis(r.f2, s.f >= 2); vis(r.note, !!s.note);
+      },
+    });
+  })();
+
+  // ================= 6.1 Transformations in raylib: DrawPoly =================
+  (function () {
+    const CODE = ["DrawPoly(", "    center,    // Vector2", "    sides,     // int", "    radius,    // float", "    rotation,  // float", "    color      // Color", ");"];
+    scene({
+      num: "6.1", title: "DrawPoly", subtitle: "One raylib function that handles all three transformations.",
+      chips: ["The screen", "The parameters"],
+      init: {},
+      steps: [
+        { org: true, chip: 1, foot: "top-left origin, y grows down",
+          q: "In a raylib window, where is <code>(0, 0)</code>? And which way is down?",
+          narrate: "<code>(0, 0)</code> is the <strong>top-left</strong> corner, and <strong>y grows downward</strong>." },
+        { org: true, cen: true, chip: 1, foot: "the centre is (W / 2, H / 2)",
+          narrate: "The centre of the window is not at <code>(0, 0)</code>. It's <code>(width / 2, height / 2)</code>, here <code>(600, 337.5)</code>." },
+        { org: true, cen: true, tri: true, call: true, chip: 1, foot: "our first triangle",
+          narrate: "The simplest shape we can draw is the <strong>triangle</strong>: the polygon with the fewest sides, so any shape can be built as a <strong>mesh</strong> of them. One line in <code>render</code> draws it." },
+        { cen: true, tri: true, call: true, hl: [1], ov: "c", chip: 2, foot: "center: Vector2",
+          narrate: "<code>center</code>: where the polygon's origin sits, as a <code>Vector2</code>. Remember, it's measured from the top-left." },
+        { cen: true, tri: true, call: true, hl: [2], ov: "s", chip: 2, foot: "sides: int",
+          narrate: "<code>sides</code> picks the n-gon. <code>3</code> gives us a triangle." },
+        { cen: true, tri: true, call: true, hl: [3], ov: "r", chip: 2, foot: "radius: float (the scale factor)",
+          q: "Is <code>radius</code> the side length?",
+          narrate: "No: it's the <strong>circumradius</strong>, from the centre to each vertex. It's our <strong>scale factor</strong>, and it scales equally in every direction, so this function only does uniform scaling." },
+        { cen: true, tri: true, call: true, hl: [4], ov: "a", chip: 2, foot: "rotation: float, in degrees",
+          narrate: "<code>rotation</code> is our rotation, in degrees. For this function it's always about the <strong>z-axis</strong>, the one that goes through the screen." },
+        { cen: true, tri: true, call: true, hl: [5], ov: "k", chip: 2, foot: "color: Color",
+          narrate: "<code>color</code>: the solid colour that fills the polygon." },
+      ],
+      build(g) {
+        const r = {};
+        r.cp = codePanel(g, 20, 30, 470, CODE, { size: 17, lh: 27 });
+        r.call = grp(g, 0);
+        rect(r.call, 20, 262, 470, 66, { rx: 12, fill: C.white, stroke: C.black, sw: 3 });
+        txt(r.call, 36, 288, "DrawPoly({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 },", { size: 13, mono: true, pre: true });
+        txt(r.call, 36, 312, "         3, 100, 0.0f, RED);", { size: 13, mono: true, pre: true });
+        const w = r.w = win(g, 530, 22, 600, "Transformations");
+        const c = w.content, k = w.k, [cx, cy] = w.P(600, 337.5);
+        // axes from the top-left origin
+        r.org = grp(c, 0);
+        const [ox, oy] = w.P(0, 0);
+        circ(r.org, ox + 14, oy + 14, 5, { fill: C.red });
+        ln(r.org, ox + 14, oy + 14, ox + 120, oy + 14, { stroke: C.red, sw: 3 }); arrowhead(r.org, ox + 132, oy + 14, "r", C.red);
+        ln(r.org, ox + 14, oy + 14, ox + 14, oy + 84, { stroke: C.red, sw: 3 }); arrowhead(r.org, ox + 14, oy + 96, "d", C.red);
+        txt(r.org, ox + 142, oy + 20, "x", { size: 16, italic: true, weight: 700, fill: C.red });
+        txt(r.org, ox + 24, oy + 112, "y", { size: 16, italic: true, weight: 700, fill: C.red });
+        txt(r.org, ox + 26, oy + 34, "(0, 0)", { size: 12, mono: true, weight: 700, fill: C.red });
+        r.cen = grp(c, 0);
+        circ(r.cen, cx, cy, 4, { fill: C.plum });
+        r.cenLbl = txt(r.cen, cx + 8, cy - 8 + 88 * k, "(600, 337.5)", { size: 12, mono: true, weight: 700, fill: C.plum });
+        r.tri = mkTri(c, 100 * k, C.raylibRed);
+        setTri(r.tri, cx, cy, 0, 1);
+        r.tri.style.opacity = 0;
+        // parameter overlays
+        r.ov = {};
+        r.ov.c = grp(c, 0);
+        circ(r.ov.c, cx, cy, 13, { stroke: C.plum, sw: 3 });
+        txt(r.ov.c, cx + 20, cy - 62 * k - 8, "center", { size: 14, weight: 700, fill: C.plum });
+        r.ov.s = grp(c, 0);
+        [0, 1, 2].forEach((i) => { const t = i * 120 * Math.PI / 180; circ(r.ov.s, cx + 100 * k * Math.cos(t), cy + 100 * k * Math.sin(t), 7, { fill: C.plum }); });
+        txt(r.ov.s, cx - 60, cy + 120 * k + 8, "sides = 3", { size: 15, weight: 700, fill: C.plum });
+        r.ov.r = grp(c, 0);
+        ln(r.ov.r, cx, cy, cx + 100 * k, cy, { stroke: C.plum, sw: 3, dash: "5 4" });
+        txt(r.ov.r, cx + 100 * k + 10, cy + 5, "radius = 100", { size: 14, weight: 700, fill: C.plum });
+        txt(r.ov.r, cx - 100, cy + 128 * k + 10, "the circumradius, not the side length", { size: 13, italic: true, fill: C.grey });
+        r.ov.a = grp(c, 0);
+        poly(r.ov.a, triPts(cx, cy, 100 * k, 40), { stroke: C.plum, sw: 3, dash: "5 4" });
+        path(r.ov.a, `M${cx + 54 * k},${cy} A ${54 * k} ${54 * k} 0 0 1 ${cx + 54 * k * Math.cos(40 * Math.PI / 180)},${cy + 54 * k * Math.sin(40 * Math.PI / 180)}`, { stroke: C.plum, sw: 3 });
+        txt(r.ov.a, cx, cy - 100 * k - 6, "rotation (about z)", { size: 13, weight: 700, fill: C.plum, anchor: "middle" });
+        r.ov.k = grp(c, 0);
+        txt(r.ov.k, cx - 50, cy + 130 * k + 8, "color = RED", { size: 15, weight: 700, fill: C.raylibRed });
+        return r;
+      },
+      render(s, r) {
+        vis(r.org, !!s.org); vis(r.cen, !!s.cen); vis(r.cenLbl, !s.ov); vis(r.tri, !!s.tri); vis(r.call, !!s.call);
+        hl(r.cp, s.hl || [], C.coralT);
+        Object.keys(r.ov).forEach((k) => vis(r.ov[k], s.ov === k));
+      },
+    });
+  })();
+
+  // ================= 7.1 Let's code =================
+  (function () {
+    scene({
+      num: "7.1", title: "Let's Code", subtitle: "Time to put it in update().",
+      chips: ["Live"],
+      init: {},
+      steps: [
+        { chip: 1, foot: "live coding",
+          narrate: "We've got the ideas. Now we make the triangle <strong>grow</strong>, <strong>swing</strong> and <strong>travel</strong>, all inside <code>update()</code>." },
+      ],
+      build(g) {
+        const r = {};
+        txt(g, 575, 150, "Let's code.", { size: 72, weight: 700, anchor: "middle", fill: C.black });
+        ln(g, 535, 182, 615, 182, { stroke: C.red, sw: 4 });
+        [["scale", "gScaleFactor", C.coralT], ["rotate", "gAngle", C.plumT], ["translate", "gPosition", C.sandD]].forEach(([a, b, col], i) => {
+          const x = 205 + i * 270;
+          rect(g, x, 232, 230, 96, { rx: 16, fill: col, stroke: C.black, sw: 4 });
+          txt(g, x + 115, 274, a, { size: 26, weight: 700, anchor: "middle" });
+          txt(g, x + 115, 306, b, { size: 16, mono: true, anchor: "middle", fill: C.grey });
+        });
+        return r;
+      },
+      render() {},
+    });
+  })();
+
+  // ---------------- engine ----------------
+  const $ = (id) => document.getElementById(id);
+  const svg = $("stage");
+  const foot = txt(svg, 575, 394, "", { size: 13, italic: true, fill: C.grey, anchor: "middle" });
+
+  scenes.forEach((sc) => {
+    sc.g = E("g", {}, svg);
+    sc.g.style.display = "none";
+    sc.r = sc.build(sc.g) || {};
+    foot.parentNode.appendChild(foot);
+  });
+  const SEC0 = scenes[0].cover ? 1 : 0;   // the title slide is section 0
+  $("sec-total").textContent = scenes.length - SEC0;
+
+  // si: section, ti: beat, ph: 0 = question showing (diagram as before), 1 = answered
+  let si = 0, ti = 0, ph = 1, shownScene = -1;
+  const asks = (i, t) => !!scenes[i].steps[t].q;
+  const startPh = (i, t) => (asks(i, t) ? 0 : 1);
+
+  function readHash() {
+    const m = location.hash.match(/^#(\d+)\.(\d+)(q?)$/);
+    if (!m) { ph = startPh(si, ti); return; }
+    const a = Number(m[1]) - 1 + SEC0, b = Number(m[2]) - 1;
+    if (a >= 0 && a < scenes.length) { si = a; ti = Math.max(0, Math.min(scenes[a].steps.length - 1, b)); }
+    ph = m[3] && asks(si, ti) ? 0 : 1;
+  }
+
+  function buildChips(sc) {
+    const box = $("chips");
+    box.innerHTML = "";
+    sc.chips.forEach((label) => {
+      const d = document.createElement("div");
+      d.className = "stp";
+      d.textContent = label;
+      box.appendChild(d);
+    });
+  }
+
+  function render() {
+    const sc = scenes[si], s = sc.steps[ti];
+    if (shownScene !== si) {
+      scenes.forEach((x, k) => { x.g.style.display = k === si ? "inline" : "none"; });
+      $("num").textContent = sc.num;
+      $("title").textContent = sc.title;
+      $("subtitle").textContent = sc.subtitle;
+      $("foot-left").textContent = sc.title;
+      buildChips(sc);
+      shownScene = si;
+    }
+    const asking = ph === 0 && !!s.q;
+    // while a question is showing, the diagram stays exactly as the previous beat left it
+    sc.render(asking ? (ti > 0 ? sc.steps[ti - 1] : sc.init) : s, sc.r, ti);
+    foot.textContent = asking ? "" : (s.foot || "");
+    const qm = '<span class="qm">Q</span>';
+    $("narration").innerHTML = asking ? '<div class="q big">' + qm + s.q + '</div>'
+      : (s.q ? '<div class="q small">' + qm + s.q + '</div>' : "") + s.narrate;
+    $("sec-n").textContent = si + 1 - SEC0;
+    document.body.classList.toggle("is-cover", !!sc.cover);
+    $("step-n").textContent = ti + 1;
+    $("step-total").textContent = sc.steps.length;
+    document.querySelectorAll(".stp").forEach((chip, k) => {
+      const n = k + 1;
+      chip.classList.remove("active", "done");
+      if (!s.chip) return;
+      if (s.chip === n) chip.classList.add("active");
+      else if (n < s.chip) chip.classList.add("done");
+    });
+    history.replaceState(null, "", "#" + (si + 1 - SEC0) + "." + (ti + 1) + (asking ? "q" : ""));
+  }
+
+  function go(d) {
+    const sc = scenes[si];
+    if (d > 0) {
+      if (ph === 0) ph = 1;
+      else if (ti < sc.steps.length - 1) { ti++; ph = startPh(si, ti); }
+      else if (si < scenes.length - 1) { si++; ti = 0; ph = startPh(si, 0); }
+    } else {
+      if (ph === 1 && asks(si, ti)) ph = 0;
+      else if (ti > 0) { ti--; ph = 1; }
+      else if (si > 0) { si--; ti = scenes[si].steps.length - 1; ph = 1; }
+    }
+    render();
+  }
+
+  function jumpScene(d) {
+    if (d < 0 && (ti > 0 || ph !== startPh(si, 0))) ti = 0;
+    else si = Math.max(0, Math.min(scenes.length - 1, si + d)), ti = 0;
+    ph = startPh(si, 0);
+    render();
+  }
+
+  window.addEventListener("keydown", (e) => {
+    const fwd = ["ArrowRight", "ArrowDown", " ", "PageDown"].includes(e.key);
+    const back = ["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key);
+    if (!fwd && !back) return;
+    e.preventDefault();
+    if (e.shiftKey) jumpScene(fwd ? 1 : -1);
+    else go(fwd ? 1 : -1);
+  });
+
+  window.addEventListener("hashchange", () => { readHash(); render(); });
+
+  readHash();
+  render();
+})();
+</script>
+
+</body>
+</html>
