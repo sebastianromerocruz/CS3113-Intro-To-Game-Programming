@@ -620,16 +620,16 @@
         ["DrawTexturePro(", "    gEdelgardTexture, textureArea,", "    destinationArea, objectOrigin,", "    gAngle, WHITE", ");"].forEach((l, i) => {
           txt(r.call, 36, 286 + i * 20, l, { size: 13, mono: true, pre: true });
         });
-        const w = r.w = win(g, 540, 30, 590, "Textures");
+        const w = r.w = win(g, 625, 28, 420, "Textures");
         const [cx, cy] = w.P(600, 337.5), size = 260 * w.k;
         r.tri = mkSprite(w.content, size);
         setSprite(r.tri, cx, cy, 1);
         r.tri.style.opacity = 0;
         r.unload = grp(g, 0);
-        rect(r.unload, 540, 400, 590, 90, { rx: 12, fill: C.coralT, stroke: C.black, sw: 3 });
-        txt(r.unload, 560, 430, "void shutdown()", { size: 14, mono: true, weight: 700 });
-        txt(r.unload, 560, 452, "{ CloseWindow(); UnloadTexture(gEdelgardTexture); }", { size: 13, mono: true });
-        txt(r.unload, 560, 476, "one UnloadTexture for every LoadTexture", { size: 13, italic: true, fill: C.grey });
+        rect(r.unload, 540, 302, 590, 74, { rx: 12, fill: C.coralT, stroke: C.black, sw: 3 });
+        txt(r.unload, 560, 328, "void shutdown()", { size: 14, mono: true, weight: 700 });
+        txt(r.unload, 560, 349, "{ CloseWindow(); UnloadTexture(gEdelgardTexture); }", { size: 13, mono: true });
+        txt(r.unload, 560, 367, "one UnloadTexture for every LoadTexture", { size: 13, italic: true, fill: C.grey });
         return r;
       },
       render(s, r) {
@@ -694,19 +694,19 @@
       build(g) {
         const r = {};
         r.naiveWrap = grp(g, 0);
-        r.naive = codePanel(r.naiveWrap, 30, 60, 560, ["void update()", "{", "    gPulseTime += 1.0f;", "", "    gScale = {", "        BASE_SIZE.x + MAX_AMP * cos(gPulseTime),", "        BASE_SIZE.y + MAX_AMP * cos(gPulseTime)", "    };", "}"], { size: 15, lh: 25 });
+        r.naive = codePanel(r.naiveWrap, 30, 60, 540, ["void update()", "{", "    gPulseTime += 1.0f;", "", "    gScale = {", "        BASE_SIZE.x + MAX_AMP * cos(gPulseTime),", "        BASE_SIZE.y + MAX_AMP * cos(gPulseTime)", "    };", "}"], { size: 15, lh: 25 });
         r.fixWrap = grp(g, 0);
-        r.fix = codePanel(r.fixWrap, 30, 60, 560, ["void update()", "{", "    gPulseTime += 1.0f * deltaTime;", "", "    gScale = {", "        BASE_SIZE.x + MAX_AMP * cos(gPulseTime),", "        BASE_SIZE.y + MAX_AMP * cos(gPulseTime)", "    };", "}"], { size: 15, lh: 25 });
+        r.fix = codePanel(r.fixWrap, 30, 60, 540, ["void update()", "{", "    gPulseTime += 1.0f * deltaTime;", "", "    gScale = {", "        BASE_SIZE.x + MAX_AMP * cos(gPulseTime),", "        BASE_SIZE.y + MAX_AMP * cos(gPulseTime)", "    };", "}"], { size: 15, lh: 25 });
         hl(r.fix, [2], C.coralT);
         const mk = (x, label) => {
           const wrap = grp(g, 0);
-          const wobj = win(wrap, x, 40, 260, label);
+          const wobj = win(wrap, x, 40, 250, label);
           const [cx, cy] = wobj.P(600, 337.5);
-          const s = mkSprite(wobj.content, 130 * wobj.k);
+          const s = mkSprite(wobj.content, 190 * wobj.k);
           setSprite(s, cx, cy, 1);
           return { wrap, w: wobj, s, cx, cy, phase: 0 };
         };
-        r.a = mk(630, "60 FPS"); r.b = mk(920, "30 FPS");
+        r.a = mk(600, "60 FPS"); r.b = mk(880, "30 FPS");
         r.raf = null;
         r.reset = () => { r.t = 0; };
         r.draw = () => {
@@ -760,7 +760,7 @@
         r.cp = codePanel(g, 20, 30, 590, CODE, { size: 14.5, lh: 25 });
         // timeline diagram
         r.tlg = grp(g, 0);
-        const TX = 660, TY = 90, TW = 420;
+        const TX = 660, TY = 64, TW = 420;
         ln(r.tlg, TX, TY, TX + TW, TY, { stroke: C.black, sw: 3 }); arrowhead(r.tlg, TX + TW + 12, TY, "r", C.black);
         [0.2, 0.45, 0.7].forEach((f, i) => {
           const x = TX + f * TW;
@@ -774,11 +774,11 @@
         txt(r.delta, (x1 + x2) / 2, TY + 44, "deltaTime", { size: 14, weight: 700, fill: C.plum, anchor: "middle" });
         txt(r.tlg, TX, TY + 74, "gPreviousTicks always holds the last frame's ticks", { size: 13, italic: true, fill: C.grey });
 
-        const w = r.w = win(g, 660, 190, 460, "Textures");
+        const w = r.w = win(g, 710, 158, 320, "Textures");
         const [cx, cy] = w.P(600, 337.5);
-        r.sprite = mkSprite(w.content, 220 * w.k);
+        r.sprite = mkSprite(w.content, 250 * w.k);
         setSprite(r.sprite, cx, cy, 1);
-        r.read = txt(g, 660, 400, "", { size: 14, mono: true, weight: 700, pre: true });
+        r.read = txt(g, 20, 358, "", { size: 14, mono: true, weight: 700, pre: true });
         r.raf = null; r.prev = null;
         r.tick = (now) => {
           if (r.prev === null) r.prev = now;
