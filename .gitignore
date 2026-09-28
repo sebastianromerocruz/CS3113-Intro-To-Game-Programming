@@ -161,7 +161,8 @@ exercises/*
 exercises/01-transformations/SOLUTION.cpp
 exercises/01-transformations/assets/01-transformations-solution.zip
 
-!exercises/02-textures
+# Exercise 2 is released manually in class: uncomment the next line to release it.
+# !exercises/02-textures
 exercises/02-textures/solution.cpp
 exercises/02-textures/assets/02-textures-solution.zip
 
