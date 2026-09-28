@@ -97,7 +97,7 @@ Color ColorFromHex(const char *hex)
 }
 ```
 
-You don't need to know too much about creating libraries in C/C++. What you _do_ need to keep an eye out is you [**`makefile`**](makefile). Whenever you add another C++ file to your compilation process, be sure to also tell you `makefile` to compile it. In my case, I had to modify the line:
+You don't need to know too much about creating libraries in C/C++. What you _do_ need to keep an eye out is your [**`makefile`**](makefile). Whenever you add another C++ file to your compilation process, be sure to also tell your `makefile` to compile it. In my case, I had to modify the line:
 
 ```sh
 # Source Files
@@ -257,7 +257,7 @@ void render()
         // top-left corner
         0.0f, 0.0f,
 
-        // how large of a recrangle, starting
+        // how large of a rectangle, starting
         // from the top-left corner, do we want
         // to "slice"
         static_cast<float>(gTexture.width), // width
@@ -315,7 +315,7 @@ void render()
 }
 ```
 
-If you've got a keen eye, you might be wondering why we're using (`gPosition.x`, `gPosition.y`) instead of offseting the destination rectangle by half its size (i.e. `gPosition.x / 2` and `gPosition.y / 2`). Both are actually a perfectly valid ways of achieving the same effect, and the reason for this will become clear in step 3.
+If you've got a keen eye, you might be wondering why we're using (`gPosition.x`, `gPosition.y`) instead of offseting the destination rectangle by half its size (i.e. `gPosition.x / 2` and `gPosition.y / 2`). Both are actually perfectly valid ways of achieving the same effect, and the reason for this will become clear in step 3.
 
 <a id="2-2-3"></a>
 
@@ -508,7 +508,7 @@ void update()
 
 ### Calculation
 
-But how do we actually _calculate_ this value? Since computers continuously slow down and speed up, this delta time is going to be slightly different every single frame (that's the point), so we must calculate it every singly frame. It's actually very simple:
+But how do we actually _calculate_ this value? Since computers continuously slow down and speed up, this delta time is going to be slightly different every single frame (that's the point), so we must calculate it every single frame. It's actually very simple:
 
 1. Keep track of how much time has passed from the time the game was launched to the moment this current `update()` call was made.
 2. Subtract the amount of time that had passed from launch time to the _previous_ frame (which in the beginning is `0.0`) from the value you calculated in step 1. That difference is your delta time.
