@@ -2,7 +2,7 @@
 
 <h1 align=center>User Input / Collision Detection</h1>
 
-<h3 align=center>XII Pegasus Moon, Imperial Year MMXXVI</h3>
+<h3 align=center>V Wyvern Moon, Imperial Year MMXXVI</h3>
 
 <p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/GQzDG-tILbo?si=qt3ficKGJ8U1woZP"><strong><u>Sam's Town</u></strong></a> by The Killers (2006).</em></p>
 
