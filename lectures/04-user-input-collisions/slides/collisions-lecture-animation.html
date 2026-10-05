@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CS-UY 3113 | Collision Detection Theory | Animated</title>
+<style>
+  /* Slides for section 4 of the README ("Collision Detection Theory") only.
+     They follow the notes in order and reuse the notes' own figures, so you can
+     keep the README open and turn slides as you read. Slide titles carry the
+     README's section numbers (4, 4.1 ... 4.4) and captions carry its figure
+     numbers (Figure VI ... XII).
+
+     Keys: left / right to step, shift + left / right to jump a section.
+     Open at a given slide with a URL hash, e.g. #4.3 (section 4, beat 3).
+     Beats marked "live" run an animation: the numbers on screen are computed
+     from the actual positions, exactly the way the formulas in the notes do.
+
+     Not self-contained: the figures are loaded from ../assets/README/, so keep
+     this file inside slides/. */
+
+  :root {
+    --ink: #171715;
+    --red: #c1272d;
+    --cream: #f7f7f4;
+    --mute: #6d6d6d;
+    --faint: #9f9f97;
+    --rule: #d9d9d3;
+  }
+
+  html, body { margin: 0; height: 100%; background: var(--cream); overflow: hidden; }
+
+  .slide {
+    position: relative;
+    width: 1333px;
+    height: 750px;
+    margin: 0 auto;
+    padding: 40px 64px 76px;
+    box-sizing: border-box;
+    overflow: hidden;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+  }
+
+  .stage {
+    position: relative;
+    margin-top: 18px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .stage .num { color: var(--red); font-weight: 700; font-size: 15px; letter-spacing: 0.04em; }
+  .stage h1 { margin: 0; font-size: 30px; font-weight: 700; }
+
+  .subtitle { margin: 8px 0 0; font-size: 16px; font-style: italic; color: var(--mute); }
+
+  .diagram-wrap {
+    margin-top: 16px;
+    background: #efece3;
+    border-radius: 24px;
+    padding: 10px 20px;
+    position: relative;
+  }
+  .diagram-wrap .mark { position: absolute; top: 20px; left: 20px; width: 14px; height: 14px; background: var(--red); }
+
+  svg text { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  svg * { transition: opacity 0.35s ease; }
+  svg .nt { transition: none; }
+
+  .stps { margin-top: 12px; display: flex; justify-content: center; gap: 14px; min-height: 38px; }
+  .stp {
+    min-width: 120px;
+    text-align: center;
+    padding: 6px 14px;
+    border: 2px solid #d9d9d3;
+    color: var(--mute);
+    font-size: 15px;
+    font-weight: 600;
+    transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
+  }
+  .stp.active { border-color: var(--red); color: var(--ink); background: #fbeceb; }
+  .stp.done { border-color: var(--ink); color: var(--ink); }
+
+  .narration { margin-top: 14px; font-size: 19px; line-height: 1.35; min-height: 52px; }
+  .narration strong { color: var(--red); }
+  .narration code {
+    background: #171715;
+    color: #f7f7f4;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 16px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  .slide-footer {
+    position: absolute;
+    bottom: 24px;
+    left: 64px;
+    right: 64px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--faint);
+    border-top: 1px solid var(--rule);
+    padding-top: 10px;
+  }
+  .step-indicator { position: absolute; top: 20px; right: 64px; font-size: 13px; letter-spacing: 0.06em; color: var(--mute); }
+  .step-indicator .n { color: var(--red); font-weight: 700; }
+  .hint { position: absolute; top: 20px; left: 64px; display: flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: 0.06em; color: var(--mute); }
+  .hint::before { content: ""; display: inline-block; width: 10px; height: 10px; background: var(--red); }
+
+  /* ---- title slide ---- */
+  .cover { display: none; position: absolute; left: 64px; right: 64px; top: 84px; bottom: 96px; flex-direction: column; }
+  .is-cover .cover { display: flex; }
+  .is-cover .stage, .is-cover .subtitle, .is-cover .diagram-wrap, .is-cover .stps,
+  .is-cover .narration, .is-cover .step-indicator { display: none; }
+
+  .cover-eyebrow { display: flex; align-items: center; gap: 10px; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+  .cover-eyebrow::before { content: ""; width: 10px; height: 10px; background: var(--red); }
+  .cover-main { flex: 1; display: flex; align-items: center; justify-content: space-between; }
+  .cover-text { width: 720px; }
+  .cover-week { font-size: 20px; font-weight: 700; color: var(--red); letter-spacing: 0.08em; text-transform: uppercase; }
+  .cover h1 { margin: 10px 0 0; font-size: 84px; line-height: 1.04; font-weight: 700; letter-spacing: -0.02em; }
+  .cover-rule { width: 64px; border-top: 4px solid var(--red); margin: 30px 0 26px; }
+  .cover-date { margin: 0 0 8px; font-size: 20px; color: var(--ink); }
+  .cover-song { margin: 0; font-size: 16px; color: var(--mute); }
+  .cover-song strong { color: var(--ink); }
+
+  .cover-art { width: 400px; height: 400px; flex: none; }
+  .cover-art .slide-in { animation: cover-slide 4.2s ease-in-out infinite; }
+  .cover-art .slide-out { animation: cover-slide-r 4.2s ease-in-out infinite; }
+  @keyframes cover-slide   { 0%, 100% { transform: translate(-50px, 14px); } 50% { transform: translate(-6px, 14px); } }
+  @keyframes cover-slide-r { 0%, 100% { transform: translate(54px, -14px); } 50% { transform: translate(6px, -14px); } }
+</style>
+</head>
+<body>
+
+<div class="slide">
+  <div class="hint">&larr; / &rarr; step &nbsp;&middot;&nbsp; shift + &larr; / &rarr; section</div>
+  <div class="step-indicator">SECTION <span class="n" id="sec-n">1</span> / <span id="sec-total">6</span> &nbsp;&middot;&nbsp; STEP <span class="n" id="step-n">1</span> / <span id="step-total">3</span></div>
+
+  <div class="cover" id="cover">
+    <div class="cover-eyebrow">CS-UY 3113 &nbsp;&middot;&nbsp; Introduction to Game Programming</div>
+    <div class="cover-main">
+      <div class="cover-text">
+        <div class="cover-week">Week IV</div>
+        <h1>Collision<br>Detection</h1>
+        <div class="cover-rule"></div>
+        <p class="cover-date">V Wyvern Moon, Imperial Year MMXXVI</p>
+        <p class="cover-song"><strong>Song of the day</strong>: <em>Grand Theft Autumn/Where Is Your Boy</em> by Fall Out Boy (2006)</p>
+      </div>
+      <svg class="cover-art" viewBox="-200 -200 400 400" aria-hidden="true">
+        <g stroke="#dcd8cb" stroke-width="1.5">
+          <line x1="-190" y1="-120" x2="190" y2="-120"/><line x1="-190" y1="-60" x2="190" y2="-60"/>
+          <line x1="-190" y1="60" x2="190" y2="60"/><line x1="-190" y1="120" x2="190" y2="120"/>
+          <line x1="-120" y1="-190" x2="-120" y2="190"/><line x1="-60" y1="-190" x2="-60" y2="190"/>
+          <line x1="60" y1="-190" x2="60" y2="190"/><line x1="120" y1="-190" x2="120" y2="190"/>
+        </g>
+        <g stroke="#171715" stroke-width="3" stroke-linecap="round">
+          <line x1="-190" y1="0" x2="190" y2="0"/><line x1="0" y1="-190" x2="0" y2="190"/>
+        </g>
+        <g class="slide-in"><rect x="-130" y="-55" width="150" height="110" fill="#dfe8d9" stroke="#00704a" stroke-width="6"/><circle cx="-55" cy="0" r="6" fill="#00704a"/></g>
+        <g class="slide-out"><rect x="-40" y="-60" width="110" height="120" fill="rgba(246,227,216,0.8)" stroke="#ec5454" stroke-width="6"/><circle cx="15" cy="0" r="6" fill="#ec5454"/></g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="stage">
+    <span class="num" id="num">4</span>
+    <h1 id="title">Collision Detection Theory</h1>
+  </div>
+  <p class="subtitle" id="subtitle"></p>
+
+  <div class="diagram-wrap">
+    <div class="mark"></div>
+    <svg id="stage" viewBox="0 0 1150 400" width="100%" height="340"></svg>
+  </div>
+
+  <div class="stps" id="chips"></div>
+  <div class="narration" id="narration"></div>
+
+  <div class="slide-footer"><span id="foot-left">Collision Detection Theory</span><span>NYU Tandon | Fall 2026</span></div>
+</div>
+
+<script>
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  const XLINK = "http://www.w3.org/1999/xlink";
+  const MONO = "'SF Mono', Menlo, Consolas, monospace";
+  const IMGDIR = "../assets/README/";
+  // the notes' own figure colours: green = first object, red = second, purple = distances
+  const C = {
+    ink: "#404040", grey: "#6d6d6d", lgrey: "#9f9f97", black: "#171715", red: "#c1272d",
+    sand: "#efece3", sandD: "#e2ded0", white: "#ffffff", grid: "#dcd8cb",
+    gr: "#00704a", grT: "#dfe8d9", rd: "#ec5454", rdT: "#f6e3d8", rdH: "rgba(236,84,84,0.38)",
+    pu: "#7a1f8f", puT: "#eadcf1", or: "#e5a23c", orT: "#f5ecd9", orH: "rgba(229,162,60,0.38)", ok: "#2f7d63",
+  };
+
+  function E(tag, attrs, parent, text) {
+    const e = document.createElementNS(NS, tag);
+    if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function grp(p, op) { const g = E("g", {}, p); g.style.opacity = op === undefined ? 1 : op; return g; }
+  function rect(p, x, y, w, h, o) {
+    o = o || {};
+    const e = E("rect", { x, y, width: w, height: h, rx: o.rx || 0, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0 }, p);
+    if (o.dash) e.setAttribute("stroke-dasharray", o.dash);
+    return e;
+  }
+  function txt(p, x, y, s, o) {
+    o = o || {};
+    const t = E("text", { x, y, fill: o.fill || C.ink, "font-size": o.size || 16, "font-weight": o.weight || 400, "text-anchor": o.anchor || "start" }, p, s);
+    if (o.mono) t.style.fontFamily = MONO;
+    if (o.italic) t.setAttribute("font-style", "italic");
+    if (o.ls) t.setAttribute("letter-spacing", o.ls);
+    if (o.pre) t.style.whiteSpace = "pre";
+    if (o.halo) { t.setAttribute("stroke", o.halo); t.setAttribute("stroke-width", o.haloW || 4); t.setAttribute("stroke-linejoin", "round"); t.style.paintOrder = "stroke"; }
+    return t;
+  }
+  function ln(p, x1, y1, x2, y2, o) {
+    o = o || {};
+    const e = E("line", { x1, y1, x2, y2, stroke: o.stroke || C.ink, "stroke-width": o.sw || 4, "stroke-linecap": "round" }, p);
+    if (o.dash) e.setAttribute("stroke-dasharray", o.dash);
+    return e;
+  }
+  function circ(p, cx, cy, r, o) {
+    o = o || {};
+    return E("circle", { cx, cy, r, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0 }, p);
+  }
+  function poly(p, pts, o) {
+    o = o || {};
+    return E("polygon", { points: pts, fill: o.fill || "none", stroke: o.stroke || "none", "stroke-width": o.sw || 0, "stroke-linejoin": "round" }, p);
+  }
+  function pic(p, file, x, y, w, h) {
+    const e = E("image", { x, y, width: w, height: h, preserveAspectRatio: "xMidYMid meet" }, p);
+    e.setAttribute("href", IMGDIR + file);
+    e.setAttributeNS(XLINK, "href", IMGDIR + file);
+    return e;
+  }
+  function caption(p, x, y, s, anchor) { return txt(p, x, y, s, { size: 13, italic: true, fill: C.grey, anchor: anchor || "middle" }); }
+  function card(p, x, y, w, h, fill) { return rect(p, x, y, w, h, { rx: 14, fill: fill || C.white, stroke: C.black, sw: 3 }); }
+  function vis(el, on) { el.style.opacity = on ? 1 : 0; }
+  function codePanel(g, x, y, w, lines, o) {
+    o = o || {};
+    const LH = o.lh || 24, size = o.size || 15, cp = { rows: [], bands: [] };
+    card(g, x, y, w, lines.length * LH + 24);
+    lines.forEach((s, i) => {
+      const lg = grp(g, 1), by = y + 12 + i * LH;
+      cp.bands.push(rect(lg, x + 8, by, w - 16, LH - 2, { rx: 5 }));
+      txt(lg, x + 18, by + LH - 8, s, { size, mono: true, pre: true });
+      cp.rows.push(lg);
+    });
+    return cp;
+  }
+  function hl(cp, idx, col) { cp.bands.forEach((b, i) => b.setAttribute("fill", idx.indexOf(i) >= 0 ? col : "none")); }
+
+  const MINUS = "−";
+  const num = (n) => (Math.round(n) < 0 ? MINUS : "") + Math.abs(Math.round(n));
+  const now = () => performance.now() / 1000;
+
+  const scenes = [];
+  function scene(def) { scenes.push(def); }
+
+  // ================= 0 Title slide =================
+  scene({
+    cover: true, num: "", title: "Collision Detection Theory", subtitle: "",
+    chips: [], steps: [{ narrate: "" }],
+    build() { return {}; }, render() {},
+  });
+
+  // ================= 4 Collision Detection (intro) =================
+  (function () {
+    const kinds = [
+      ["4.1", "Circle to circle"], ["4.2", "Point to circle"], ["4.3", "Box to box"], ["4.4", "Point to box"],
+    ];
+    scene({
+      num: "4", title: "Collision Detection", subtitle: "The easiest physics simulation to implement.",
+      chips: ["Why", "Pong", "The four kinds"],
+      steps: [
+        { stmt: true, chip: 1, foot: "physics, the easy way in",
+          narrate: "The last thing we need to make something worthy of the \"video game\" title is some sort of <strong>physics simulation</strong>. The easiest is <strong>collision detection</strong>." },
+        { pong: true, chip: 2, foot: "",
+          narrate: "It was one of the first (if not <em>the</em> first) to be implemented in a game: collision detection is the entire <em>raison d'&ecirc;tre</em> of Atari's <strong>Pong</strong>." },
+        { menu: true, chip: 3, foot: "all of them are available to you",
+          narrate: "There are several ways of detecting collisions, so let's take a look at four of them." },
+      ],
+      build(g) {
+        const r = {};
+        r.stmt = grp(g, 0);
+        card(r.stmt, 150, 96, 850, 190);
+        txt(r.stmt, 575, 160, "Collision detection", { size: 34, weight: 700, anchor: "middle" });
+        txt(r.stmt, 575, 208, "the easiest physics simulation to implement,", { size: 21, anchor: "middle", fill: C.ink });
+        txt(r.stmt, 575, 240, "so one of the first ever built into a game.", { size: 21, anchor: "middle", fill: C.ink });
+
+        r.pong = grp(g, 0);
+        pic(r.pong, "pong_gif.webp", 40, 44, 520, 292);
+        caption(r.pong, 300, 358, "Figure VI: Atari's Pong");
+        card(r.pong, 610, 92, 500, 180);
+        txt(r.pong, 635, 140, "Pong (Atari, 1972)", { size: 24, weight: 700 });
+        txt(r.pong, 635, 184, "Collision detection is, quite literally,", { size: 18 });
+        txt(r.pong, 635, 212, "the entire raison d'être of the game.", { size: 18 });
+
+        r.menu = grp(g, 0);
+        r.cards = kinds.map(([n, t], i) => {
+          const q = grp(r.menu, 0), x = 40 + i * 278, cx = x + 125, cy = 150;
+          card(q, x, 66, 250, 250);
+          if (i === 0) { circ(q, cx - 24, cy, 42, { fill: C.grT, stroke: C.gr, sw: 5 }); circ(q, cx + 30, cy + 4, 30, { fill: C.rdH, stroke: C.rd, sw: 5 }); }
+          if (i === 1) { circ(q, cx - 12, cy, 46, { fill: C.grT, stroke: C.gr, sw: 5 }); circ(q, cx + 38, cy - 14, 7, { fill: C.rd }); }
+          if (i === 2) { rect(q, cx - 62, cy - 34, 90, 70, { fill: C.grT, stroke: C.gr, sw: 5 }); rect(q, cx - 8, cy - 10, 64, 64, { fill: C.rdH, stroke: C.rd, sw: 5 }); }
+          if (i === 3) { rect(q, cx - 50, cy - 38, 100, 76, { fill: C.orT, stroke: C.or, sw: 5 }); circ(q, cx + 14, cy - 6, 7, { fill: C.rd }); }
+          txt(q, x + 20, 262, n, { size: 14, weight: 700, mono: true, fill: C.red });
+          txt(q, x + 20, 292, t, { size: 21, weight: 700 });
+          return q;
+        });
+        return r;
+      },
+      render(s, r) {
+        vis(r.stmt, !!s.stmt); vis(r.pong, !!s.pong); vis(r.menu, !!s.menu);
+        r.cards.forEach((q, i) => { q.style.transitionDelay = s.menu ? (i * 0.25) + "s" : "0s"; vis(q, !!s.menu); });
+      },
+    });
+  })();
+
+  // ================= 4.1 Circle to circle =================
+  (function () {
+    const A = { x: 190, y: 190, r: 64 }, R2 = 44;
+    const pos = (t) => ({ x: 392 + 140 * Math.sin(t * 0.8), y: 190 + 46 * Math.sin(t * 0.55 + 1) });
+    scene({
+      num: "4.1", title: "Circle-to-Circle", subtitle: "The distance between the centres, against the sum of the radii.",
+      chips: ["In games", "The picture", "The rule"],
+      steps: [
+        { gifs: true, chip: 1, foot: "",
+          narrate: "The easiest to calculate. Games like <em>Hundreds</em> and <em>agar.io</em> almost entirely rely on collisions of this kind, as does the arcade classic <strong>Asteroids</strong>." },
+        { fig: true, chip: 2, foot: "",
+          narrate: "Really, the only thing involved is a simple <strong>distance calculation from their centres</strong>." },
+        { live: true, chip: 3, foot: "live: the numbers are computed every frame",
+          narrate: "If the distance between the centres of the circles is <strong>less than the sum of their radii</strong>, we have a collision." },
+      ],
+      build(g) {
+        const r = {};
+        r.gifs = grp(g, 0);
+        pic(r.gifs, "osmos.gif", 60, 40, 430, 242);
+        caption(r.gifs, 275, 310, "Figure VII: Hemisphere Games' Osmos");
+        pic(r.gifs, "asteroids_gif.gif", 660, 40, 430, 256);
+        caption(r.gifs, 875, 324, "Figure VIII: Atari's Asteroids");
+
+        r.fig = grp(g, 0);
+        pic(r.fig, "circle-to-circle.png", 256, 24, 637, 320);
+        caption(r.fig, 575, 366, "Figure IX: d > r₁ + r₂ is no collision, d < r₁ + r₂ is a collision");
+
+        r.demo = grp(g, 0);
+        r.cA = circ(r.demo, A.x, A.y, A.r, { fill: C.grT, stroke: C.gr, sw: 5 });
+        r.cB = circ(r.demo, 392, 190, R2, { fill: C.rdT, stroke: C.rd, sw: 5 });
+        r.line = ln(r.demo, A.x, A.y, 392, 190, { stroke: C.pu, sw: 3, dash: "7 6" });
+        r.rA = ln(r.demo, A.x, A.y, A.x + A.r, A.y, { stroke: C.gr, sw: 6 });
+        r.rB = ln(r.demo, 392, 190, 392 - R2, 190, { stroke: C.rd, sw: 6 });
+        circ(r.demo, A.x, A.y, 6, { fill: C.gr });
+        r.dotB = circ(r.demo, 392, 190, 6, { fill: C.rd });
+        r.lblD = txt(r.demo, 300, 160, "d", { size: 24, weight: 700, italic: true, fill: C.pu, anchor: "middle", halo: C.sand });
+        txt(r.demo, A.x - 4, A.y + A.r + 26, "r₁ = " + A.r, { size: 16, weight: 700, mono: true, fill: C.gr, anchor: "middle" });
+        r.lblR2 = txt(r.demo, 392, 190 + R2 + 26, "r₂ = " + R2, { size: 16, weight: 700, mono: true, fill: C.rd, anchor: "middle" });
+
+        card(r.demo, 650, 40, 460, 300);
+        txt(r.demo, 880, 84, "d = √((x₂ − x₁)² + (y₂ − y₁)²)", { size: 17, mono: true, weight: 700, anchor: "middle" });
+        r.tD = txt(r.demo, 880, 146, "", { size: 36, weight: 700, mono: true, fill: C.pu, anchor: "middle" });
+        txt(r.demo, 880, 194, "r₁ + r₂ = " + A.r + " + " + R2 + " = " + (A.r + R2), { size: 19, mono: true, anchor: "middle" });
+        r.tV1 = txt(r.demo, 880, 258, "", { size: 24, mono: true, weight: 700, anchor: "middle" });
+        r.tV2 = txt(r.demo, 880, 304, "", { size: 28, weight: 700, anchor: "middle" });
+
+        r.update = (p) => {
+          const dx = p.x - A.x, dy = p.y - A.y, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d, hit = d < A.r + R2;
+          r.cB.setAttribute("cx", p.x); r.cB.setAttribute("cy", p.y);
+          r.dotB.setAttribute("cx", p.x); r.dotB.setAttribute("cy", p.y);
+          r.line.setAttribute("x2", p.x); r.line.setAttribute("y2", p.y);
+          r.rA.setAttribute("x2", A.x + ux * A.r); r.rA.setAttribute("y2", A.y + uy * A.r);
+          r.rB.setAttribute("x1", p.x); r.rB.setAttribute("y1", p.y);
+          r.rB.setAttribute("x2", p.x - ux * R2); r.rB.setAttribute("y2", p.y - uy * R2);
+          r.lblD.setAttribute("x", (A.x + p.x) / 2 - uy * 20); r.lblD.setAttribute("y", (A.y + p.y) / 2 + ux * 20 + 6);
+          r.lblR2.setAttribute("x", p.x); r.lblR2.setAttribute("y", p.y + R2 + 26);
+          r.cA.setAttribute("fill", hit ? "#cfe2d2" : C.grT);
+          r.cB.setAttribute("fill", hit ? C.rdH : C.rdT);
+          r.tD.textContent = "d = " + Math.round(d);
+          r.tV1.textContent = hit ? "d < r₁ + r₂" : "d > r₁ + r₂";
+          r.tV1.setAttribute("fill", hit ? C.red : C.grey);
+          r.tV2.textContent = hit ? "COLLISION" : "no collision";
+          r.tV2.setAttribute("fill", hit ? C.red : C.grey);
+        };
+        [r.cB, r.dotB, r.line, r.rA, r.rB, r.lblD, r.lblR2].forEach((e) => e.classList.add("nt"));
+        r.update(pos(0));
+        return r;
+      },
+      tick(s, r, t) { if (s.live) r.update(pos(t)); },
+      render(s, r) {
+        vis(r.gifs, !!s.gifs); vis(r.fig, !!s.fig); vis(r.demo, !!s.live);
+        if (s.live) r.update(pos(now()));
+      },
+    });
+  })();
+
+  // ================= 4.2 Point to circle =================
+  (function () {
+    const C0 = { x: 250, y: 190, r: 78 };
+    const pos = (t) => ({ x: C0.x + 125 * Math.cos(t * 0.9), y: C0.y + 72 * Math.sin(t * 1.3) });
+    const uses = [
+      ["Clicking on a UI element", "with a mouse pointer."],
+      ["Moving the player by selecting a target", "destination, like we did earlier."],
+      ["Selecting a target to", "approach / attack."],
+    ];
+    scene({
+      num: "4.2", title: "Point-to-Circle", subtitle: "The distance from the point to the centre, against the radius.",
+      chips: ["Uses", "Distance", "The rule"],
+      steps: [
+        { uses: true, chip: 1, foot: "",
+          narrate: "There are plenty of uses for <em>point-to-circle</em> detection: UI elements, click-to-move like we did earlier, and picking a target." },
+        { fig: true, chip: 2, foot: "",
+          narrate: "Arguably easier than circle-to-circle: measure the distance between the point and the centre of the circle, using the <strong>distance formula</strong>." },
+        { live: true, chip: 3, foot: "live: the numbers are computed every frame",
+          narrate: "If the point's distance is, at any point, <strong>smaller than the radius</strong>, we have a collision." },
+      ],
+      build(g) {
+        const r = {};
+        r.uses = grp(g, 0);
+        uses.forEach(([a, b], i) => {
+          const y = 50 + i * 104;
+          card(r.uses, 40, y, 540, 84);
+          txt(r.uses, 62, y + 36, a, { size: 19, weight: 600 });
+          txt(r.uses, 62, y + 62, b, { size: 19, weight: 600 });
+        });
+        pic(r.uses, "mouse.gif", 640, 44, 450, 275);
+        caption(r.uses, 865, 340, "Figure V: Link reacting to my mouse clicks");
+
+        r.fig = grp(g, 0);
+        pic(r.fig, "distance.png", 125, 60, 900, 262);
+        caption(r.fig, 575, 352, "Figure X: the distance between two points in cartesian space");
+
+        r.demo = grp(g, 0);
+        circ(r.demo, C0.x, C0.y, C0.r, { fill: C.grT, stroke: C.gr, sw: 5 });
+        r.line = ln(r.demo, C0.x, C0.y, 300, 190, { stroke: C.pu, sw: 3, dash: "7 6" });
+        r.rad = ln(r.demo, C0.x, C0.y, C0.x + C0.r, C0.y, { stroke: C.gr, sw: 6 });
+        circ(r.demo, C0.x, C0.y, 6, { fill: C.gr });
+        r.dot = circ(r.demo, 300, 190, 9, { fill: C.rd });
+        r.lblD = txt(r.demo, 280, 170, "d", { size: 24, weight: 700, italic: true, fill: C.pu, anchor: "middle", halo: C.sand });
+        txt(r.demo, C0.x, C0.y + C0.r + 28, "r = " + C0.r, { size: 16, weight: 700, mono: true, fill: C.gr, anchor: "middle" });
+
+        card(r.demo, 640, 40, 470, 300);
+        txt(r.demo, 875, 84, "d = √((Px − Cx)² + (Py − Cy)²)", { size: 17, mono: true, weight: 700, anchor: "middle" });
+        r.tD = txt(r.demo, 875, 146, "", { size: 36, weight: 700, mono: true, fill: C.pu, anchor: "middle" });
+        txt(r.demo, 875, 194, "r = " + C0.r, { size: 22, mono: true, anchor: "middle" });
+        r.tV1 = txt(r.demo, 875, 258, "", { size: 24, mono: true, weight: 700, anchor: "middle" });
+        r.tV2 = txt(r.demo, 875, 304, "", { size: 28, weight: 700, anchor: "middle" });
+
+        r.update = (p) => {
+          const dx = p.x - C0.x, dy = p.y - C0.y, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d, hit = d < C0.r;
+          r.dot.setAttribute("cx", p.x); r.dot.setAttribute("cy", p.y);
+          r.line.setAttribute("x2", p.x); r.line.setAttribute("y2", p.y);
+          r.rad.setAttribute("x2", C0.x + ux * C0.r); r.rad.setAttribute("y2", C0.y + uy * C0.r);
+          r.lblD.setAttribute("x", (C0.x + p.x) / 2 - uy * 20); r.lblD.setAttribute("y", (C0.y + p.y) / 2 + ux * 20 + 6);
+          r.dot.setAttribute("fill", hit ? C.red : C.rd);
+          r.tD.textContent = "d = " + Math.round(d);
+          r.tV1.textContent = hit ? "d < r" : "d > r";
+          r.tV1.setAttribute("fill", hit ? C.red : C.grey);
+          r.tV2.textContent = hit ? "COLLISION" : "no collision";
+          r.tV2.setAttribute("fill", hit ? C.red : C.grey);
+        };
+        [r.dot, r.line, r.rad, r.lblD].forEach((e) => e.classList.add("nt"));
+        r.update(pos(0));
+        return r;
+      },
+      tick(s, r, t) { if (s.live) r.update(pos(t)); },
+      render(s, r) {
+        vis(r.uses, !!s.uses); vis(r.fig, !!s.fig); vis(r.demo, !!s.live);
+        if (s.live) r.update(pos(now()));
+      },
+    });
+  })();
+
+  // ================= 4.3 Box to box =================
+  (function () {
+    const PA = { x: 240, y: 195 }, SA = { x: 160, y: 110 }, SB = { x: 110, y: 110 };
+    const HA = { x: SA.x / 2, y: SA.y / 2 }, HB = { x: SB.x / 2, y: SB.y / 2 };
+    const STATIC = { x: 520, y: 180 };
+    const pos = (t) => ({ x: 390 + 175 * Math.sin(t * 0.7), y: 195 + 122 * Math.sin(t * 1.1 + 1) });
+    const CODE = [
+      "bool isColliding(const Vector2 *positionA, const Vector2 *scaleA,",
+      "                 const Vector2 *positionB, const Vector2 *scaleB)",
+      "{",
+      "    float xDistance = fabs(positionA->x - positionB->x) - ((scaleA->x + scaleB->x) / 2.0f);",
+      "    float yDistance = fabs(positionA->y - positionB->y) - ((scaleA->y + scaleB->y) / 2.0f);",
+      "",
+      "    if (xDistance < 0.0f && yDistance < 0.0f) return true;",
+      "",
+      "    return false;",
+      "}",
+    ];
+    scene({
+      num: "4.3", title: "Box-to-Box", subtitle: "Compare the gap between the centres, one axis at a time.",
+      chips: ["In games", "Half-sizes", "Distances", "Overlap", "Collision?", "In code"],
+      steps: [
+        { games: true, chip: 1, foot: "",
+          narrate: "While the previous two are easy, they are not the ones we will likely use the most. <strong>That honour goes to box-to-box collisions.</strong>" },
+        { mega: true, chip: 1, foot: "",
+          narrate: "If you're not convinced, picture Megaman in terms of boxes." },
+        { layers: 1, chip: 2, foot: "step 1 of 4",
+          narrate: "We keep track of each box's <em>origin</em>. <strong>Step 1:</strong> compute the half-sizes of each box: <code>Scale.x / 2</code> and <code>Scale.y / 2</code>." },
+        { layers: 2, chip: 3, foot: "step 2 of 4",
+          narrate: "<strong>Step 2:</strong> find the absolute distance between the box centres along each axis: <code>dx = |a.x − b.x|</code>, <code>dy = |a.y − b.y|</code>." },
+        { layers: 3, chip: 4, foot: "step 3 of 4",
+          narrate: "<strong>Step 3:</strong> subtract the combined half-sizes from each distance to get the <strong>overlap</strong> on each axis. Negative means the boxes overlap on that axis." },
+        { layers: 4, live: true, chip: 5, foot: "step 4 of 4, live",
+          narrate: "<strong>Step 4:</strong> if <code>overlapx &lt; 0</code> <em>and</em> <code>overlapy &lt; 0</code>, the boxes intersect. Watch it need both." },
+        { code: 1, chip: 6, foot: "the notes' isColliding, steps 2 and 3",
+          narrate: "In code, <code>xDistance</code> and <code>yDistance</code> are the <strong>overlap</strong> values from step 3." },
+        { code: 2, chip: 6, foot: "the notes' isColliding, step 4",
+          narrate: "And the collision is exactly step 4: <strong>both</strong> overlaps are negative." },
+      ],
+      build(g) {
+        const r = {};
+        r.games = grp(g, 0);
+        pic(r.games, "links-awakening.gif", 100, 30, 335, 300);
+        caption(r.games, 267, 354, "Figure XI: collisions in Link's Awakening");
+        card(r.games, 520, 90, 560, 170);
+        txt(r.games, 550, 142, "Box-to-box is the one", { size: 26, weight: 700 });
+        txt(r.games, 550, 178, "you will use the most.", { size: 26, weight: 700 });
+        txt(r.games, 550, 224, "Sprites, tiles, walls, buttons: boxes.", { size: 18, fill: C.grey });
+
+        r.mega = grp(g, 0);
+        pic(r.mega, "megaman.png", 361, 26, 429, 300);
+        caption(r.mega, 575, 352, "Figure XII: picturing Megaman in terms of boxes");
+
+        r.d = grp(g, 0);   // the live diagram
+        // faint overlap band on y (step 3)
+        r.band = rect(r.d, 40, 150, 660, 85, { fill: "rgba(0,112,74,0.10)" });
+        r.bandT = txt(r.d, 50, 144, "", { size: 13, weight: 700, fill: C.gr });
+        r.bA = rect(r.d, PA.x - HA.x, PA.y - HA.y, SA.x, SA.y, { fill: C.grT, stroke: C.gr, sw: 5 });
+        r.bB = rect(r.d, 0, 0, SB.x, SB.y, { fill: C.rdT, stroke: C.rd, sw: 5 });
+        // step 2: dx / dy
+        r.L2 = grp(r.d, 0);
+        r.dxl = ln(r.L2, PA.x, PA.y, 500, PA.y, { stroke: C.pu, sw: 3, dash: "7 6" });
+        r.dyl = ln(r.L2, 500, PA.y, 500, 185, { stroke: C.pu, sw: 3, dash: "7 6" });
+        r.dxt = txt(r.L2, 360, PA.y + 22, "dx", { size: 20, weight: 700, italic: true, fill: C.pu, anchor: "middle", halo: C.sand, haloW: 9 });
+        r.dyt = txt(r.L2, 520, 190, "dy", { size: 20, weight: 700, italic: true, fill: C.pu, halo: C.sand, haloW: 9 });
+        // step 1: half-sizes
+        r.L1 = grp(r.d, 0);
+        r.h1 = ln(r.L1, PA.x, PA.y, PA.x + HA.x, PA.y, { stroke: C.gr, sw: 4 });
+        r.h2 = ln(r.L1, 0, 0, 0, 0, { stroke: C.rd, sw: 4 });
+        r.h3 = ln(r.L1, PA.x, PA.y, PA.x, PA.y - HA.y, { stroke: C.gr, sw: 4, dash: "3 5" });
+        r.h4 = ln(r.L1, 0, 0, 0, 0, { stroke: C.rd, sw: 4, dash: "3 5" });
+        r.h1t = txt(r.L1, PA.x + HA.x / 2, PA.y + 20, "hw " + HA.x, { size: 14, weight: 700, mono: true, fill: C.gr, anchor: "middle", halo: C.sand });
+        r.h2t = txt(r.L1, 0, 0, "hw " + HB.x, { size: 14, weight: 700, mono: true, fill: C.rd, anchor: "middle", halo: C.sand });
+        r.h3t = txt(r.L1, PA.x - 8, PA.y - HA.y + 18, "hh " + HA.y, { size: 13, weight: 700, mono: true, fill: C.gr, anchor: "end", halo: C.sand });
+        r.h4t = txt(r.L1, 0, 0, "hh " + HB.y, { size: 13, weight: 700, mono: true, fill: C.rd, anchor: "start", halo: C.sand });
+        // step 3: the gap on x
+        r.L3 = grp(r.d, 0);
+        r.gap = ln(r.L3, 0, 292, 0, 292, { stroke: C.red, sw: 4 });
+        r.gapA = ln(r.L3, 0, 282, 0, 302, { stroke: C.red, sw: 3 });
+        r.gapB = ln(r.L3, 0, 282, 0, 302, { stroke: C.red, sw: 3 });
+        r.gapT = txt(r.L3, 0, 322, "", { size: 14, weight: 700, mono: true, fill: C.red, anchor: "middle" });
+        // centres on top
+        circ(r.d, PA.x, PA.y, 6, { fill: C.gr });
+        r.dotB = circ(r.d, 0, 0, 6, { fill: C.rd });
+        txt(r.d, PA.x - 14, PA.y + 5, "Pa", { size: 14, weight: 700, italic: true, fill: C.gr, anchor: "end", halo: C.sand });
+        r.pb = txt(r.d, 0, 0, "Pb", { size: 14, weight: 700, italic: true, fill: C.rd, halo: C.sand });
+
+        // right-hand panel: the four steps with their numbers
+        r.P = grp(r.d, 0);
+        const rows = [
+          ["1", "half-sizes", 40, 60], ["2", "distance between centres", 108, 60],
+          ["3", "overlap = distance − (half + half)", 176, 60], ["4", "collision?", 244, 98],
+        ];
+        r.rows = rows.map(([n, label, y, h]) => {
+          const q = grp(r.P, 0);
+          const bg = rect(q, 730, y, 390, h, { rx: 12, fill: C.white, stroke: C.black, sw: 3 });
+          txt(q, 748, y + 24, n, { size: 20, weight: 700, mono: true, fill: C.red });
+          txt(q, 776, y + 22, label, { size: 12, fill: C.grey });
+          return { q, bg };
+        });
+        const T = (i, y, size) => txt(r.rows[i].q, 776, rows[i][2] + y, "", { size: size || 17, weight: 700, mono: true, pre: true });
+        r.t1 = T(0, 46); r.t2 = T(1, 46); r.t3 = T(2, 46);
+        r.t4a = T(3, 50); r.t4b = txt(r.rows[3].q, 776, 244 + 86, "", { size: 24, weight: 700 });
+        r.t1.textContent = "hwA " + HA.x + "  hhA " + HA.y + "   hwB " + HB.x + "  hhB " + HB.y;
+        r.t1.setAttribute("font-size", 15);
+
+        r.update = (p, live) => {
+          const dx = Math.abs(PA.x - p.x), dy = Math.abs(PA.y - p.y);
+          const ox = dx - (HA.x + HB.x), oy = dy - (HA.y + HB.y);
+          const hit = ox < 0 && oy < 0;
+          r.bB.setAttribute("x", p.x - HB.x); r.bB.setAttribute("y", p.y - HB.y);
+          r.bB.setAttribute("fill", hit ? C.rdH : C.rdT);
+          r.bA.setAttribute("fill", hit ? "#cfe2d2" : C.grT);
+          r.dotB.setAttribute("cx", p.x); r.dotB.setAttribute("cy", p.y);
+          r.pb.setAttribute("x", p.x + 12); r.pb.setAttribute("y", p.y >= PA.y ? p.y + 28 : p.y - 14);
+          // step 2 dashes: a horizontal run along A's centre line, then a vertical run to B's centre
+          r.dxl.setAttribute("x2", p.x); r.dyl.setAttribute("x1", p.x); r.dyl.setAttribute("x2", p.x);
+          r.dyl.setAttribute("y2", p.y);
+          r.dxt.setAttribute("x", (PA.x + p.x) / 2); r.dxt.setAttribute("y", PA.y + (p.y > PA.y ? -10 : 22));
+          r.dyt.setAttribute("x", p.x + 10); r.dyt.setAttribute("y", (PA.y + p.y) / 2 + 5);
+          // step 1 half-size arrows follow B
+          r.h2.setAttribute("x1", p.x); r.h2.setAttribute("y1", p.y); r.h2.setAttribute("x2", p.x - HB.x); r.h2.setAttribute("y2", p.y);
+          r.h4.setAttribute("x1", p.x); r.h4.setAttribute("y1", p.y); r.h4.setAttribute("x2", p.x); r.h4.setAttribute("y2", p.y - HB.y);
+          r.h2t.setAttribute("x", p.x - HB.x / 2); r.h2t.setAttribute("y", p.y + 20);
+          r.h4t.setAttribute("x", p.x + 8); r.h4t.setAttribute("y", p.y - HB.y + 18);
+          // step 3: the gap on x (only meaningful while there is one)
+          const gx1 = PA.x + HA.x, gx2 = p.x - HB.x;
+          r.gap.setAttribute("x1", gx1); r.gap.setAttribute("x2", gx2);
+          r.gapA.setAttribute("x1", gx1); r.gapA.setAttribute("x2", gx1); r.gapB.setAttribute("x1", gx2); r.gapB.setAttribute("x2", gx2);
+          r.gapT.setAttribute("x", (gx1 + gx2) / 2); r.gapT.textContent = "gap = overlapx = " + num(ox);
+          // the y overlap band: where the two boxes' vertical extents coincide
+          const top = Math.max(PA.y - HA.y, p.y - HB.y), bot = Math.min(PA.y + HA.y, p.y + HB.y);
+          r.band.setAttribute("y", top); r.band.setAttribute("height", Math.max(bot - top, 0));
+          r.bandT.setAttribute("y", top - 6); r.bandT.textContent = oy < 0 ? "overlapy = " + num(oy) + ": overlapping on y" : "";
+          r.t2.textContent = "dx " + num(dx) + "   dy " + num(dy);
+          r.t3.textContent = "overlapx " + num(ox) + "   overlapy " + num(oy);
+          r.t4a.textContent = num(ox) + " < 0 " + (ox < 0 ? "✓" : "✗") + "   and   " + num(oy) + " < 0 " + (oy < 0 ? "✓" : "✗");
+          r.t4b.textContent = hit ? "COLLISION" : "no collision";
+          r.t4b.setAttribute("fill", hit ? C.red : C.grey);
+          r.rows[3].bg.setAttribute("fill", hit ? "#fbeceb" : C.white);
+        };
+        [r.bB, r.dotB, r.pb, r.dxl, r.dyl, r.dxt, r.dyt, r.h2, r.h4, r.h2t, r.h4t, r.gap, r.gapA, r.gapB, r.gapT, r.band, r.bandT, r.t2, r.t3, r.t4a, r.t4b].forEach((e) => e.classList.add("nt"));
+
+        r.codeWrap = grp(g, 0);
+        r.cp = codePanel(r.codeWrap, 40, 36, 1070, CODE, { size: 14, lh: 26 });
+        r.note1 = txt(r.codeWrap, 575, 352, "xDistance and yDistance: the overlap on each axis (step 3)", { size: 17, weight: 700, anchor: "middle", fill: C.pu });
+        r.note2 = txt(r.codeWrap, 575, 352, "both negative means the boxes intersect (step 4)", { size: 17, weight: 700, anchor: "middle", fill: C.red });
+        r.update(STATIC);
+        return r;
+      },
+      tick(s, r, t) { if (s.live) r.update(pos(t)); },
+      render(s, r) {
+        vis(r.games, !!s.games); vis(r.mega, !!s.mega);
+        const L = s.layers || 0;
+        vis(r.d, L > 0);
+        vis(r.L1, L === 1);
+        vis(r.L2, L >= 2); vis(r.L3, L === 3);
+        vis(r.band, L === 3); vis(r.bandT, L === 3);
+        vis(r.P, L > 0);
+        r.rows.forEach((row, i) => vis(row.q, L >= i + 1));
+        r.update(s.live ? pos(now()) : STATIC, !!s.live);
+        vis(r.codeWrap, !!s.code);
+        hl(r.cp, s.code === 1 ? [3, 4] : s.code === 2 ? [6] : [], C.puT);
+        vis(r.note1, s.code === 1); vis(r.note2, s.code === 2);
+      },
+    });
+  })();
+
+  // ================= 4.4 Point to box =================
+  (function () {
+    const B = { x: 300, y: 200, w: 220, h: 150 };
+    const L = B.x - B.w / 2, Rt = B.x + B.w / 2, T = B.y - B.h / 2, Bm = B.y + B.h / 2;
+    const pos = (t) => ({ x: B.x + 190 * Math.sin(t * 0.8), y: B.y + 112 * Math.sin(t * 1.3 + 0.6) });
+    scene({
+      num: "4.4", title: "Point-to-Box", subtitle: "Does the point fall between the corners?",
+      chips: ["The rule"],
+      steps: [
+        { live: true, chip: 1, foot: "live: the four checks are computed every frame",
+          narrate: "UI buttons in many games are square-shaped, for example. This one is pretty easy: get the coordinates of the <strong>top-left</strong> and <strong>bottom-right</strong> corners, and check that the point's coordinates <strong>fall inside of them</strong>. All four comparisons have to be true." },
+      ],
+      build(g) {
+        const r = {};
+        r.d = grp(g, 0);
+        r.box = rect(r.d, L, T, B.w, B.h, { fill: C.orT, stroke: C.or, sw: 5 });
+        circ(r.d, L, T, 7, { fill: C.or }); circ(r.d, Rt, Bm, 7, { fill: C.or });
+        txt(r.d, L - 10, T - 12, "top-left (" + L + ", " + T + ")", { size: 14, weight: 700, mono: true, fill: C.or, anchor: "start" });
+        txt(r.d, Rt + 10, Bm + 24, "bottom-right (" + Rt + ", " + Bm + ")", { size: 14, weight: 700, mono: true, fill: C.or, anchor: "end" });
+        r.dot = circ(r.d, 300, 200, 9, { fill: C.rd });
+        r.lbl = txt(r.d, 312, 190, "P", { size: 18, weight: 700, italic: true, fill: C.rd, halo: C.sand });
+
+        const defs = [["x", ">", "left", L], ["x", "<", "right", Rt], ["y", ">", "top", T], ["y", "<", "bottom", Bm]];
+        r.rows = defs.map(([ax, op, nm, val], i) => {
+          const y = 40 + i * 58;
+          const bg = rect(r.d, 690, y, 420, 48, { rx: 10, fill: C.white, stroke: C.black, sw: 3 });
+          const t = txt(r.d, 708, y + 31, "", { size: 17, weight: 700, mono: true, pre: true });
+          [bg, t].forEach((e) => e.classList.add("nt"));
+          return { bg, t, ax, op, nm, val };
+        });
+        card(r.d, 690, 276, 420, 62);
+        r.verdict = txt(r.d, 900, 318, "", { size: 28, weight: 700, anchor: "middle" });
+        r.verdict.classList.add("nt");
+
+        r.update = (p) => {
+          let all = true;
+          r.dot.setAttribute("cx", p.x); r.dot.setAttribute("cy", p.y);
+          r.lbl.setAttribute("x", p.x + 12); r.lbl.setAttribute("y", p.y - 10);
+          r.rows.forEach((row) => {
+            const v = row.ax === "x" ? p.x : p.y;
+            const ok = row.op === ">" ? v > row.val : v < row.val;
+            all = all && ok;
+            row.t.textContent = row.ax + " " + String(Math.round(v)).padStart(3, " ") + " " + row.op + " " + row.nm.padEnd(6, " ") + " " + row.val + "   " + (ok ? "✓" : "✗");
+            row.t.setAttribute("fill", ok ? C.ok : C.grey);
+            row.bg.setAttribute("fill", ok ? "#e6f0ea" : C.white);
+          });
+          r.box.setAttribute("fill", all ? C.orH : C.orT);
+          r.verdict.textContent = all ? "COLLISION" : "no collision";
+          r.verdict.setAttribute("fill", all ? C.red : C.grey);
+        };
+        [r.dot, r.lbl, r.box].forEach((e) => e.classList.add("nt"));
+        r.update(pos(0));
+        return r;
+      },
+      tick(s, r, t) { if (s.live) r.update(pos(t)); },
+      render(s, r) {
+        vis(r.d, !!s.live);
+        if (s.live) r.update(pos(now()));
+      },
+    });
+  })();
+
+  // ================= Recap =================
+  (function () {
+    const rules = [
+      ["Circle to circle", "d < r₁ + r₂", 0],
+      ["Point to circle", "d < r", 1],
+      ["Box to box", "overlapx < 0  and  overlapy < 0", 2],
+      ["Point to box", "left < x < right  and  top < y < bottom", 3],
+    ];
+    scene({
+      num: "4", title: "The Four Tests", subtitle: "All of them are one comparison away.",
+      chips: ["Recap"],
+      steps: [
+        { chip: 1, foot: "box to box: overlap = |distance| − (half + half), per axis",
+          narrate: "Circles compare a <strong>distance</strong> to a <strong>radius</strong>. Boxes compare an <strong>overlap</strong> to <strong>zero</strong>, one axis at a time." },
+      ],
+      build(g) {
+        const r = { cards: [] };
+        rules.forEach(([name, rule, k], i) => {
+          const q = grp(g, 1), x = 40 + (i % 2) * 565, y = 40 + Math.floor(i / 2) * 160, cx = x + 70, cy = y + 70;
+          card(q, x, y, 545, 140);
+          if (k === 0) { circ(q, cx - 18, cy, 32, { fill: C.grT, stroke: C.gr, sw: 4 }); circ(q, cx + 22, cy + 3, 23, { fill: C.rdH, stroke: C.rd, sw: 4 }); }
+          if (k === 1) { circ(q, cx - 8, cy, 36, { fill: C.grT, stroke: C.gr, sw: 4 }); circ(q, cx + 24, cy - 12, 6, { fill: C.rd }); }
+          if (k === 2) { rect(q, cx - 42, cy - 26, 66, 52, { fill: C.grT, stroke: C.gr, sw: 4 }); rect(q, cx - 4, cy - 8, 48, 48, { fill: C.rdH, stroke: C.rd, sw: 4 }); }
+          if (k === 3) { rect(q, cx - 36, cy - 28, 72, 56, { fill: C.orT, stroke: C.or, sw: 4 }); circ(q, cx + 10, cy - 4, 6, { fill: C.rd }); }
+          txt(q, x + 150, y + 56, name, { size: 22, weight: 700 });
+          txt(q, x + 150, y + 96, rule, { size: 16, mono: true, weight: 700, fill: C.pu });
+          r.cards.push(q);
+        });
+        return r;
+      },
+      render(s, r) { r.cards.forEach((q, i) => { q.style.transitionDelay = (i * 0.2) + "s"; vis(q, true); }); },
+    });
+  })();
+
+  // ---------------- engine ----------------
+  const $ = (id) => document.getElementById(id);
+  const svg = $("stage");
+  const foot = txt(svg, 575, 394, "", { size: 13, italic: true, fill: C.grey, anchor: "middle" });
+
+  scenes.forEach((sc) => {
+    sc.g = E("g", {}, svg);
+    sc.g.style.display = "none";
+    sc.r = sc.build(sc.g) || {};
+    foot.parentNode.appendChild(foot);
+  });
+  const SEC0 = scenes[0].cover ? 1 : 0;   // the title slide is section 0
+  $("sec-total").textContent = scenes.length - SEC0;
+
+  let si = 0, ti = 0, shownScene = -1;
+
+  function readHash() {
+    const m = location.hash.match(/^#(\d+)\.(\d+)$/);
+    if (!m) return;
+    const a = Number(m[1]) - 1 + SEC0, b = Number(m[2]) - 1;
+    if (a >= 0 && a < scenes.length) { si = a; ti = Math.max(0, Math.min(scenes[a].steps.length - 1, b)); }
+  }
+
+  function buildChips(sc) {
+    const box = $("chips");
+    box.innerHTML = "";
+    sc.chips.forEach((label) => {
+      const d = document.createElement("div");
+      d.className = "stp";
+      d.textContent = label;
+      box.appendChild(d);
+    });
+  }
+
+  function render() {
+    const sc = scenes[si], s = sc.steps[ti];
+    if (shownScene !== si) {
+      scenes.forEach((x, k) => { x.g.style.display = k === si ? "inline" : "none"; });
+      $("num").textContent = sc.num;
+      $("title").textContent = sc.title;
+      $("subtitle").textContent = sc.subtitle;
+      $("foot-left").textContent = sc.title;
+      buildChips(sc);
+      shownScene = si;
+    }
+    sc.render(s, sc.r, ti);
+    foot.textContent = s.foot || "";
+    $("narration").innerHTML = s.narrate;
+    $("sec-n").textContent = si + 1 - SEC0;
+    document.body.classList.toggle("is-cover", !!sc.cover);
+    $("step-n").textContent = ti + 1;
+    $("step-total").textContent = sc.steps.length;
+    document.querySelectorAll(".stp").forEach((chip, k) => {
+      const n = k + 1;
+      chip.classList.remove("active", "done");
+      if (!s.chip) return;
+      if (s.chip === n) chip.classList.add("active");
+      else if (n < s.chip) chip.classList.add("done");
+    });
+    history.replaceState(null, "", "#" + (si + 1 - SEC0) + "." + (ti + 1));
+  }
+
+  function go(d) {
+    ti += d;
+    if (ti < 0) {
+      if (si > 0) { si--; ti = scenes[si].steps.length - 1; } else ti = 0;
+    } else if (ti >= scenes[si].steps.length) {
+      if (si < scenes.length - 1) { si++; ti = 0; } else ti = scenes[si].steps.length - 1;
+    }
+    render();
+  }
+
+  function jumpScene(d) {
+    if (d < 0 && ti > 0) ti = 0;
+    else si = Math.max(0, Math.min(scenes.length - 1, si + d)), ti = 0;
+    render();
+  }
+
+  // one animation loop for every "live" beat: the current scene gets the clock, nothing else runs
+  function loop(ms) {
+    const sc = scenes[si], s = sc.steps[ti];
+    if (s.live && sc.tick) sc.tick(s, sc.r, ms / 1000);
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener("keydown", (e) => {
+    const fwd = ["ArrowRight", "ArrowDown", " ", "PageDown"].includes(e.key);
+    const back = ["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key);
+    if (!fwd && !back) return;
+    e.preventDefault();
+    if (e.shiftKey) jumpScene(fwd ? 1 : -1);
+    else go(fwd ? 1 : -1);
+  });
+  window.addEventListener("hashchange", () => { readHash(); render(); });
+
+  readHash();
+  render();
+  requestAnimationFrame(loop);
+})();
+</script>
+
+</body>
+</html>
