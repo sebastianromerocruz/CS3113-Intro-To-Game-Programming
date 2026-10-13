@@ -43,9 +43,9 @@
 2. [**Transformations**](lectures/02-transformations)
 3. [**Textures / Delta Time**](lectures/03-textures-delta-time)
 4. [**User Input / Collision Detection**](lectures/04-user-input-collisions)
+5. [**Animation / The `Entity` Class**](lectures/05-animation-entities)
 
 <!--
-5. [**Animation / The `Entity` Class**](lectures/05-animation-entities)
 6. [**Physics**](lectures/06-physics)
 7. [**AI In Games**](lectures/07-ai)
 8. [**Maps**](lectures/08-maps)
@@ -56,7 +56,7 @@
 <!--
  -->
 
-<sub>Released on each Friday day before class.</sub>
+<sub>Released on each Monday day before class.</sub>
 
 <br>
 

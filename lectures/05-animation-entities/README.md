@@ -2,9 +2,9 @@
 
 <h1 align=center>Animation / The <code>Entity</code> Class</h1>
 
-<h3 align=center>II Garland Moon, Imperial Year MMXXVI</h3>
+<h3 align=center>XIII Wyvern Moon, Imperial Year MMXXVI</h3>
 
-<p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/mI_yB_TXe1s?si=IB-uI49qczZIWNbD"><strong><u>MY START</u></strong></a> by LEEHI (2016)</em></p>
+<p align=center><strong><em>Song of the day</strong>: <a href="https://youtu.be/trbwqF0d7NA"><strong><u>Change of Heart</u></strong></a> by The 1975 (2016)</em></p>
 
 ---
 
