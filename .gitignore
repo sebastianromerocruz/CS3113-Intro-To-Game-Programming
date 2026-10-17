@@ -157,6 +157,7 @@ lectures/*
 !lectures/03-textures-delta-time
 !lectures/04-user-input-collisions
 !lectures/05-animation-entities
+!lectures/06-physics
 
 exercises/*
 !exercises/01-transformations
