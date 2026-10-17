@@ -18,7 +18,7 @@ AppStatus gAppStatus = RUNNING;
 float gPreviousTicks = 0.0f;
 
 Entity *gProtag = nullptr;
-Entity *gTiles   = nullptr;
+Entity *gTiles  = nullptr;
 
 // Function Declarations
 void initialise();
