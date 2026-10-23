@@ -2,16 +2,16 @@
 
 <h1 align=center>AI In Games</h1>
 
-<h3 align=center>IX Garland Moon, Imperial Year MMXXVI</h3>
+<h3 align=center>XXVIII Wyvern Moon, Imperial Year MMXXVI</h3>
 
 <p align=center><strong>Songs of the day</strong>:</p>
 <p align=center>
     <em>
-        <a href="https://youtu.be/crEsha0qOYI?si=YeIz_GqhmoM3kQxg">
+        <a href="https://youtu.be/VPsyynjHpbY">
             <strong>
-                I Don't Really Mind
+                Miracle Aligner
             </strong>
-        </a> by Tame Impala (2020)
+        </a> by The Last Shadow Puppets (2016)
     </em>
 </p>
 
