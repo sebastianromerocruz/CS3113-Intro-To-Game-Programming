@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 400" width="560" height="400" font-family="monospace">
+  <defs>
+    <marker id="dh" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,2.5 L0,5 Z" fill="#e06c7a"/>
+    </marker>
+    <marker id="dv" markerWidth="5" markerHeight="7" refX="2.5" refY="7" orient="auto-start-reverse">
+      <path d="M0,0 L2.5,7 L5,0 Z" fill="#50c878"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect width="560" height="400" fill="#1c1c2e" rx="8"/>
+
+  <!-- caption -->
+  <text x="280" y="22" text-anchor="middle" fill="#666" font-size="11" font-family="monospace">each square = one tile (parking space)  ·  P = probe point (bumper tip)</text>
+
+  <!-- GRID: 3 cols × 3 rows, tile 110×90
+       col x: 140, 250, 360   row y: 35, 125, 215 -->
+
+  <!-- row 0 (all empty) -->
+  <rect x="140" y="35"  width="110" height="90" fill="#1e1e38" stroke="#3a3a58" stroke-width="1.5"/>
+  <rect x="250" y="35"  width="110" height="90" fill="#1e1e38" stroke="#3a3a58" stroke-width="1.5"/>
+  <rect x="360" y="35"  width="110" height="90" fill="#1e1e38" stroke="#3a3a58" stroke-width="1.5"/>
+
+  <!-- row 1: col 1 = solid (x=250, y=125, w=110, h=90, centre=305,170) -->
+  <rect x="140" y="125" width="110" height="90" fill="#1e1e38" stroke="#3a3a58" stroke-width="1.5"/>
+  <rect x="250" y="125" width="110" height="90" fill="#38280e" stroke="#d4944a" stroke-width="2.5"/>
+  <rect x="360" y="125" width="110" height="90" fill="#1e1e38" stroke="#3a3a58" stroke-width="1.5"/>
+
+  <!-- row 2 (all empty) -->
+  <rect x="140" y="215" width="110" height="90" fill="#1e1e38" stroke="#3a3a58" stroke-width="1.5"/>
+  <rect x="250" y="215" width="110" height="90" fill="#1e1e38" stroke="#3a3a58" stroke-width="1.5"/>
+  <rect x="360" y="215" width="110" height="90" fill="#1e1e38" stroke="#3a3a58" stroke-width="1.5"/>
+
+  <!-- SOLID label: centred in lower half of solid tile (well below probe) -->
+  <text x="305" y="186" text-anchor="middle" fill="#d4944a" font-size="13" font-weight="bold">SOLID</text>
+  <text x="305" y="201" text-anchor="middle" fill="#d4944a" font-size="10">tile ≠ 0</text>
+
+  <!-- tile centre dot at (305, 163) -->
+  <circle cx="305" cy="163" r="3" fill="#55556a"/>
+  <text x="312" y="161" fill="#55556a" font-size="10">ctr</text>
+
+  <!-- probe P at (272, 148)
+       xOverlap = 55 - |272-305| = 55-33 = 22
+       yOverlap = 45 - |148-170| = 45-22 = 23  (probe is inside tile) -->
+  <circle cx="272" cy="148" r="12" fill="#1e5a8a" stroke="#7ec8f0" stroke-width="2"/>
+  <text x="272" y="153" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">P</text>
+
+  <!-- xOverlap annotation: below grid
+       drop dashes from x=250 (left wall) and x=272 (P.x) down to y=322 -->
+  <line x1="250" y1="305" x2="250" y2="322" stroke="#d4944a" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+  <line x1="272" y1="305" x2="272" y2="322" stroke="#7ec8f0" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+  <text x="246" y="320" text-anchor="end"   fill="#d4944a" font-size="9">wall</text>
+  <text x="276" y="320" text-anchor="start" fill="#7ec8f0" font-size="9">P.x</text>
+  <line x1="250" y1="330" x2="272" y2="330" stroke="#e06c7a" stroke-width="2.5" marker-start="url(#dh)" marker-end="url(#dh)"/>
+  <text x="261" y="348" text-anchor="middle" fill="#e06c7a" font-size="12">xOverlap</text>
+  <text x="261" y="362" text-anchor="middle" fill="#e06c7a" font-size="10">(distance past the left wall)</text>
+
+  <!-- yOverlap annotation: left of grid
+       reach dashes from y=125 (top wall) and y=148 (P.y) out to x=126 -->
+  <line x1="140" y1="125" x2="126" y2="125" stroke="#d4944a" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+  <line x1="140" y1="148" x2="126" y2="148" stroke="#7ec8f0" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+  <text x="134" y="123" text-anchor="end" fill="#d4944a" font-size="9">wall</text>
+  <text x="134" y="146" text-anchor="end" fill="#7ec8f0" font-size="9">P.y</text>
+  <line x1="116" y1="125" x2="116" y2="148" stroke="#50c878" stroke-width="2.5" marker-start="url(#dv)" marker-end="url(#dv)"/>
+  <text x="108" y="140" text-anchor="end" fill="#50c878" font-size="12">yOverlap</text>
+
+  <!-- legend -->
+  <rect x="150" y="382" width="12" height="10" fill="#1e1e38" stroke="#3a3a58" stroke-width="1.2"/>
+  <text x="168" y="391" fill="#888" font-size="11">empty tile</text>
+  <rect x="250" y="382" width="12" height="10" fill="#38280e" stroke="#d4944a" stroke-width="1.2"/>
+  <text x="268" y="391" fill="#888" font-size="11">solid tile</text>
+  <circle cx="360" cy="387" r="7" fill="#1e5a8a" stroke="#7ec8f0" stroke-width="1.5"/>
+  <text x="360" y="391" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">P</text>
+  <text x="374" y="391" fill="#888" font-size="11">probe point</text>
+</svg>
