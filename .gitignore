@@ -160,6 +160,7 @@ lectures/*
 !lectures/06-physics
 !lectures/07-ai
 !lectures/08-maps
+!lectures/09-scenes
 
 exercises/*
 !exercises/01-transformations
