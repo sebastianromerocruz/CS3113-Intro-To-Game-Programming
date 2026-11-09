@@ -168,9 +168,34 @@ exercises/01-transformations/SOLUTION.cpp
 exercises/01-transformations/assets/01-transformations-solution.zip
 
 # Exercise 2 is released manually in class: uncomment the next line to release it.
-# !exercises/02-textures
+!exercises/02-textures
 exercises/02-textures/solution.cpp
 exercises/02-textures/assets/02-textures-solution.zip
+
+# Exercise 3 is released manually in class: uncomment the next line to release it.
+!exercises/03-collisions
+exercises/03-collisions/solution.cpp
+exercises/03-collisions/assets/03-collisions-solution.zip
+
+# Exercise 4 is released manually in class: uncomment the next line to release it.
+!exercises/04-animation
+exercises/04-animation/solution
+exercises/04-animation/assets/04-animation-solution.zip
+
+# Exercise 5 is released manually in class: uncomment the next line to release it.
+!exercises/05-physics
+exercises/05-physics/solution
+exercises/05-physics/assets/05-physics-solution.zip
+
+# Exercise 6 is released manually in class: uncomment the next line to release it.
+!exercises/06-ai
+exercises/06-ai/solution
+exercises/06-ai/assets/06-ai-solution.zip
+
+# Exercise 7 is released manually in class: uncomment the next line to release it.
+!exercises/07-maps
+exercises/07-maps/solution
+exercises/07-maps/assets/07-maps-solution.zip
 
 grading
 .clangd
@@ -180,3 +205,5 @@ prettify.sh
 
 syllabus
 attendance/
+independent-study/
+lectures/09-scenes/slides/script.md
