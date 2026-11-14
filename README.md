@@ -46,12 +46,13 @@
 5. [**Animation / The `Entity` Class**](lectures/05-animation-entities)
 6. [**Physics**](lectures/06-physics)
 7. [**AI In Games**](lectures/07-ai)
-
-<!--
 8. [**Maps**](lectures/08-maps)
 9. [**Scenes**](lectures/09-scenes)
-10. [**Effects / Shaders**](lectures/10-effects-shaders)
-11. [**Playtesting**](lectures/11-playtesting)-->
+
+<!--
+10. [**Shaders**](lectures/10-shaders)
+11. [**Effects**](lectures/11-effects)
+12. [**Playtesting**](lectures/12-playtesting)-->
 
 <!--
  -->
