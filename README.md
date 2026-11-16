@@ -48,9 +48,9 @@
 7. [**AI In Games**](lectures/07-ai)
 8. [**Maps**](lectures/08-maps)
 9. [**Scenes**](lectures/09-scenes)
+10. [**Shaders**](lectures/10-shaders)
 
 <!--
-10. [**Shaders**](lectures/10-shaders)
 11. [**Effects**](lectures/11-effects)
 12. [**Playtesting**](lectures/12-playtesting)-->
 
