@@ -161,6 +161,8 @@ lectures/*
 !lectures/07-ai
 !lectures/08-maps
 !lectures/09-scenes
+!lectures/10-shaders
+!lectures/12-playtesting
 
 exercises/*
 !exercises/01-transformations
@@ -197,6 +199,11 @@ exercises/06-ai/assets/06-ai-solution.zip
 exercises/07-maps/solution
 exercises/07-maps/assets/07-maps-solution.zip
 
+# Exercise 8 is released manually in class: uncomment the next line to release it.
+!exercises/08-shaders
+exercises/08-shaders/solution
+exercises/08-shaders/starter
+
 grading
 .clangd
 .clang-format
@@ -207,3 +214,5 @@ syllabus
 attendance/
 independent-study/
 lectures/09-scenes/slides/script.md
+lectures/10-shaders/slides/script.md
+lectures/10-shaders/slides/shaders-script-large.pdf
